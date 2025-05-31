@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gamified Pomodoro Timer</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>">
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -247,6 +247,7 @@
         const customAlertTitleEl = document.getElementById('customAlertTitle');
         const customAlertMessageEl = document.getElementById('customAlertMessage');
         const customAlertCloseButton = document.getElementById('customAlertCloseButton');
+        const faviconEl = document.getElementById('favicon'); // For dynamic favicon
 
         // --- State Variables ---
         let timerInterval;
@@ -273,7 +274,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.9" // Updated version: Added cache warning
+            appVersion: "1.0.10" // Updated version: Tab title fix
         };
         
         const defaultAchievements = [
@@ -456,11 +457,10 @@
         // --- UI Update Functions ---
         function updateTimerDisplay() {
             timerTextEl.textContent = formatTime(timeLeft);
-            const currentModeNameElement = currentModeDisplayEl.textContent.split(': ')[1];
-            const currentModeName = currentModeNameElement ? currentModeNameElement.trim() : "Pomodoro";
-            document.title = `${formatTime(timeLeft)} - ${currentModeName}`;
+            
             let modeText = '';
             let bodyClass = 'bg-slate-900'; 
+            // Determine modeText based on currentMode
             switch (currentMode) {
                 case 'study':
                     modeText = 'Study';
@@ -482,7 +482,10 @@
                     break;
             }
             currentModeDisplayEl.textContent = `Current Mode: ${modeText}`;
+            // ### MODIFICATION: Set document.title AFTER modeText is determined ###
+            document.title = `${formatTime(timeLeft)} - ${modeText}`; 
             document.body.className = document.body.className.replace(/bg-(slate|green|yellow)-(900|800)/g, '') + ` ${bodyClass}`;
+            
             updateCycleInfo();
         }
 
@@ -844,12 +847,9 @@
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
-                // When forcing study, if it's after a full cycle (long break point), reset pomodorosInCycle.
                 if (selectedMode === 'study' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
                     pomodorosInCycle = 0;
                 }
-                // Forcing short break or long break doesn't change pomodorosInCycle here,
-                // as updateCycleInfo will derive the displayed session based on currentMode and pomodorosInCycle.
                 setTimer(selectedMode);
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             });
