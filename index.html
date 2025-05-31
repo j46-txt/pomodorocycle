@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PomodoroCycle</title>
+    <title>Gamified Pomodoro Timer</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -265,7 +266,7 @@
             },
             rewards: [], // { id, name, type: 'cycles'/'studyHours', threshold, earnedToday, notificationShown }
             achievements: [], // { id, name, description, type, threshold, unlocked, unlockedDate, notificationShown, icon }
-            appVersion: "1.0.2" // Updated version for English translation
+            appVersion: "1.0.3" // Updated version for auto-start and UI fix
         };
         
         const defaultAchievements = [
@@ -359,40 +360,29 @@
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
                 
-                if (parsedData.appVersion !== appData.appVersion && parsedData.appVersion === "1.0.1") { // Specific check for migration from PT to EN
-                    console.log(`Data is from Portuguese version ${parsedData.appVersion}. Achievements will use new English definitions.`);
-                    // User's progress on achievements (unlocked, unlockedDate) will be kept if IDs match.
-                    // Rewards are user-defined, so their names will remain as the user entered them (might be in Portuguese).
-                } else if (parsedData.appVersion !== appData.appVersion) {
+                if (parsedData.appVersion !== appData.appVersion) {
                      console.log(`Migrating data from version ${parsedData.appVersion} to ${appData.appVersion}`);
                 }
-
 
                 const mergedAchievements = defaultAchievements.map(defaultAch => {
                     const userAch = parsedData.achievements?.find(ua => ua.id === defaultAch.id);
                     return { 
-                        ...defaultAch, // Takes new English name/description
+                        ...defaultAch,
                         unlocked: userAch?.unlocked || false, 
                         unlockedDate: userAch?.unlockedDate || null,
-                        notificationShown: userAch?.notificationShown || false // Reset notification shown for newly translated ones
+                        notificationShown: userAch?.notificationShown || false
                     };
                 });
                 
-                // Preserve user-created rewards as they are
                 const userRewards = parsedData.rewards || [];
-
                 appData = { ...appData, ...parsedData, achievements: mergedAchievements, rewards: userRewards };
 
-
-                // Ensure daily stats are for today
                 if (appData.stats.daily.date !== getTodayDateString()) {
                     resetDailyStats();
                 }
             } else {
-                // Initialize achievements if no stored data
                 appData.achievements = defaultAchievements.map(ach => ({ ...ach, unlocked: false, unlockedDate: null, notificationShown: false }));
             }
-            // Apply loaded settings to inputs
             studyTimeInput.value = appData.settings.studyTime;
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
@@ -435,7 +425,7 @@
             if (!appData.settings.notificationsEnabled || Notification.permission !== 'granted') return;
             const options = {
                 body: body,
-                icon: 'https://cdn-icons-png.flaticon.com/512/1384/1384784.png' // Example: tomato icon
+                icon: 'https://cdn-icons-png.flaticon.com/512/1384/1384784.png' 
             };
             try {
                 new Notification(title, options);
@@ -490,8 +480,13 @@
             updateCycleInfo();
         }
 
+        // ### MODIFICATION 2: Corrected session counter logic ###
         function updateCycleInfo() {
-             cycleInfoEl.textContent = `Pomodoro Session: ${currentMode === 'study' ? pomodorosInCycle + 1 : pomodorosInCycle}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
+             let sessionToShow = pomodorosInCycle + 1;
+             if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
+                 sessionToShow = POMODOROS_PER_CYCLE; 
+             }
+             cycleInfoEl.textContent = `Pomodoro Session: ${sessionToShow}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
         }
         
         function updateLastTimerInfo() {
@@ -579,8 +574,6 @@
                 achEl.className = `achievement-item p-4 rounded-lg shadow-md transition-all transform hover:scale-105 ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'}`;
                 
                 let progressText = '';
-                let progressPercent = 0;
-
                 if (!ach.unlocked) {
                     let currentValue = 0;
                     switch (ach.type) {
@@ -589,13 +582,12 @@
                         case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudySeconds / 3600; break;
                         case 'streak': currentValue = appData.stats.general.streak; break;
                     }
-                    progressPercent = Math.min(100, (currentValue / ach.threshold) * 100);
+                    const progressPercent = Math.min(100, (currentValue / ach.threshold) * 100);
                     progressText = `<div class="progress-bar-container mt-1">
                                         <div class="progress-bar bg-sky-400" style="width: ${progressPercent}%;"></div>
                                     </div>
                                     <p class="text-xs ${ach.unlocked ? 'text-sky-200' : 'text-slate-400'} mt-1">Progress: ${currentValue.toFixed(ach.type === 'totalPureStudyHours' ? 1: 0)} / ${ach.threshold}</p>`;
                 }
-
 
                 achEl.innerHTML = `
                     <div class="flex items-center mb-2">
@@ -725,6 +717,12 @@
             updateStatsDisplay(); 
             checkRewards();
             checkAchievements();
+            
+            // ### MODIFICATION 1: Auto-start next timer ###
+            if (timeLeft > 0) {
+                 startTimer();
+            }
+            
             saveData(); 
         }
 
@@ -853,10 +851,12 @@
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
-                if (selectedMode === 'study' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
-                    pomodorosInCycle = 0; 
-                }
+                
+                // When forcing a mode, we don't change the cycle progress, just the timer.
+                // The updated updateCycleInfo() function handles the display correctly now.
+                
                 setTimer(selectedMode);
+                // We don't auto-start on manual selection to give user control
             });
         });
 
