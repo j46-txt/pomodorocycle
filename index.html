@@ -246,9 +246,6 @@
         let timeLeft; // in seconds
         let currentMode = 'study'; // 'study', 'shortBreak', 'longBreak'
         let isRunning = false;
-        // pomodorosInCycle: Tracks the number of *completed* study sessions within the current cycle of POMODOROS_PER_CYCLE.
-        // Ranges from 0 (start of a cycle, before 1st study) to POMODOROS_PER_CYCLE (after 4th study is complete, during long break).
-        // It is reset to 0 *after* a long break finishes and a new study session is set up.
         let pomodorosInCycle = 0; 
         const POMODOROS_PER_CYCLE = 4;
 
@@ -261,19 +258,18 @@
                 notificationsEnabled: true,
             },
             timerState: {
-                lastTimerUsed: null, // 'study', 'shortBreak', 'longBreak'
+                lastTimerUsed: null, 
             },
             stats: {
                 daily: { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, firstStudySessionCompletedToday: false },
                 general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null },
             },
-            rewards: [], // { id, name, type: 'cycles'/'studyHours', threshold, earnedToday, notificationShown }
-            achievements: [], // { id, name, description, type, threshold, unlocked, unlockedDate, notificationShown, icon }
-            appVersion: "1.0.5" // Updated version for final cycle logic
+            rewards: [], 
+            achievements: [], 
+            appVersion: "1.0.6" // Updated version: removed timer end alert modal
         };
         
         const defaultAchievements = [
-            // Days Studied
             { id: "days1", name: "Focused Beginner", description: "Complete your first day of study.", type: "totalDaysStudied", threshold: 1, icon: "fas fa-seedling" },
             { id: "days7", name: "Weekly Commitment", description: "Study for 7 days.", type: "totalDaysStudied", threshold: 7, icon: "fas fa-calendar-check" },
             { id: "days15", name: "Fortnightly Persistence", description: "Study for 15 days.", type: "totalDaysStudied", threshold: 15, icon: "fas fa-medal" },
@@ -283,7 +279,6 @@
             { id: "days100", name: "Habit Master", description: "Study for 100 days.", type: "totalDaysStudied", threshold: 100, icon: "fas fa-crown" },
             { id: "days120", name: "Academic Legend", description: "Study for 120 days.", type: "totalDaysStudied", threshold: 120, icon: "fas fa-book-reader" },
             { id: "days150", name: "Study Sage", description: "Study for 150 days.", type: "totalDaysStudied", threshold: 150, icon: "fas fa-graduation-cap" },
-            // Cycles Completed
             { id: "cycles1", name: "First Full Cycle", description: "Complete 1 Pomodoro cycle.", type: "totalCyclesCompleted", threshold: 1, icon: "fas fa-flag-checkered" },
             { id: "cycles10", name: "Ten Cycles of Focus", description: "Complete 10 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 10, icon: "fas fa-spinner fa-spin" },
             { id: "cycles25", name: "Twenty-Five Cycles", description: "Complete 25 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 25, icon: "fas fa-cogs" },
@@ -293,7 +288,6 @@
             { id: "cycles300", name: "Three Hundred Cycles of Mastery", description: "Complete 300 cycles.", type: "totalCyclesCompleted", threshold: 300, icon: "fas fa-chess-king" },
             { id: "cycles400", name: "Four Hundred Legendary Cycles", description: "Complete 400 cycles.", type: "totalCyclesCompleted", threshold: 400, icon: "fas fa-dragon" },
             { id: "cycles500", name: "Five Hundred Supreme Cycles", description: "Complete 500 cycles.", type: "totalCyclesCompleted", threshold: 500, icon: "fas fa-infinity" },
-            // Pure Study Hours
             { id: "hours1", name: "First Hour of Focus", description: "Accumulate 1 hour of pure study.", type: "totalPureStudyHours", threshold: 1, icon: "fas fa-hourglass-start" },
             { id: "hours10", name: "Ten Hours of Immersion", description: "Accumulate 10 hours of pure study.", type: "totalPureStudyHours", threshold: 10, icon: "fas fa-brain" },
             { id: "hours20", name: "Twenty Hours of Concentration", description: "Accumulate 20 hours of pure study.", type: "totalPureStudyHours", threshold: 20, icon: "fas fa-book-open" },
@@ -303,7 +297,6 @@
             { id: "hours300", name: "Three Hundred Hours of Erudition", description: "Accumulate 300 hours of pure study.", type: "totalPureStudyHours", threshold: 300, icon: "fas fa-lightbulb" },
             { id: "hours400", name: "Four Hundred Hours of Enlightenment", description: "Accumulate 400 hours of pure study.", type: "totalPureStudyHours", threshold: 400, icon: "fas fa-satellite-dish" },
             { id: "hours500", name: "Five Hundred Hours of Genius", description: "Accumulate 500 hours of pure study.", type: "totalPureStudyHours", threshold: 500, icon: "fas fa-user-astronaut" },
-             // Streak Achievements
             { id: "streak3", name: "3-Day Combo!", description: "Maintain a 3-day study streak.", type: "streak", threshold: 3, icon: "fas fa-fire" },
             { id: "streak7", name: "7-Day Combo: Unstoppable!", description: "Maintain a 7-day study streak.", type: "streak", threshold: 7, icon: "fas fa-bolt" },
             { id: "streak14", name: "14-Day Combo: Power of Habit!", description: "Maintain a 14-day study streak.", type: "streak", threshold: 14, icon: "fas fa-dumbbell" },
@@ -347,13 +340,12 @@
             return `${hours}h ${minutes}m`;
         }
         
-        function generateUUID() { // Basic UUID generator
+        function generateUUID() { 
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
         }
-
 
         // --- Data Persistence (localStorage) ---
         const STORAGE_KEY = 'pomodoroGamifiedAppData';
@@ -362,11 +354,9 @@
             const storedData = localStorage.getItem(STORAGE_KEY);
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
-                
                 if (parsedData.appVersion !== appData.appVersion) {
                      console.log(`Data version mismatch. Current: ${appData.appVersion}, Stored: ${parsedData.appVersion}. Merging data.`);
                 }
-
                 const mergedAchievements = defaultAchievements.map(defaultAch => {
                     const userAch = parsedData.achievements?.find(ua => ua.id === defaultAch.id);
                     return { 
@@ -376,20 +366,15 @@
                         notificationShown: userAch?.notificationShown || false
                     };
                 });
-                
                 const userRewards = parsedData.rewards || [];
-                // Carefully merge pomodorosInCycle to avoid issues if app was closed mid-cycle
                 const loadedPomodorosInCycle = parsedData.pomodorosInCycle !== undefined ? parsedData.pomodorosInCycle : 0;
-
                 appData = { 
-                    ...appData, // Start with current app defaults (like appVersion)
-                    ...parsedData, // Overlay with stored data
+                    ...appData, 
+                    ...parsedData, 
                     achievements: mergedAchievements, 
                     rewards: userRewards,
-                    pomodorosInCycle: loadedPomodorosInCycle // Specifically use loaded or default
+                    pomodorosInCycle: loadedPomodorosInCycle 
                 };
-
-
                 if (appData.stats.daily.date !== getTodayDateString()) {
                     resetDailyStats();
                 }
@@ -404,7 +389,6 @@
         }
 
         function saveData() {
-            // Ensure pomodorosInCycle is also saved
             const dataToSave = { ...appData, pomodorosInCycle: pomodorosInCycle };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
         }
@@ -412,7 +396,8 @@
         // --- Notifications ---
         function requestNotificationPermission() {
             if (!('Notification' in window)) {
-                showCustomAlert("Error", "This browser does not support desktop notifications.", "fas fa-exclamation-triangle text-yellow-400");
+                // showCustomAlert("Error", "This browser does not support desktop notifications.", "fas fa-exclamation-triangle text-yellow-400"); // Not showing modal here
+                console.warn("Desktop notifications not supported.");
                 appData.settings.notificationsEnabled = false;
                 notificationsToggle.checked = false;
                 notificationsToggle.disabled = true;
@@ -425,7 +410,8 @@
                     } else {
                         appData.settings.notificationsEnabled = false;
                         notificationsToggle.checked = false;
-                         showCustomAlert("Warning", "Desktop notifications disabled. You can enable them in your browser settings.", "fas fa-info-circle text-blue-400");
+                         // showCustomAlert("Warning", "Desktop notifications disabled. You can enable them in your browser settings.", "fas fa-info-circle text-blue-400"); // Not showing modal here
+                         console.warn("Desktop notifications permission denied.");
                     }
                     saveData(); 
                 });
@@ -450,7 +436,7 @@
             }
         }
         
-        // --- Custom Alert Modal ---
+        // --- Custom Alert Modal (Only for Rewards/Achievements now) ---
         function showCustomAlert(title, message, iconClass = "fas fa-info-circle text-sky-400") {
             customAlertTitleEl.textContent = title;
             customAlertMessageEl.textContent = message;
@@ -459,14 +445,12 @@
         }
         customAlertCloseButton.addEventListener('click', () => customAlertModal.classList.remove('show'));
 
-
         // --- UI Update Functions ---
         function updateTimerDisplay() {
             timerTextEl.textContent = formatTime(timeLeft);
             const currentModeNameElement = currentModeDisplayEl.textContent.split(': ')[1];
             const currentModeName = currentModeNameElement ? currentModeNameElement.trim() : "Pomodoro";
             document.title = `${formatTime(timeLeft)} - ${currentModeName}`;
-            
             let modeText = '';
             let bodyClass = 'bg-slate-900'; 
             switch (currentMode) {
@@ -491,34 +475,20 @@
             }
             currentModeDisplayEl.textContent = `Current Mode: ${modeText}`;
             document.body.className = document.body.className.replace(/bg-(slate|green|yellow)-(900|800)/g, '') + ` ${bodyClass}`;
-            
             updateCycleInfo();
         }
 
-        // ### MODIFICATION: Refined session counter display logic ###
         function updateCycleInfo() {
             let displayedSessionNumber;
-            // pomodorosInCycle counts *completed* study sessions (0 to 4).
-            // We want to display the *current* or *upcoming* study session number (1 to 4).
-
             if (currentMode === 'study') {
-                // If studying, we are in session pomodorosInCycle + 1
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
-                // If in short break, this break follows the 'pomodorosInCycle'-th completed study session.
-                // So, the context is still related to that Nth study session.
                 displayedSessionNumber = pomodorosInCycle;
-            } else { // currentMode === 'longBreak'
-                // A long break always follows the completion of POMODOROS_PER_CYCLE study sessions.
-                // So, pomodorosInCycle should be POMODOROS_PER_CYCLE at this point.
+            } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
-
-            // Ensure displayed number is at least 1 and at most POMODOROS_PER_CYCLE.
-            // This handles edge cases like forcing a break before the first study.
             if (displayedSessionNumber < 1) displayedSessionNumber = 1;
             if (displayedSessionNumber > POMODOROS_PER_CYCLE) displayedSessionNumber = POMODOROS_PER_CYCLE;
-            
             cycleInfoEl.textContent = `Pomodoro Session: ${displayedSessionNumber}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
         }
         
@@ -552,21 +522,18 @@
             appData.rewards.forEach(reward => {
                 const rewardEl = document.createElement('div');
                 rewardEl.className = `p-3 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'}`;
-                
                 let progressText = '';
                 let progressPercent = 0;
                 const rewardTypeDisplay = reward.type === 'cycles' ? 'Cycles' : 'Hours';
                 const rewardUnitDisplay = reward.type === 'cycles' ? 'cycles' : 'hours';
-
                 if (reward.type === 'cycles') {
                     progressText = `${appData.stats.daily.cyclesCompleted}/${reward.threshold} cycles`;
                     progressPercent = Math.min(100, (appData.stats.daily.cyclesCompleted / reward.threshold) * 100);
-                } else { // studyHours
+                } else { 
                     const currentHours = appData.stats.daily.pureStudySeconds / 3600;
                     progressText = `${currentHours.toFixed(1)}/${reward.threshold} hours`;
                     progressPercent = Math.min(100, (currentHours / reward.threshold) * 100);
                 }
-
                 rewardEl.innerHTML = `
                     <div>
                         <p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'}">${reward.name} (${rewardTypeDisplay})</p>
@@ -583,7 +550,6 @@
                 `;
                 rewardsListEl.appendChild(rewardEl);
             });
-
             document.querySelectorAll('.delete-reward-button').forEach(button => {
                 button.addEventListener('click', (e) => {
                     const rewardId = e.currentTarget.dataset.id;
@@ -601,11 +567,9 @@
                 if (!a.unlocked && b.unlocked) return 1;
                 return a.threshold - b.threshold;
             });
-
             appData.achievements.forEach(ach => {
                 const achEl = document.createElement('div');
                 achEl.className = `achievement-item p-4 rounded-lg shadow-md transition-all transform hover:scale-105 ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'}`;
-                
                 let progressText = '';
                 if (!ach.unlocked) {
                     let currentValue = 0;
@@ -621,7 +585,6 @@
                                     </div>
                                     <p class="text-xs ${ach.unlocked ? 'text-sky-200' : 'text-slate-400'} mt-1">Progress: ${currentValue.toFixed(ach.type === 'totalPureStudyHours' ? 1: 0)} / ${ach.threshold}</p>`;
                 }
-
                 achEl.innerHTML = `
                     <div class="flex items-center mb-2">
                         <i class="${ach.icon || 'fas fa-question-circle'} text-3xl ${ach.unlocked ? 'text-yellow-300' : 'text-slate-400'} mr-3"></i>
@@ -636,14 +599,12 @@
             });
         }
 
-
         // --- Timer Logic ---
         function setTimer(mode) {
             currentMode = mode;
             isRunning = false;
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             clearInterval(timerInterval);
-
             switch (mode) {
                 case 'study':
                     timeLeft = appData.settings.studyTime * 60;
@@ -655,7 +616,7 @@
                     timeLeft = appData.settings.longBreakTime * 60;
                     break;
             }
-            updateTimerDisplay(); // This will call the corrected updateCycleInfo
+            updateTimerDisplay();
         }
 
         function startTimer() {
@@ -663,12 +624,9 @@
                  setTimer('study'); 
             }
             if (timeLeft <= 0) return;
-
             isRunning = true;
             startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-            
             clearInterval(timerInterval); 
-
             timerInterval = setInterval(() => {
                 timeLeft--;
                 if (currentMode === 'study') {
@@ -689,24 +647,21 @@
             clearInterval(timerInterval);
         }
         
-        // ### MODIFICATION: Adjusted auto-start logic and pomodorosInCycle reset ###
         function handleTimerEnd() {
             clearInterval(timerInterval);
-            isRunning = false; // Timer is no longer running
+            isRunning = false; 
             appData.timerState.lastTimerUsed = currentMode;
             updateLastTimerInfo();
-
             let notificationTitle = "";
             let notificationBody = "";
             let soundNote = 'C4';
-            let autoStartNext = true; // Assume auto-start unless it's after a long break
+            let autoStartNext = true; 
 
             if (currentMode === 'study') {
                 notificationTitle = "Study Session Complete!";
                 notificationBody = "Time for a break. Good job!";
                 soundNote = 'C5';
                 pomodorosInCycle++; 
-                
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
                     appData.stats.daily.firstStudySessionCompletedToday = true;
                     const todayStr = getTodayDateString();
@@ -725,7 +680,6 @@
                         appData.stats.general.lastStudyDate = todayStr;
                     }
                 }
-
                 if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
                     setTimer('longBreak');
                     appData.stats.daily.cyclesCompleted++;
@@ -744,35 +698,29 @@
                 soundNote = 'E4';
                 pomodorosInCycle = 0; 
                 setTimer('study');
-                autoStartNext = false; // DO NOT auto-start after long break
+                autoStartNext = false; 
             }
             
             playSound(soundNote, '4n', 'timerComplete');
             showNotification(notificationTitle, notificationBody);
-            showCustomAlert(notificationTitle, notificationBody, "fas fa-check-circle text-green-400");
+            // ### MODIFICATION: Removed customAlert for timer end ###
+            // showCustomAlert(notificationTitle, notificationBody, "fas fa-check-circle text-green-400");
             
             updateTimerDisplay(); 
             updateStatsDisplay(); 
-            checkRewards();
-            checkAchievements();
+            checkRewards(); // This might call showCustomAlert for rewards
+            checkAchievements(); // This might call showCustomAlert for achievements
             
             if (autoStartNext && timeLeft > 0) {
                  startTimer();
             } else if (!autoStartNext) {
-                // Ensure the "Start" button text is correct if not auto-starting
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
-            
             saveData(); 
         }
 
         function resetCurrentTimer() {
             pauseTimer(); 
-            // When resetting, if it's a study timer, reset its position in the cycle
-            // if (currentMode === 'study' && pomodorosInCycle > 0) {
-            // This logic might be too aggressive, let's see.
-            // For now, reset just resets the current timer's time.
-            // }
             setTimer(currentMode); 
             updateTimerDisplay();
         }
@@ -796,12 +744,10 @@
             const name = rewardNameInput.value.trim();
             const type = rewardTypeSelect.value;
             const threshold = parseFloat(rewardThresholdInput.value);
-
             if (!name || isNaN(threshold) || threshold <= 0) {
                 showCustomAlert("Error", "Please fill in all reward fields correctly.", "fas fa-exclamation-circle text-red-400");
                 return;
             }
-
             appData.rewards.push({
                 id: generateUUID(),
                 name,
@@ -810,7 +756,6 @@
                 earnedToday: false,
                 notificationShown: false
             });
-            
             rewardNameInput.value = '';
             rewardThresholdInput.value = '';
             saveData();
@@ -821,21 +766,19 @@
             let newRewardEarned = false;
             appData.rewards.forEach(reward => {
                 if (reward.earnedToday && reward.notificationShown) return; 
-
                 let currentProgress = 0;
                 if (reward.type === 'cycles') {
                     currentProgress = appData.stats.daily.cyclesCompleted;
                 } else { 
                     currentProgress = appData.stats.daily.pureStudySeconds / 3600;
                 }
-
                 if (currentProgress >= reward.threshold && !reward.earnedToday) {
                     reward.earnedToday = true;
                     newRewardEarned = true;
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
                         showNotification("Reward Earned!", message);
-                        showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400");
+                        showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400"); // Modal for rewards is kept
                         playSound('G5', '2n', 'reward');
                         reward.notificationShown = true;
                     }
@@ -852,7 +795,6 @@
             let newAchievementUnlocked = false;
             appData.achievements.forEach(ach => {
                 if (ach.unlocked && ach.notificationShown) return; 
-
                 let currentValue;
                 switch (ach.type) {
                     case 'totalDaysStudied': currentValue = appData.stats.general.totalDaysStudied; break;
@@ -861,7 +803,6 @@
                     case 'streak': currentValue = appData.stats.general.streak; break;
                     default: return;
                 }
-                
                 if (currentValue >= ach.threshold && !ach.unlocked) {
                     ach.unlocked = true;
                     ach.unlockedDate = new Date().toISOString();
@@ -869,7 +810,7 @@
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showNotification("Achievement Unlocked!", message);
-                        showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`);
+                        showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`); // Modal for achievements is kept
                         playSound('A5', '1n', 'achievement');
                         ach.notificationShown = true;
                     }
@@ -886,8 +827,6 @@
             if (isRunning) {
                 pauseTimer();
             } else {
-                // If starting after a long break, pomodorosInCycle should be 0.
-                // This is handled in handleTimerEnd.
                 startTimer();
             }
         });
@@ -898,15 +837,10 @@
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
-                
-                // If forcing study, and we are at the point of a long break (pomodorosInCycle is 4),
-                // reset pomodorosInCycle to 0 to start a new cycle of study sessions.
                 if (selectedMode === 'study' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
                     pomodorosInCycle = 0;
                 }
-                
                 setTimer(selectedMode);
-                // Manual selection does not auto-start. User must click "Start".
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             });
         });
@@ -925,44 +859,37 @@
             const newStudyTime = parseInt(studyTimeInput.value);
             const newShortBreakTime = parseInt(shortBreakTimeInput.value);
             const newLongBreakTime = parseInt(longBreakTimeInput.value);
-
             if (isNaN(newStudyTime) || newStudyTime < 1 ||
                 isNaN(newShortBreakTime) || newShortBreakTime < 1 ||
                 isNaN(newLongBreakTime) || newLongBreakTime < 1) {
                 showCustomAlert("Configuration Error", "Times must be positive numbers.", "fas fa-exclamation-circle text-red-400");
                 return;
             }
-
             appData.settings.studyTime = newStudyTime;
             appData.settings.shortBreakTime = newShortBreakTime;
             appData.settings.longBreakTime = newLongBreakTime;
             appData.settings.soundEnabled = soundToggle.checked;
             appData.settings.notificationsEnabled = notificationsToggle.checked;
-
             if (appData.settings.notificationsEnabled && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
                  requestNotificationPermission(); 
             }
-
             saveData();
             settingsModal.classList.remove('show');
-            if (!isRunning) { // If timer isn't running, update its display with new settings
+            if (!isRunning) { 
                 setTimer(currentMode); 
             }
             showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400");
         });
         
-
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const targetTab = button.dataset.tab;
-
                 tabButtons.forEach(btn => {
                     btn.classList.remove('active', 'text-sky-400', 'border-sky-400');
                     btn.classList.add('text-slate-400', 'border-transparent');
                 });
                 button.classList.add('active', 'text-sky-400', 'border-sky-400');
                 button.classList.remove('text-slate-400', 'border-transparent');
-
                 tabPanes.forEach(pane => {
                     if (pane.id === `${targetTab}Content`) {
                         pane.classList.remove('hidden');
@@ -976,34 +903,20 @@
             });
         });
 
-
         // --- Initialization ---
         function initializeApp() {
             loadData(); 
-            
-            // pomodorosInCycle is now loaded correctly from appData by loadData()
-            // if (appData.stats.daily.date !== getTodayDateString()) {
-            //    resetDailyStats(); // This also resets rewards' earnedToday status
-            //    pomodorosInCycle = 0; // Reset cycle progress for a new day
-            //    saveData(); 
-            // }
-            // The pomodorosInCycle should persist if the app is closed mid-cycle on the same day.
-            // It's reset to 0 only after a long break OR by resetDailyStats if it's a new day.
-
             if (appData.stats.daily.date !== getTodayDateString()) {
-                 resetDailyStats(); // This resets daily stats and reward 'earnedToday' flags
-                 pomodorosInCycle = 0; // Ensure cycle progress is reset for a new day
-                 saveData(); // Save changes after daily reset
+                 resetDailyStats(); 
+                 pomodorosInCycle = 0; 
+                 saveData(); 
             }
-
-
             setTimer(currentMode); 
             updateTimerDisplay(); 
             updateStatsDisplay();
             updateLastTimerInfo();
             renderRewards();
             renderAchievements();
-            
             if (appData.settings.notificationsEnabled && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
                 requestNotificationPermission(); 
             } else if (Notification.permission === 'denied') {
@@ -1013,9 +926,7 @@
                 saveData();
             }
         }
-
         document.addEventListener('DOMContentLoaded', initializeApp);
-
     </script>
 </body>
 <head>
