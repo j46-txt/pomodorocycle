@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gamified Pomodoro Timer</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -246,7 +245,10 @@
         let timeLeft; // in seconds
         let currentMode = 'study'; // 'study', 'shortBreak', 'longBreak'
         let isRunning = false;
-        let pomodorosInCycle = 0; // 0-3 study sessions in current cycle before long break
+        // pomodorosInCycle: Tracks the number of *completed* study sessions within the current cycle of POMODOROS_PER_CYCLE.
+        // Ranges from 0 (start of a cycle, before 1st study) to POMODOROS_PER_CYCLE (after 4th study is complete, during long break).
+        // It is reset to 0 *after* a long break finishes and a new study session is set up.
+        let pomodorosInCycle = 0; 
         const POMODOROS_PER_CYCLE = 4;
 
         let appData = {
@@ -266,7 +268,7 @@
             },
             rewards: [], // { id, name, type: 'cycles'/'studyHours', threshold, earnedToday, notificationShown }
             achievements: [], // { id, name, description, type, threshold, unlocked, unlockedDate, notificationShown, icon }
-            appVersion: "1.0.3" // Updated version for auto-start and UI fix
+            appVersion: "1.0.5" // Updated version for final cycle logic
         };
         
         const defaultAchievements = [
@@ -361,7 +363,7 @@
                 const parsedData = JSON.parse(storedData);
                 
                 if (parsedData.appVersion !== appData.appVersion) {
-                     console.log(`Migrating data from version ${parsedData.appVersion} to ${appData.appVersion}`);
+                     console.log(`Data version mismatch. Current: ${appData.appVersion}, Stored: ${parsedData.appVersion}. Merging data.`);
                 }
 
                 const mergedAchievements = defaultAchievements.map(defaultAch => {
@@ -375,7 +377,17 @@
                 });
                 
                 const userRewards = parsedData.rewards || [];
-                appData = { ...appData, ...parsedData, achievements: mergedAchievements, rewards: userRewards };
+                // Carefully merge pomodorosInCycle to avoid issues if app was closed mid-cycle
+                const loadedPomodorosInCycle = parsedData.pomodorosInCycle !== undefined ? parsedData.pomodorosInCycle : 0;
+
+                appData = { 
+                    ...appData, // Start with current app defaults (like appVersion)
+                    ...parsedData, // Overlay with stored data
+                    achievements: mergedAchievements, 
+                    rewards: userRewards,
+                    pomodorosInCycle: loadedPomodorosInCycle // Specifically use loaded or default
+                };
+
 
                 if (appData.stats.daily.date !== getTodayDateString()) {
                     resetDailyStats();
@@ -391,7 +403,9 @@
         }
 
         function saveData() {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            // Ensure pomodorosInCycle is also saved
+            const dataToSave = { ...appData, pomodorosInCycle: pomodorosInCycle };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
         }
 
         // --- Notifications ---
@@ -480,13 +494,31 @@
             updateCycleInfo();
         }
 
-        // ### MODIFICATION 2: Corrected session counter logic ###
+        // ### MODIFICATION: Refined session counter display logic ###
         function updateCycleInfo() {
-             let sessionToShow = pomodorosInCycle + 1;
-             if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
-                 sessionToShow = POMODOROS_PER_CYCLE; 
-             }
-             cycleInfoEl.textContent = `Pomodoro Session: ${sessionToShow}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
+            let displayedSessionNumber;
+            // pomodorosInCycle counts *completed* study sessions (0 to 4).
+            // We want to display the *current* or *upcoming* study session number (1 to 4).
+
+            if (currentMode === 'study') {
+                // If studying, we are in session pomodorosInCycle + 1
+                displayedSessionNumber = pomodorosInCycle + 1;
+            } else if (currentMode === 'shortBreak') {
+                // If in short break, this break follows the 'pomodorosInCycle'-th completed study session.
+                // So, the context is still related to that Nth study session.
+                displayedSessionNumber = pomodorosInCycle;
+            } else { // currentMode === 'longBreak'
+                // A long break always follows the completion of POMODOROS_PER_CYCLE study sessions.
+                // So, pomodorosInCycle should be POMODOROS_PER_CYCLE at this point.
+                displayedSessionNumber = POMODOROS_PER_CYCLE;
+            }
+
+            // Ensure displayed number is at least 1 and at most POMODOROS_PER_CYCLE.
+            // This handles edge cases like forcing a break before the first study.
+            if (displayedSessionNumber < 1) displayedSessionNumber = 1;
+            if (displayedSessionNumber > POMODOROS_PER_CYCLE) displayedSessionNumber = POMODOROS_PER_CYCLE;
+            
+            cycleInfoEl.textContent = `Pomodoro Session: ${displayedSessionNumber}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
         }
         
         function updateLastTimerInfo() {
@@ -622,7 +654,7 @@
                     timeLeft = appData.settings.longBreakTime * 60;
                     break;
             }
-            updateTimerDisplay();
+            updateTimerDisplay(); // This will call the corrected updateCycleInfo
         }
 
         function startTimer() {
@@ -656,32 +688,32 @@
             clearInterval(timerInterval);
         }
         
+        // ### MODIFICATION: Adjusted auto-start logic and pomodorosInCycle reset ###
         function handleTimerEnd() {
             clearInterval(timerInterval);
-            isRunning = false;
+            isRunning = false; // Timer is no longer running
             appData.timerState.lastTimerUsed = currentMode;
             updateLastTimerInfo();
 
             let notificationTitle = "";
             let notificationBody = "";
             let soundNote = 'C4';
+            let autoStartNext = true; // Assume auto-start unless it's after a long break
 
             if (currentMode === 'study') {
                 notificationTitle = "Study Session Complete!";
                 notificationBody = "Time for a break. Good job!";
                 soundNote = 'C5';
-                pomodorosInCycle++;
+                pomodorosInCycle++; 
                 
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
                     appData.stats.daily.firstStudySessionCompletedToday = true;
                     const todayStr = getTodayDateString();
                     if (appData.stats.general.lastStudyDate !== todayStr) { 
                         appData.stats.general.totalDaysStudied++;
-                        
                         const yesterday = new Date();
                         yesterday.setDate(yesterday.getDate() - 1);
                         const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-
                         if (appData.stats.general.lastStudyDate === yesterdayStr) {
                             appData.stats.general.streak++;
                         } else if (appData.stats.general.lastStudyDate !== null) { 
@@ -693,20 +725,25 @@
                     }
                 }
 
-
-                if (pomodorosInCycle >= POMODOROS_PER_CYCLE) {
+                if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
                     setTimer('longBreak');
                     appData.stats.daily.cyclesCompleted++;
                     appData.stats.general.totalCyclesCompleted++;
-                    pomodorosInCycle = 0; 
                 } else {
                     setTimer('shortBreak');
                 }
-            } else if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
+            } else if (currentMode === 'shortBreak') {
                 notificationTitle = "Break Over!";
                 notificationBody = "Time to get back to focus!";
                 soundNote = 'E4';
                 setTimer('study');
+            } else if (currentMode === 'longBreak') { 
+                notificationTitle = "Long Break Over!";
+                notificationBody = "Cycle complete! Ready for a new one?";
+                soundNote = 'E4';
+                pomodorosInCycle = 0; 
+                setTimer('study');
+                autoStartNext = false; // DO NOT auto-start after long break
             }
             
             playSound(soundNote, '4n', 'timerComplete');
@@ -718,9 +755,11 @@
             checkRewards();
             checkAchievements();
             
-            // ### MODIFICATION 1: Auto-start next timer ###
-            if (timeLeft > 0) {
+            if (autoStartNext && timeLeft > 0) {
                  startTimer();
+            } else if (!autoStartNext) {
+                // Ensure the "Start" button text is correct if not auto-starting
+                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
             
             saveData(); 
@@ -728,6 +767,11 @@
 
         function resetCurrentTimer() {
             pauseTimer(); 
+            // When resetting, if it's a study timer, reset its position in the cycle
+            // if (currentMode === 'study' && pomodorosInCycle > 0) {
+            // This logic might be too aggressive, let's see.
+            // For now, reset just resets the current timer's time.
+            // }
             setTimer(currentMode); 
             updateTimerDisplay();
         }
@@ -841,6 +885,8 @@
             if (isRunning) {
                 pauseTimer();
             } else {
+                // If starting after a long break, pomodorosInCycle should be 0.
+                // This is handled in handleTimerEnd.
                 startTimer();
             }
         });
@@ -852,11 +898,15 @@
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
                 
-                // When forcing a mode, we don't change the cycle progress, just the timer.
-                // The updated updateCycleInfo() function handles the display correctly now.
+                // If forcing study, and we are at the point of a long break (pomodorosInCycle is 4),
+                // reset pomodorosInCycle to 0 to start a new cycle of study sessions.
+                if (selectedMode === 'study' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
+                    pomodorosInCycle = 0;
+                }
                 
                 setTimer(selectedMode);
-                // We don't auto-start on manual selection to give user control
+                // Manual selection does not auto-start. User must click "Start".
+                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             });
         });
 
@@ -894,7 +944,7 @@
 
             saveData();
             settingsModal.classList.remove('show');
-            if (!isRunning) {
+            if (!isRunning) { // If timer isn't running, update its display with new settings
                 setTimer(currentMode); 
             }
             showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400");
@@ -930,13 +980,24 @@
         function initializeApp() {
             loadData(); 
             
+            // pomodorosInCycle is now loaded correctly from appData by loadData()
+            // if (appData.stats.daily.date !== getTodayDateString()) {
+            //    resetDailyStats(); // This also resets rewards' earnedToday status
+            //    pomodorosInCycle = 0; // Reset cycle progress for a new day
+            //    saveData(); 
+            // }
+            // The pomodorosInCycle should persist if the app is closed mid-cycle on the same day.
+            // It's reset to 0 only after a long break OR by resetDailyStats if it's a new day.
+
             if (appData.stats.daily.date !== getTodayDateString()) {
-                resetDailyStats(); 
-                saveData(); 
+                 resetDailyStats(); // This resets daily stats and reward 'earnedToday' flags
+                 pomodorosInCycle = 0; // Ensure cycle progress is reset for a new day
+                 saveData(); // Save changes after daily reset
             }
 
+
             setTimer(currentMode); 
-            updateTimerDisplay();
+            updateTimerDisplay(); 
             updateStatsDisplay();
             updateLastTimerInfo();
             renderRewards();
