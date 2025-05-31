@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gamified Pomodoro Timer</title>
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -266,7 +265,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.6" // Updated version: removed timer end alert modal
+            appVersion: "1.0.8" // Updated version: Refined session counter logic
         };
         
         const defaultAchievements = [
@@ -367,19 +366,22 @@
                     };
                 });
                 const userRewards = parsedData.rewards || [];
-                const loadedPomodorosInCycle = parsedData.pomodorosInCycle !== undefined ? parsedData.pomodorosInCycle : 0;
+                const loadedPomodorosInCycle = parsedData.pomodorosInCycle !== undefined ? parseInt(parsedData.pomodorosInCycle, 10) : 0;
+
                 appData = { 
                     ...appData, 
                     ...parsedData, 
                     achievements: mergedAchievements, 
-                    rewards: userRewards,
-                    pomodorosInCycle: loadedPomodorosInCycle 
+                    rewards: userRewards
                 };
+                pomodorosInCycle = isNaN(loadedPomodorosInCycle) ? 0 : loadedPomodorosInCycle;
+
                 if (appData.stats.daily.date !== getTodayDateString()) {
-                    resetDailyStats();
+                    resetDailyStats(); 
                 }
             } else {
                 appData.achievements = defaultAchievements.map(ach => ({ ...ach, unlocked: false, unlockedDate: null, notificationShown: false }));
+                pomodorosInCycle = 0; 
             }
             studyTimeInput.value = appData.settings.studyTime;
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
@@ -389,14 +391,13 @@
         }
 
         function saveData() {
-            const dataToSave = { ...appData, pomodorosInCycle: pomodorosInCycle };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            appData.pomodorosInCycle = pomodorosInCycle;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         }
 
         // --- Notifications ---
         function requestNotificationPermission() {
             if (!('Notification' in window)) {
-                // showCustomAlert("Error", "This browser does not support desktop notifications.", "fas fa-exclamation-triangle text-yellow-400"); // Not showing modal here
                 console.warn("Desktop notifications not supported.");
                 appData.settings.notificationsEnabled = false;
                 notificationsToggle.checked = false;
@@ -410,7 +411,6 @@
                     } else {
                         appData.settings.notificationsEnabled = false;
                         notificationsToggle.checked = false;
-                         // showCustomAlert("Warning", "Desktop notifications disabled. You can enable them in your browser settings.", "fas fa-info-circle text-blue-400"); // Not showing modal here
                          console.warn("Desktop notifications permission denied.");
                     }
                     saveData(); 
@@ -478,17 +478,32 @@
             updateCycleInfo();
         }
 
+        // ### MODIFICATION: Refined session counter display logic ###
         function updateCycleInfo() {
             let displayedSessionNumber;
+
             if (currentMode === 'study') {
+                // During study, display the current study session number (1-indexed from pomodorosInCycle)
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
+                // During short break, display the number of the study session that just *completed*.
+                // pomodorosInCycle holds the count of completed study sessions (1, 2, or 3 at this point).
                 displayedSessionNumber = pomodorosInCycle;
-            } else { 
+            } else { // currentMode === 'longBreak'
+                // During long break, it always follows the 4th completed study session.
+                // pomodorosInCycle would be 4 here.
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
-            if (displayedSessionNumber < 1) displayedSessionNumber = 1;
-            if (displayedSessionNumber > POMODOROS_PER_CYCLE) displayedSessionNumber = POMODOROS_PER_CYCLE;
+
+            // Ensure displayed number is at least 1, especially if a break is forced at the very start.
+            if (displayedSessionNumber < 1) {
+                displayedSessionNumber = 1;
+            }
+            // And not more than POMODOROS_PER_CYCLE
+            if (displayedSessionNumber > POMODOROS_PER_CYCLE) {
+                displayedSessionNumber = POMODOROS_PER_CYCLE;
+            }
+            
             cycleInfoEl.textContent = `Pomodoro Session: ${displayedSessionNumber}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
         }
         
@@ -703,13 +718,11 @@
             
             playSound(soundNote, '4n', 'timerComplete');
             showNotification(notificationTitle, notificationBody);
-            // ### MODIFICATION: Removed customAlert for timer end ###
-            // showCustomAlert(notificationTitle, notificationBody, "fas fa-check-circle text-green-400");
             
             updateTimerDisplay(); 
             updateStatsDisplay(); 
-            checkRewards(); // This might call showCustomAlert for rewards
-            checkAchievements(); // This might call showCustomAlert for achievements
+            checkRewards(); 
+            checkAchievements(); 
             
             if (autoStartNext && timeLeft > 0) {
                  startTimer();
@@ -737,6 +750,7 @@
                 reward.earnedToday = false;
                 reward.notificationShown = false;
             });
+            pomodorosInCycle = 0; 
         }
 
         // --- Rewards Logic ---
@@ -778,7 +792,7 @@
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
                         showNotification("Reward Earned!", message);
-                        showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400"); // Modal for rewards is kept
+                        showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400"); 
                         playSound('G5', '2n', 'reward');
                         reward.notificationShown = true;
                     }
@@ -810,7 +824,7 @@
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showNotification("Achievement Unlocked!", message);
-                        showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`); // Modal for achievements is kept
+                        showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`); 
                         playSound('A5', '1n', 'achievement');
                         ach.notificationShown = true;
                     }
@@ -837,9 +851,15 @@
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
+                // When forcing a mode, if it's study and we are at the end of a cycle (long break point),
+                // reset pomodorosInCycle to start a new sequence of study sessions.
                 if (selectedMode === 'study' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
                     pomodorosInCycle = 0;
                 }
+                // If forcing a break, pomodorosInCycle should reflect the last completed study session.
+                // Forcing a short break when pomodorosInCycle is 0 means it's before the 1st study conceptually.
+                // The updateCycleInfo handles displaying "1/4" in this case.
+                // Forcing a long break will make updateCycleInfo show "4/4".
                 setTimer(selectedMode);
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             });
@@ -908,7 +928,6 @@
             loadData(); 
             if (appData.stats.daily.date !== getTodayDateString()) {
                  resetDailyStats(); 
-                 pomodorosInCycle = 0; 
                  saveData(); 
             }
             setTimer(currentMode); 
