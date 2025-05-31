@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gamified Pomodoro Timer</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -147,6 +148,13 @@
                     </div>
             </div>
         </div>
+
+        <div class="mt-6 text-center">
+            <p class="text-xs text-slate-500">
+                <i class="fas fa-info-circle mr-1"></i>Your progress is saved in your browser's local storage. Clearing browser data may delete your progress.
+            </p>
+        </div>
+
     </div>
 
     <div id="settingsModal" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center p-4 z-50">
@@ -265,7 +273,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.8" // Updated version: Refined session counter logic
+            appVersion: "1.0.9" // Updated version: Added cache warning
         };
         
         const defaultAchievements = [
@@ -478,32 +486,17 @@
             updateCycleInfo();
         }
 
-        // ### MODIFICATION: Refined session counter display logic ###
         function updateCycleInfo() {
             let displayedSessionNumber;
-
             if (currentMode === 'study') {
-                // During study, display the current study session number (1-indexed from pomodorosInCycle)
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
-                // During short break, display the number of the study session that just *completed*.
-                // pomodorosInCycle holds the count of completed study sessions (1, 2, or 3 at this point).
                 displayedSessionNumber = pomodorosInCycle;
-            } else { // currentMode === 'longBreak'
-                // During long break, it always follows the 4th completed study session.
-                // pomodorosInCycle would be 4 here.
+            } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
-
-            // Ensure displayed number is at least 1, especially if a break is forced at the very start.
-            if (displayedSessionNumber < 1) {
-                displayedSessionNumber = 1;
-            }
-            // And not more than POMODOROS_PER_CYCLE
-            if (displayedSessionNumber > POMODOROS_PER_CYCLE) {
-                displayedSessionNumber = POMODOROS_PER_CYCLE;
-            }
-            
+            if (displayedSessionNumber < 1) displayedSessionNumber = 1;
+            if (displayedSessionNumber > POMODOROS_PER_CYCLE) displayedSessionNumber = POMODOROS_PER_CYCLE;
             cycleInfoEl.textContent = `Pomodoro Session: ${displayedSessionNumber}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
         }
         
@@ -851,15 +844,12 @@
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
-                // When forcing a mode, if it's study and we are at the end of a cycle (long break point),
-                // reset pomodorosInCycle to start a new sequence of study sessions.
+                // When forcing study, if it's after a full cycle (long break point), reset pomodorosInCycle.
                 if (selectedMode === 'study' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
                     pomodorosInCycle = 0;
                 }
-                // If forcing a break, pomodorosInCycle should reflect the last completed study session.
-                // Forcing a short break when pomodorosInCycle is 0 means it's before the 1st study conceptually.
-                // The updateCycleInfo handles displaying "1/4" in this case.
-                // Forcing a long break will make updateCycleInfo show "4/4".
+                // Forcing short break or long break doesn't change pomodorosInCycle here,
+                // as updateCycleInfo will derive the displayed session based on currentMode and pomodorosInCycle.
                 setTimer(selectedMode);
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             });
