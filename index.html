@@ -9,6 +9,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link id="favicon" rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="50" font-size="90" dominant-baseline="middle" text-anchor="middle">🍅</text></svg>'>
     <style>
+        /* ### MODIFICATION: Removed justify-center from body to prevent vertical "jump" ### */
         body {
             font-family: 'Inter', sans-serif;
             transition: background-color 0.5s ease;
@@ -81,10 +82,9 @@
         }
     </style>
 </head>
-<body class="bg-slate-900 text-white flex flex-col items-center justify-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
+<body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
 
-    <div class="w-full max-w-3xl mx-auto bg-slate-800 shadow-2xl rounded-lg p-6 relative">
-        <div class="absolute top-6 left-6 z-10">
+    <div class="w-full max-w-3xl mx-auto bg-slate-800 shadow-2xl rounded-lg p-6 relative mt-4 mb-4"> <div class="absolute top-6 left-6 z-10">
              <button id="helpButton" title="Help / How to Use" class="p-2 rounded-full text-sky-400 hover:bg-slate-700 hover:text-sky-300 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-50">
                 <i class="fas fa-question-circle text-xl"></i>
             </button>
@@ -330,7 +330,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.34" 
+            appVersion: "1.0.35" 
         };
         
         const defaultAchievements = [
