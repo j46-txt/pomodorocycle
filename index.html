@@ -286,7 +286,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.14" 
+            appVersion: "1.0.15" // Updated version: Cycle Completion Alert
         };
         
         const defaultAchievements = [
@@ -711,6 +711,7 @@
             let notificationBody = "";
             let soundNote = 'C4';
             let autoStartNext = true; 
+            let showCycleCompleteAlert = false;
 
             if (currentMode === 'study') {
                 notificationTitle = "Study Session Complete!";
@@ -739,6 +740,7 @@
                     setTimer('longBreak');
                     appData.stats.daily.cyclesCompleted++;
                     appData.stats.general.totalCyclesCompleted++;
+                    showCycleCompleteAlert = true; // Flag to show cycle complete alert
                 } else {
                     setTimer('shortBreak');
                 }
@@ -758,6 +760,16 @@
             
             playSound(soundNote, '4n', 'timerComplete');
             showNotification(notificationTitle, notificationBody);
+
+            // ### MODIFICATION: Show cycle completion alert ###
+            if (showCycleCompleteAlert) {
+                showCustomAlert(
+                    "Cycle Complete!", 
+                    "Congratulations! You've completed a full Pomodoro cycle (4 study sessions). Enjoy your long break!",
+                    "fas fa-award text-yellow-400", // Example icon
+                    "Great!"
+                );
+            }
             
             updateTimerDisplay(); 
             updateStatsDisplay(); 
