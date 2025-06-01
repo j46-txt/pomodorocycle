@@ -75,7 +75,12 @@
         <div id="timerDisplay" class="text-center mb-6 pt-8 md:pt-4 pb-8 rounded-lg bg-slate-700 shadow-inner">
             <p id="currentModeDisplay" class="text-2xl font-semibold mb-2 text-sky-300">Current Mode: Study</p>
             <p id="timerText" class="timer-text font-mono font-bold text-sky-500">25:00</p>
-            <p id="cycleInfo" class="text-sm text-slate-400 mt-2">Pomodoro Session: 1/4 | Total Cycles Today: 0</p>
+            <div id="cycleInfoContainer" class="text-sm text-slate-400 mt-2 flex items-center justify-center">
+                <span id="cycleInfoText">Study Session: 1/4</span>
+                <button id="resetCycleCountButton" title="Reset study cycle to 1/4" class="ml-2 text-slate-500 hover:text-sky-400 focus:outline-none focus:ring-1 focus:ring-sky-500 rounded-full p-1">
+                    <i class="fas fa-sync-alt fa-xs"></i>
+                </button>
+            </div>
             <p id="lastTimerInfo" class="text-xs text-slate-500 mt-1">Last timer: None</p>
         </div>
 
@@ -200,7 +205,10 @@
             <div id="customAlertIcon" class="text-4xl mb-4"></div>
             <h3 id="customAlertTitle" class="text-xl font-bold mb-2"></h3>
             <p id="customAlertMessage" class="text-slate-300 mb-6"></p>
-            <button id="customAlertCloseButton" class="w-full bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded transition-colors">OK</button>
+            <div class="flex justify-center space-x-3">
+                <button id="customAlertCancelButton" class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-600 hover:bg-slate-500 rounded-md transition-colors w-1/2">Cancel</button>
+                <button id="customAlertConfirmButton" class="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-md transition-colors w-1/2">OK</button>
+            </div>
         </div>
     </div>
 
@@ -209,7 +217,9 @@
         // --- DOM Elements ---
         const timerTextEl = document.getElementById('timerText');
         const currentModeDisplayEl = document.getElementById('currentModeDisplay');
-        const cycleInfoEl = document.getElementById('cycleInfo');
+        const cycleInfoTextEl = document.getElementById('cycleInfoText');
+        const resetCycleCountButtonEl = document.getElementById('resetCycleCountButton');
+
         const lastTimerInfoEl = document.getElementById('lastTimerInfo');
         const startPauseButton = document.getElementById('startPauseButton');
         const resetButton = document.getElementById('resetButton');
@@ -228,7 +238,7 @@
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
 
-        const dailyCyclesEl = document.getElementById('dailyCycles');
+        const dailyCyclesEl = document.getElementById('dailyCycles'); 
         const dailyStudyTimeEl = document.getElementById('dailyStudyTime');
         const totalDaysStudiedEl = document.getElementById('totalDaysStudied');
         const totalCyclesEl = document.getElementById('totalCycles');
@@ -246,13 +256,15 @@
         const customAlertIconEl = document.getElementById('customAlertIcon');
         const customAlertTitleEl = document.getElementById('customAlertTitle');
         const customAlertMessageEl = document.getElementById('customAlertMessage');
-        const customAlertCloseButton = document.getElementById('customAlertCloseButton');
-        const faviconEl = document.getElementById('favicon'); // For dynamic favicon
+        const customAlertConfirmButton = document.getElementById('customAlertConfirmButton');
+        const customAlertCancelButton = document.getElementById('customAlertCancelButton');
+        
+        const faviconEl = document.getElementById('favicon'); 
 
         // --- State Variables ---
         let timerInterval;
-        let timeLeft; // in seconds
-        let currentMode = 'study'; // 'study', 'shortBreak', 'longBreak'
+        let timeLeft; 
+        let currentMode = 'study'; 
         let isRunning = false;
         let pomodorosInCycle = 0; 
         const POMODOROS_PER_CYCLE = 4;
@@ -274,7 +286,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.10" // Updated version: Tab title fix
+            appVersion: "1.0.14" // Updated version: Confirmation Msg Update
         };
         
         const defaultAchievements = [
@@ -445,14 +457,47 @@
             }
         }
         
-        // --- Custom Alert Modal (Only for Rewards/Achievements now) ---
-        function showCustomAlert(title, message, iconClass = "fas fa-info-circle text-sky-400") {
+        let currentConfirmCallback = null;
+        let currentCancelCallback = null;
+
+        function showCustomAlert(title, message, iconClass = "fas fa-info-circle text-sky-400", confirmText = "OK", cancelText = null, confirmCallback = null, cancelCallback = null) {
             customAlertTitleEl.textContent = title;
             customAlertMessageEl.textContent = message;
-            customAlertIconEl.className = `text-4xl mb-4 ${iconClass}`; 
+            customAlertIconEl.className = `text-4xl mb-4 ${iconClass}`;
+            
+            customAlertConfirmButton.textContent = confirmText;
+            currentConfirmCallback = confirmCallback; 
+
+            if (cancelText && typeof cancelCallback === 'function') {
+                customAlertCancelButton.textContent = cancelText;
+                customAlertCancelButton.classList.remove('hidden');
+                currentCancelCallback = cancelCallback;
+            } else {
+                customAlertCancelButton.classList.add('hidden');
+                currentCancelCallback = null;
+            }
+            
             customAlertModal.classList.add('show');
         }
-        customAlertCloseButton.addEventListener('click', () => customAlertModal.classList.remove('show'));
+
+        customAlertConfirmButton.addEventListener('click', () => {
+            if (typeof currentConfirmCallback === 'function') {
+                currentConfirmCallback();
+            }
+            customAlertModal.classList.remove('show');
+            currentConfirmCallback = null; 
+            currentCancelCallback = null;
+        });
+
+        customAlertCancelButton.addEventListener('click', () => {
+            if (typeof currentCancelCallback === 'function') {
+                currentCancelCallback();
+            }
+            customAlertModal.classList.remove('show');
+            currentConfirmCallback = null;
+            currentCancelCallback = null; 
+        });
+
 
         // --- UI Update Functions ---
         function updateTimerDisplay() {
@@ -460,7 +505,6 @@
             
             let modeText = '';
             let bodyClass = 'bg-slate-900'; 
-            // Determine modeText based on currentMode
             switch (currentMode) {
                 case 'study':
                     modeText = 'Study';
@@ -482,7 +526,6 @@
                     break;
             }
             currentModeDisplayEl.textContent = `Current Mode: ${modeText}`;
-            // ### MODIFICATION: Set document.title AFTER modeText is determined ###
             document.title = `${formatTime(timeLeft)} - ${modeText}`; 
             document.body.className = document.body.className.replace(/bg-(slate|green|yellow)-(900|800)/g, '') + ` ${bodyClass}`;
             
@@ -500,7 +543,8 @@
             }
             if (displayedSessionNumber < 1) displayedSessionNumber = 1;
             if (displayedSessionNumber > POMODOROS_PER_CYCLE) displayedSessionNumber = POMODOROS_PER_CYCLE;
-            cycleInfoEl.textContent = `Pomodoro Session: ${displayedSessionNumber}/${POMODOROS_PER_CYCLE} | Total Cycles Today: ${appData.stats.daily.cyclesCompleted}`;
+            
+            cycleInfoTextEl.textContent = `Study Session: ${displayedSessionNumber}/${POMODOROS_PER_CYCLE}`;
         }
         
         function updateLastTimerInfo() {
@@ -516,7 +560,7 @@
         }
 
         function updateStatsDisplay() {
-            dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted;
+            dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted; 
             dailyStudyTimeEl.textContent = formatHoursMinutes(appData.stats.daily.pureStudySeconds);
             totalDaysStudiedEl.textContent = appData.stats.general.totalDaysStudied;
             totalCyclesEl.textContent = appData.stats.general.totalCyclesCompleted;
@@ -755,7 +799,7 @@
             const type = rewardTypeSelect.value;
             const threshold = parseFloat(rewardThresholdInput.value);
             if (!name || isNaN(threshold) || threshold <= 0) {
-                showCustomAlert("Error", "Please fill in all reward fields correctly.", "fas fa-exclamation-circle text-red-400");
+                showCustomAlert("Error", "Please fill in all reward fields correctly.", "fas fa-exclamation-circle text-red-400", "OK");
                 return;
             }
             appData.rewards.push({
@@ -788,7 +832,7 @@
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
                         showNotification("Reward Earned!", message);
-                        showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400"); 
+                        showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
                         playSound('G5', '2n', 'reward');
                         reward.notificationShown = true;
                     }
@@ -820,7 +864,7 @@
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showNotification("Achievement Unlocked!", message);
-                        showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`); 
+                        showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
                         playSound('A5', '1n', 'achievement');
                         ach.notificationShown = true;
                     }
@@ -842,6 +886,30 @@
         });
 
         resetButton.addEventListener('click', resetCurrentTimer);
+
+        // ### MODIFICATION: Updated event listener for resetCycleCountButtonEl with confirmation ###
+        resetCycleCountButtonEl.addEventListener('click', () => {
+            showCustomAlert(
+                "Confirm Reset", 
+                "Are you sure you want to reset the current cycle? This will set the Study Session to 1/4 and pause the timer.", // Modified message
+                "fas fa-exclamation-triangle text-yellow-400",
+                "Confirm", 
+                "Cancel",
+                () => { // Confirm callback
+                    if (isRunning) {
+                        pauseTimer(); 
+                    }
+                    pomodorosInCycle = 0;
+                    setTimer('study'); 
+                    saveData();
+                    console.log("Study cycle count reset to 1/4 and timer set to Study mode (paused).");
+                },
+                () => { // Cancel callback
+                    console.log("Study cycle reset cancelled.");
+                }
+            );
+        });
+
 
         manualTimerSelectButtons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -872,7 +940,7 @@
             if (isNaN(newStudyTime) || newStudyTime < 1 ||
                 isNaN(newShortBreakTime) || newShortBreakTime < 1 ||
                 isNaN(newLongBreakTime) || newLongBreakTime < 1) {
-                showCustomAlert("Configuration Error", "Times must be positive numbers.", "fas fa-exclamation-circle text-red-400");
+                showCustomAlert("Configuration Error", "Times must be positive numbers.", "fas fa-exclamation-circle text-red-400", "OK");
                 return;
             }
             appData.settings.studyTime = newStudyTime;
@@ -888,7 +956,7 @@
             if (!isRunning) { 
                 setTimer(currentMode); 
             }
-            showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400");
+            showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400", "OK");
         });
         
         tabButtons.forEach(button => {
