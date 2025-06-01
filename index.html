@@ -72,7 +72,7 @@
             </button>
         </div>
 
-        <div id="timerDisplay" class="text-center mb-6 pt-8 md:pt-4 pb-8 rounded-lg bg-slate-700 shadow-inner">
+        <div id="timerDisplay" class="text-center mb-6 pt-8 md:pt-4 pb-6 rounded-lg bg-slate-700 shadow-inner">
             <p id="currentModeDisplay" class="text-2xl font-semibold mb-2 text-sky-300">Current Mode: Study</p>
             <p id="timerText" class="timer-text font-mono font-bold text-sky-500">25:00</p>
             <div id="cycleInfoContainer" class="text-sm text-slate-400 mt-2 flex items-center justify-center">
@@ -286,7 +286,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.14" // Updated version: Confirmation Msg Update
+            appVersion: "1.0.14" 
         };
         
         const defaultAchievements = [
@@ -887,15 +887,14 @@
 
         resetButton.addEventListener('click', resetCurrentTimer);
 
-        // ### MODIFICATION: Updated event listener for resetCycleCountButtonEl with confirmation ###
         resetCycleCountButtonEl.addEventListener('click', () => {
             showCustomAlert(
                 "Confirm Reset", 
-                "Are you sure you want to reset the current cycle? This will set the Study Session to 1/4 and pause the timer.", // Modified message
+                "Are you sure you want to reset the current cycle? This will set the Study Session to 1/4 and pause the timer.", 
                 "fas fa-exclamation-triangle text-yellow-400",
                 "Confirm", 
                 "Cancel",
-                () => { // Confirm callback
+                () => { 
                     if (isRunning) {
                         pauseTimer(); 
                     }
@@ -904,7 +903,7 @@
                     saveData();
                     console.log("Study cycle count reset to 1/4 and timer set to Study mode (paused).");
                 },
-                () => { // Cancel callback
+                () => { 
                     console.log("Study cycle reset cancelled.");
                 }
             );
