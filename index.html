@@ -317,7 +317,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.19" // Updated version: CSS Fix
+            appVersion: "1.0.19" 
         };
         
         const defaultAchievements = [
@@ -955,8 +955,8 @@
             );
         });
 
-        // ### MODIFICATION: Updated help text content and structure ###
         helpButton.addEventListener('click', () => {
+            // ### MODIFICATION: Updated help text ###
             const helpText = `
                 <p class="mb-3">The <strong>Pomodoro Technique</strong> is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p>
                 <p class="mb-1 font-semibold">This Timer's Cycle:</p>
@@ -973,12 +973,9 @@
                 <p class="mb-3">Timers for study and short breaks will start automatically after the previous one ends.</p>
                 <p class="mb-3">After a Long Break, the timer will set up for a new Study Session but will NOT start automatically. You need to click 'Start' to begin a new cycle.</p>
                 <p class="mb-1">You can customize timer durations in Settings (<i class='fas fa-cog'></i>).</p>
-                <p>Reset the current study session count to 1/4 using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" display.</p>
+                <p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" display.</p>
             `;
             
-            // ### MODIFICATION: CSS rule insertion moved to a safer, one-time setup ###
-            // This is handled in initializeApp now.
-
             showCustomAlert(
                 "How This Pomodoro Timer Works",
                 helpText,
@@ -1060,12 +1057,22 @@
 
         // --- Initialization ---
         function initializeApp() {
-            // ### MODIFICATION: Add CSS rule for help list on init ###
             const styleEl = document.createElement('style');
             document.head.appendChild(styleEl);
             const styleSheet = styleEl.sheet;
             try {
-                styleSheet.insertRule('.help-content li.study-session::before { content: var(--session-number); position: absolute; left: 5px; font-weight: bold; }', 0);
+                // Check if rule already exists to avoid duplicates if help is opened multiple times
+                // This is a simple check, might need refinement if more dynamic styles are added this way.
+                let ruleExists = false;
+                for (let i = 0; i < styleSheet.cssRules.length; i++) {
+                    if (styleSheet.cssRules[i].selectorText === '.help-content li.study-session::before') {
+                        ruleExists = true;
+                        break;
+                    }
+                }
+                if(!ruleExists) {
+                     styleSheet.insertRule('.help-content li.study-session::before { content: var(--session-number); position: absolute; left: 5px; font-weight: bold; }', 0);
+                }
             } catch (e) {
                 console.error("Could not insert CSS rule for help list during init: ", e);
             }
