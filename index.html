@@ -1232,6 +1232,10 @@
             font-size: 0.8em;
             color: #5a687d;
             margin-top: 10px;
+
+            /* Define uma largura fixa para o container do botão */
+            display: inline-block;
+            width: 150px; /* ajuste o tamanho aqui conforme quiser */
         }
 
         .donation-section p {
@@ -1239,8 +1243,12 @@
         }
 
         .donation-section .bmc-btn {
-            transform: scale(0.5);
+            /* Remove o transform scale e aplica zoom */
+            transform: none !important;
+            zoom: 0.5;
             transform-origin: top center;
+            display: inline-block;
+            width: 100%; /* faz o botão ajustar à largura do container */
         }
     </style>
 </head>
