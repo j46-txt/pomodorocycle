@@ -170,7 +170,7 @@
                     <input type="number" id="rewardThreshold" placeholder="Value" step="0.5" min="0.1" class="w-full md:w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
                     <button id="addRewardButton" class="w-full md:w-auto mt-2 md:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded transition-colors">Add Reward</button>
                 </div>
-                <div id="rewardsList" class="space-y-2 max-h-64 overflow-y-auto pr-2"> 
+                <div id="rewardsList" class="space-y-2 max-h-40 overflow-y-auto pr-2"> 
                     </div>
             </div>
 
@@ -335,7 +335,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.41" 
+            appVersion: "1.0.42" 
         };
         
         const defaultAchievements = [
@@ -1276,8 +1276,8 @@
 
                 if (timeLeft < fullDurationForMode && timeLeft > 0) {
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
-                } else if (timeLeft === 0 && currentMode !== 'study') { // If a break timer finished and page was reloaded
-                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; // Should be "Start" for next study
+                } else if (timeLeft === 0 && currentMode !== 'study') { 
+                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
                 }
                  else {
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
