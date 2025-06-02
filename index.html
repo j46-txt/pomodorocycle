@@ -26,7 +26,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between; 
-            overflow: hidden; /* Clip content if it overflows the fixed height */
+            overflow: hidden; 
         }
         .achievement-item.unlocked {
             opacity: 1;
@@ -176,7 +176,7 @@
 
             <div id="achievementsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
                 <h3 class="text-xl font-semibold mb-4 text-sky-300">Your Achievements</h3>
-                <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-2"> 
+                <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2"> 
                     </div>
             </div>
         </div>
@@ -331,7 +331,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.39" // Updated version: Spacing Adjustment
+            appVersion: "1.0.36" 
         };
         
         const defaultAchievements = [
@@ -1230,7 +1230,7 @@
         .donation-section {
             text-align: center;
             font-size: 0.8em;
-            color: #505c6f;
+            color: #5a687d;
             margin-top: 10px;
         }
 
