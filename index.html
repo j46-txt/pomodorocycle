@@ -314,11 +314,10 @@
                 soundEnabled: true,
                 notificationsEnabled: true,
             },
-            // ### MODIFICATION: Added persisted timer state fields ###
             timerState: {
                 lastTimerUsed: null, 
                 persistedCurrentMode: 'study',
-                persistedTimeLeft: null, // Will store timeLeft in seconds
+                persistedTimeLeft: null, 
                 persistedIsRunning: false,
                 persistedPomodorosInCycle: 0
             },
@@ -336,7 +335,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.37" // Updated version: Persist Timer State
+            appVersion: "1.0.38" 
         };
         
         const defaultAchievements = [
@@ -425,7 +424,6 @@
         // --- Data Persistence (localStorage) ---
         const STORAGE_KEY = 'pomodoroGamifiedAppData';
 
-        // ### MODIFICATION: New function to save timer state ###
         function saveTimerState() {
             appData.timerState.persistedCurrentMode = currentMode;
             appData.timerState.persistedTimeLeft = timeLeft;
@@ -456,9 +454,8 @@
                         if (!parsedData.stats.daily) parsedData.stats.daily = {};
                         parsedData.stats.daily.totalTimeTodaySeconds = 0;
                      }
-                     // Ensure timerState exists for older versions
                      if (!parsedData.timerState) {
-                        parsedData.timerState = { ...appData.timerState }; // Use default if not present
+                        parsedData.timerState = { ...appData.timerState }; 
                      }
                 }
                 const mergedAchievements = defaultAchievements.map(defaultAch => {
@@ -471,7 +468,6 @@
                     };
                 });
                 const userRewards = parsedData.rewards || [];
-                // ### MODIFICATION: Load persistedPomodorosInCycle from timerState ###
                 const loadedPomodorosInCycle = parsedData.timerState?.persistedPomodorosInCycle !== undefined ? 
                                                 parseInt(parsedData.timerState.persistedPomodorosInCycle, 10) : 
                                                 (parsedData.pomodorosInCycle !== undefined ? parseInt(parsedData.pomodorosInCycle, 10) : 0);
@@ -485,7 +481,6 @@
                 };
                 pomodorosInCycle = isNaN(loadedPomodorosInCycle) ? 0 : loadedPomodorosInCycle;
                 
-                // Ensure new stats fields exist after merging
                 if (appData.stats.general.totalShortBreakSeconds === undefined) {
                     appData.stats.general.totalShortBreakSeconds = 0;
                 }
@@ -495,8 +490,14 @@
                 if (appData.stats.daily.totalTimeTodaySeconds === undefined) {
                     appData.stats.daily.totalTimeTodaySeconds = 0;
                 }
-                 if (!appData.timerState) { // Ensure timerState object exists
-                    appData.timerState = { ...defaultTimerState };
+                 if (!appData.timerState) { 
+                    appData.timerState = { 
+                        lastTimerUsed: null, 
+                        persistedCurrentMode: 'study',
+                        persistedTimeLeft: appData.settings.studyTime * 60,
+                        persistedIsRunning: false,
+                        persistedPomodorosInCycle: 0
+                    };
                 }
 
 
@@ -509,7 +510,6 @@
                 appData.stats.general.totalShortBreakSeconds = 0; 
                 appData.stats.general.totalLongBreakSeconds = 0;
                 appData.stats.daily.totalTimeTodaySeconds = 0;
-                // Initialize timerState if no data
                 appData.timerState = { 
                     lastTimerUsed: null, 
                     persistedCurrentMode: 'study',
@@ -526,7 +526,6 @@
         }
 
         function saveData() {
-            // Ensure pomodorosInCycle is correctly part of appData before saving
             appData.pomodorosInCycle = pomodorosInCycle; 
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         }
@@ -841,7 +840,7 @@
                     break;
             }
             updateTimerDisplay();
-            saveTimerState(); // Save state whenever timer is set/reset
+            saveTimerState(); 
         }
 
         function startTimer() {
@@ -864,14 +863,14 @@
                     updateTimerDisplay();
                 }
             }, 1000);
-            saveTimerState(); // Save state when timer starts
+            saveTimerState(); 
         }
 
         function pauseTimer() {
             isRunning = false;
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
             clearInterval(timerInterval);
-            saveTimerState(); // Save state when timer is paused
+            saveTimerState(); 
         }
         
         function handleTimerEnd() {
@@ -961,16 +960,14 @@
                  startTimer();
             } else if (!autoStartNext) {
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                saveTimerState(); // Save the "ready to start" state
+                saveTimerState(); 
             }
-            // Save data after all state changes from timer end are processed
             saveData(); 
         }
 
         function resetCurrentTimer() {
             pauseTimer(); 
-            setTimer(currentMode); // This calls updateTimerDisplay and saveTimerState
-            // updateTimerDisplay(); // Already called by setTimer
+            setTimer(currentMode); 
         }
 
         // --- Stats Logic ---
@@ -1098,7 +1095,7 @@
                     }
                     pomodorosInCycle = 0;
                     setTimer('study'); 
-                    saveData(); // Ensure state is saved after manual reset
+                    saveData(); 
                     console.log("Study cycle count reset to 1/4 and timer set to Study mode (paused).");
                 },
                 () => { 
@@ -1142,7 +1139,7 @@
                 if (selectedMode === 'study' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
                     pomodorosInCycle = 0;
                 }
-                setTimer(selectedMode); // This calls updateTimerDisplay and saveTimerState
+                setTimer(selectedMode); 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             });
         });
@@ -1227,7 +1224,6 @@
 
             loadData(); 
             
-            // ### MODIFICATION: Streak check and timer state restoration ###
             const todayStrInitialize = getTodayDateString();
             if (appData.stats.general.lastStudyDate && appData.stats.general.lastStudyDate !== todayStrInitialize) {
                 const lastStudy = new Date(appData.stats.general.lastStudyDate);
@@ -1235,21 +1231,22 @@
                 const yesterday = new Date(today);
                 yesterday.setDate(today.getDate() - 1);
 
-                lastStudy.setHours(0,0,0,0); // Normalize to compare dates only
+                lastStudy.setHours(0,0,0,0); 
                 yesterday.setHours(0,0,0,0);
                 
-                if (lastStudy.getTime() < yesterday.getTime()) { // If last study was before yesterday
+                if (lastStudy.getTime() < yesterday.getTime()) { 
                     appData.stats.general.streak = 0;
                     console.log("Streak reset to 0 due to inactivity upon app load.");
                 }
             }
 
+
             if (appData.stats.daily.date !== getTodayDateString()) {
-                 resetDailyStats(); // This will also set pomodorosInCycle to 0
-                 // Also reset persisted timer state if it's a new day and timer wasn't running
-                 if (appData.timerState && !appData.timerState.persistedIsRunning) {
+                 resetDailyStats(); 
+                 if (appData.timerState) { // Ensure timerState is reset for a new day if not running
                     appData.timerState.persistedCurrentMode = 'study';
                     appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60;
+                    appData.timerState.persistedIsRunning = false;
                     appData.timerState.persistedPomodorosInCycle = 0;
                  }
                  saveData(); 
@@ -1259,20 +1256,28 @@
             if (appData.timerState && appData.timerState.persistedTimeLeft !== null) {
                 currentMode = appData.timerState.persistedCurrentMode;
                 timeLeft = appData.timerState.persistedTimeLeft;
-                isRunning = appData.timerState.persistedIsRunning; // This was the state when closed
+                isRunning = false; // ### MODIFICATION: Always start paused ###
                 pomodorosInCycle = appData.timerState.persistedPomodorosInCycle;
                 
-                updateTimerDisplay(); // Update display with restored values
-                if (isRunning) {
-                    startTimer(); // If it was running, resume it
-                } else {
-                    // If it was paused, ensure button shows "Resume" or "Start" correctly
-                    startPauseButton.innerHTML = timeLeft < (appData.settings[currentMode === 'study' ? 'studyTime' : (currentMode === 'shortBreak' ? 'shortBreakTime' : 'longBreakTime')] * 60) && timeLeft > 0 ? 
-                                                '<i class="fas fa-play mr-2"></i>Resume' : 
-                                                '<i class="fas fa-play mr-2"></i>Start';
+                updateTimerDisplay(); 
+                
+                // Determine button text based on whether the timer was partially through or at the start
+                let fullDurationForMode;
+                switch(currentMode) {
+                    case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
+                    case 'shortBreak': fullDurationForMode = appData.settings.shortBreakTime * 60; break;
+                    case 'longBreak': fullDurationForMode = appData.settings.longBreakTime * 60; break;
+                    default: fullDurationForMode = appData.settings.studyTime * 60; // Fallback
                 }
+
+                if (timeLeft < fullDurationForMode && timeLeft > 0) {
+                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
+                } else {
+                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                }
+
             } else {
-                setTimer(currentMode); // Default initialization if no persisted state
+                setTimer(currentMode); 
             }
             
             updateStatsDisplay();
@@ -1290,7 +1295,6 @@
             }
         }
 
-        // ### MODIFICATION: Add event listener for beforeunload ###
         window.addEventListener('beforeunload', saveTimerState);
 
         document.addEventListener('DOMContentLoaded', initializeApp);
