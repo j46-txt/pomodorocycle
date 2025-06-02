@@ -176,7 +176,7 @@
 
             <div id="achievementsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
                 <h3 class="text-xl font-semibold mb-4 text-sky-300">Your Achievements</h3>
-                <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-2"> 
+                <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2"> 
                     </div>
             </div>
         </div>
@@ -303,7 +303,7 @@
         let timeLeft; 
         let currentMode = 'study'; 
         let isRunning = false;
-        let pomodorosInCycle = 0; // Counts completed study sessions in the current cycle (0-3)
+        let pomodorosInCycle = 0; 
         const POMODOROS_PER_CYCLE = 4;
 
         let appData = {
@@ -320,7 +320,6 @@
                 persistedTimeLeft: null, 
                 persistedIsRunning: false,
                 persistedPomodorosInCycle: 0,
-                // ### MODIFICATION: Added to handle display context for forced breaks ###
                 forcedBreakContextSession: null 
             },
             stats: {
@@ -337,7 +336,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.46" 
+            appVersion: "1.0.47" 
         };
         
         const defaultAchievements = [
@@ -431,14 +430,13 @@
             appData.timerState.persistedTimeLeft = timeLeft;
             appData.timerState.persistedIsRunning = isRunning;
             appData.timerState.persistedPomodorosInCycle = pomodorosInCycle;
-            // Do not reset forcedBreakContextSession here, it's reset when used or when a study/long break starts naturally
             saveData();
         }
 
 
         function loadData() {
             const storedData = localStorage.getItem(STORAGE_KEY);
-            const defaultTimerState = { // Define default timer state for initialization
+            const defaultTimerState = { 
                 lastTimerUsed: null, 
                 persistedCurrentMode: 'study',
                 persistedTimeLeft: appData.settings.studyTime * 60,
@@ -451,7 +449,6 @@
                 const parsedData = JSON.parse(storedData);
                 if (parsedData.appVersion !== appData.appVersion) {
                      console.log(`Data version mismatch. Current: ${appData.appVersion}, Stored: ${parsedData.appVersion}. Merging data.`);
-                     // Ensure new stats exist if loading older data
                      if (!parsedData.stats?.general?.totalShortBreakSeconds) {
                         if (!parsedData.stats) parsedData.stats = {};
                         if (!parsedData.stats.general) parsedData.stats.general = {};
@@ -479,7 +476,6 @@
                 });
                 const userRewards = parsedData.rewards || [];
                 
-                // Ensure timerState and its properties exist
                 const loadedTimerState = { ...defaultTimerState, ...(parsedData.timerState || {}) };
                 
                 const loadedPomodorosInCycle = loadedTimerState.persistedPomodorosInCycle !== undefined ? 
@@ -490,11 +486,10 @@
                     ...parsedData, 
                     achievements: mergedAchievements, 
                     rewards: userRewards,
-                    timerState: loadedTimerState // Use the merged/defaulted timerState
+                    timerState: loadedTimerState 
                 };
                 pomodorosInCycle = isNaN(loadedPomodorosInCycle) ? 0 : loadedPomodorosInCycle;
                 
-                // Ensure new stats fields exist after merging
                 if (appData.stats.general.totalShortBreakSeconds === undefined) {
                     appData.stats.general.totalShortBreakSeconds = 0;
                 }
@@ -514,8 +509,8 @@
                 appData.stats.general.totalShortBreakSeconds = 0; 
                 appData.stats.general.totalLongBreakSeconds = 0;
                 appData.stats.daily.totalTimeTodaySeconds = 0;
-                appData.timerState = { ...defaultTimerState }; // Initialize with defaults
-                appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60; // Set initial time for 'study'
+                appData.timerState = { ...defaultTimerState }; 
+                appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60; 
             }
             studyTimeInput.value = appData.settings.studyTime;
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
@@ -649,7 +644,6 @@
             updateCycleInfo();
         }
 
-        // ### MODIFICATION: Adjusted updateCycleInfo for forced breaks ###
         function updateCycleInfo() {
             let displayedSessionNumber;
 
@@ -658,10 +652,15 @@
             } else if (currentMode === 'study') {
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
-                // Natural short break: associated with the study just completed.
                 displayedSessionNumber = pomodorosInCycle; 
-                if (displayedSessionNumber === 0) displayedSessionNumber = 1; // If first break ever (e.g. forced before any study)
-            } else { // longBreak (natural)
+                if (displayedSessionNumber === 0 && pomodorosInCycle === 0) { 
+                    displayedSessionNumber = 1;
+                } else if (pomodorosInCycle > 0) { 
+                    displayedSessionNumber = pomodorosInCycle;
+                } else { 
+                    displayedSessionNumber = 1;
+                }
+            } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
             
@@ -828,8 +827,11 @@
 
         // --- Timer Logic ---
         function setTimer(mode) {
-            // ### MODIFICATION: Clear forced break context when setting timer naturally or to study ###
-            if (mode === 'study' || (mode !== 'shortBreak' && mode !== 'longBreak')) { // Clear if not explicitly forcing a break or if setting to study
+            if (mode === 'study' && currentMode !== 'study') { 
+                if (!(currentMode === 'shortBreak' && appData.timerState.lastTimerUsed === 'shortBreak')) {
+                    appData.timerState.forcedBreakContextSession = null;
+                }
+            } else if (mode !== 'shortBreak' && mode !== 'longBreak') {
                  appData.timerState.forcedBreakContextSession = null;
             }
             
@@ -860,7 +862,6 @@
             isRunning = true;
             startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
             clearInterval(timerInterval); 
-            // ### MODIFICATION: Clear forced break context when timer actually starts ###
             appData.timerState.forcedBreakContextSession = null; 
             timerInterval = setInterval(() => {
                 timeLeft--;
@@ -884,11 +885,10 @@
             saveTimerState(); 
         }
         
-        // ### MODIFICATION: Adjusted handleTimerEnd ###
         function handleTimerEnd() {
             clearInterval(timerInterval);
             isRunning = false; 
-            appData.timerState.lastTimerUsed = currentMode;
+            appData.timerState.lastTimerUsed = currentMode; 
             updateLastTimerInfo();
             let notificationTitle = "";
             let notificationBody = "";
@@ -897,7 +897,6 @@
             let showCycleCompleteAlert = false;
             let completedTime = 0; 
 
-            // Clear any forced break context as we are transitioning naturally
             appData.timerState.forcedBreakContextSession = null;
 
             if (currentMode === 'study') {
@@ -971,7 +970,7 @@
             checkRewards(); 
             checkAchievements(); 
             
-            if (autoStartNext) { // ### MODIFICATION: Simplified auto-start condition ###
+            if (autoStartNext) { 
                  startTimer();
             } else {
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
@@ -999,7 +998,7 @@
                 reward.notificationShown = false;
             });
             pomodorosInCycle = 0; 
-            appData.timerState.forcedBreakContextSession = null; // Clear context on daily reset
+            appData.timerState.forcedBreakContextSession = null; 
         }
 
         // --- Rewards Logic ---
@@ -1110,7 +1109,7 @@
                         pauseTimer(); 
                     }
                     pomodorosInCycle = 0;
-                    appData.timerState.forcedBreakContextSession = null; // Clear context
+                    appData.timerState.forcedBreakContextSession = null; 
                     setTimer('study'); 
                     saveData(); 
                     console.log("Study cycle count reset to 1/4 and timer set to Study mode (paused).");
@@ -1148,37 +1147,42 @@
             );
         });
 
-        // ### MODIFICATION: Adjusted manualTimerSelectButtons listener ###
         manualTimerSelectButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
-                const previousMode = currentMode;
+                const previousMode = currentMode; 
+
+                appData.timerState.persistedPreviousPomodorosInCycle = null;
 
                 if (selectedMode === 'shortBreak') {
                     if (previousMode === 'study') {
-                        // If forcing a short break from a study session, maintain the study session's number context
                         appData.timerState.forcedBreakContextSession = pomodorosInCycle + 1;
                     } else {
-                        // Otherwise (e.g., forcing short break from another break), clear context or set to current cycle context
-                         appData.timerState.forcedBreakContextSession = (pomodorosInCycle === 0 && previousMode !== 'longBreak') ? 1 : pomodorosInCycle + (previousMode === 'longBreak' ? 1 : 0) ;
+                        appData.timerState.forcedBreakContextSession = (pomodorosInCycle === 0 && previousMode !== 'longBreak') ? 1 : pomodorosInCycle + (previousMode === 'longBreak' ? 1 : 0) ;
                          if (appData.timerState.forcedBreakContextSession > POMODOROS_PER_CYCLE) appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE;
-                         if (appData.timerState.forcedBreakContextSession === 0) appData.timerState.forcedBreakContextSession = 1;
-
+                         if(appData.timerState.forcedBreakContextSession === 0) appData.timerState.forcedBreakContextSession = 1;
                     }
                 } else if (selectedMode === 'longBreak') {
-                    appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE; 
-                } else { // Forcing study
-                    appData.timerState.forcedBreakContextSession = null; // Clear context
-                    if (previousMode === 'longBreak' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
-                        pomodorosInCycle = 0; // Start a new cycle
+                    if (previousMode !== 'longBreak' && pomodorosInCycle < POMODOROS_PER_CYCLE && pomodorosInCycle >= 0) { 
+                         appData.timerState.persistedPreviousPomodorosInCycle = pomodorosInCycle;
                     }
+                    appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE; 
+                } else if (selectedMode === 'study') {
+                    if (previousMode === 'longBreak') {
+                        if (appData.timerState.persistedPreviousPomodorosInCycle !== null) {
+                             pomodorosInCycle = appData.timerState.persistedPreviousPomodorosInCycle;
+                        } else { 
+                            pomodorosInCycle = 0; 
+                        }
+                    }
+                    appData.timerState.forcedBreakContextSession = null; 
+                    appData.timerState.persistedPreviousPomodorosInCycle = null;
                 }
                 
                 setTimer(selectedMode); 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 isRunning = false; 
-                // saveTimerState(); // setTimer already calls this
             });
         });
 
@@ -1216,18 +1220,18 @@
 
             if(settingsChanged) {
                 saveData();
-                 if (!isRunning) { 
-                    // If timer is not running, update it to reflect new settings for current mode
+                 if (!isRunning && currentMode === appData.timerState.persistedCurrentMode) { 
                     setTimer(currentMode); 
+                } else if (!isRunning) {
+                     saveTimerState();
                 } else {
-                    // If timer is running, the current segment will finish with old settings.
-                    // New settings will apply to the next segment.
-                    // We still need to save the timer state to persist settings if user closes tab.
                     saveTimerState();
                 }
             }
-            settingsModal.classList.remove('show'); // Close modal first
-            showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400", "OK");
+            settingsModal.classList.remove('show'); 
+            if (settingsChanged) {
+                showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400", "OK");
+            }
         });
         
         tabButtons.forEach(button => {
@@ -1303,45 +1307,42 @@
                  saveData(); 
             }
 
-            // Restore timer state if available and valid
-            let validPersistedState = false;
+            let initialMode = 'study';
+            let initialTimeLeft = appData.settings.studyTime * 60;
+            let initialIsRunning = false; 
+            let initialPomodorosInCycle = 0;
+
             if (appData.timerState && 
                 typeof appData.timerState.persistedTimeLeft === 'number' && 
                 !isNaN(appData.timerState.persistedTimeLeft) &&
                 appData.timerState.persistedCurrentMode &&
                 ['study', 'shortBreak', 'longBreak'].includes(appData.timerState.persistedCurrentMode)) {
-                validPersistedState = true;
+                
+                initialMode = appData.timerState.persistedCurrentMode;
+                initialTimeLeft = appData.timerState.persistedTimeLeft;
+                isRunning = false; 
+                initialPomodorosInCycle = typeof appData.timerState.persistedPomodorosInCycle === 'number' ? appData.timerState.persistedPomodorosInCycle : 0;
+            }
+            
+            currentMode = initialMode;
+            timeLeft = initialTimeLeft;
+            isRunning = initialIsRunning; 
+            pomodorosInCycle = initialPomodorosInCycle;
+            
+            updateTimerDisplay(); 
+            
+            let fullDurationForMode;
+            switch(currentMode) {
+                case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
+                case 'shortBreak': fullDurationForMode = appData.settings.shortBreakTime * 60; break;
+                case 'longBreak': fullDurationForMode = appData.settings.longBreakTime * 60; break;
+                default: fullDurationForMode = appData.settings.studyTime * 60; 
             }
 
-            if (validPersistedState) {
-                currentMode = appData.timerState.persistedCurrentMode;
-                timeLeft = appData.timerState.persistedTimeLeft;
-                isRunning = false; 
-                pomodorosInCycle = typeof appData.timerState.persistedPomodorosInCycle === 'number' ? appData.timerState.persistedPomodorosInCycle : 0;
-                
-                // If a break was forced, the display context might be different
-                // updateCycleInfo will use appData.timerState.forcedBreakContextSession if set
-                
-                updateTimerDisplay(); 
-                
-                let fullDurationForMode;
-                switch(currentMode) {
-                    case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
-                    case 'shortBreak': fullDurationForMode = appData.settings.shortBreakTime * 60; break;
-                    case 'longBreak': fullDurationForMode = appData.settings.longBreakTime * 60; break;
-                    default: fullDurationForMode = appData.settings.studyTime * 60; 
-                }
-
-                if (timeLeft < fullDurationForMode && timeLeft > 0) {
-                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
-                } else { 
-                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                }
-            } else {
-                // If no valid persisted state, initialize to default
-                pomodorosInCycle = 0; // Ensure pomodorosInCycle is reset
-                appData.timerState.forcedBreakContextSession = null; // Clear any forced context
-                setTimer('study'); 
+            if (timeLeft < fullDurationForMode && timeLeft > 0) {
+                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
+            } else { 
+                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
             
             updateStatsDisplay();
