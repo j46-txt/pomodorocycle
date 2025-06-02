@@ -303,7 +303,7 @@
         let timeLeft; 
         let currentMode = 'study'; 
         let isRunning = false;
-        let pomodorosInCycle = 0; 
+        let pomodorosInCycle = 0; // ### MODIFICATION: Represents COMPLETED study sessions (0-3) ###
         const POMODOROS_PER_CYCLE = 4;
 
         let appData = {
@@ -320,6 +320,7 @@
                 persistedTimeLeft: null, 
                 persistedIsRunning: false,
                 persistedPomodorosInCycle: 0,
+                persistedPreviousPomodorosInCycle: null, // Used when forcing long break mid-cycle
                 forcedBreakContextSession: null 
             },
             stats: {
@@ -430,6 +431,7 @@
             appData.timerState.persistedTimeLeft = timeLeft;
             appData.timerState.persistedIsRunning = isRunning;
             appData.timerState.persistedPomodorosInCycle = pomodorosInCycle;
+            // appData.timerState.forcedBreakContextSession is managed by specific functions
             saveData();
         }
 
@@ -442,6 +444,7 @@
                 persistedTimeLeft: appData.settings.studyTime * 60,
                 persistedIsRunning: false,
                 persistedPomodorosInCycle: 0,
+                persistedPreviousPomodorosInCycle: null,
                 forcedBreakContextSession: null
             };
 
@@ -644,23 +647,23 @@
             updateCycleInfo();
         }
 
+        // ### MODIFICATION: Logic for displaying study session count ###
         function updateCycleInfo() {
             let displayedSessionNumber;
 
             if (appData.timerState.forcedBreakContextSession && (currentMode === 'shortBreak' || currentMode === 'longBreak')) {
+                // If a break was forced, use the stored context for display
                 displayedSessionNumber = appData.timerState.forcedBreakContextSession;
             } else if (currentMode === 'study') {
+                // For study mode, it's always the next session number
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
+                // For a natural short break, it's associated with the study session just completed
                 displayedSessionNumber = pomodorosInCycle; 
-                if (displayedSessionNumber === 0 && pomodorosInCycle === 0) { 
+                 if (displayedSessionNumber === 0 && pomodorosInCycle === 0 ) { // Handles the very first short break if forced or at start
                     displayedSessionNumber = 1;
-                } else if (pomodorosInCycle > 0) { 
-                    displayedSessionNumber = pomodorosInCycle;
-                } else { 
-                    displayedSessionNumber = 1;
-                }
-            } else { 
+                 }
+            } else { // longBreak (natural or forced where context is set to POMODOROS_PER_CYCLE)
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
             
@@ -970,11 +973,12 @@
             checkRewards(); 
             checkAchievements(); 
             
+            // ### MODIFICATION: Corrected auto-start logic ###
             if (autoStartNext) { 
                  startTimer();
-            } else {
+            } else { // Only for after long break or when timer is reset manually
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                saveTimerState(); 
+                // saveTimerState(); // setTimer already called saveTimerState
             }
             saveData(); 
         }
@@ -1147,35 +1151,45 @@
             );
         });
 
+        // ### MODIFICATION: Logic for force buttons and cycle display ###
         manualTimerSelectButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
                 const previousMode = currentMode; 
 
-                appData.timerState.persistedPreviousPomodorosInCycle = null;
+                appData.timerState.persistedPreviousPomodorosInCycle = null; // Reset this for new force actions
 
                 if (selectedMode === 'shortBreak') {
                     if (previousMode === 'study') {
+                        // If forcing a short break from a study session, 
+                        // the short break is contextually for the study session that was in progress.
                         appData.timerState.forcedBreakContextSession = pomodorosInCycle + 1;
                     } else {
-                        appData.timerState.forcedBreakContextSession = (pomodorosInCycle === 0 && previousMode !== 'longBreak') ? 1 : pomodorosInCycle + (previousMode === 'longBreak' ? 1 : 0) ;
-                         if (appData.timerState.forcedBreakContextSession > POMODOROS_PER_CYCLE) appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE;
-                         if(appData.timerState.forcedBreakContextSession === 0) appData.timerState.forcedBreakContextSession = 1;
+                        // If forcing from another break or initial state, use current completed pomodoros context
+                        appData.timerState.forcedBreakContextSession = (pomodorosInCycle === 0) ? 1 : pomodorosInCycle;
                     }
                 } else if (selectedMode === 'longBreak') {
-                    if (previousMode !== 'longBreak' && pomodorosInCycle < POMODOROS_PER_CYCLE && pomodorosInCycle >= 0) { 
+                    // If forcing long break, store current cycle progress if it's mid-cycle (not yet 4 completed)
+                    if (pomodorosInCycle < POMODOROS_PER_CYCLE) { 
                          appData.timerState.persistedPreviousPomodorosInCycle = pomodorosInCycle;
                     }
-                    appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE; 
+                    appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE; // Long break always shows as 4/4
                 } else if (selectedMode === 'study') {
-                    if (previousMode === 'longBreak') {
+                    if (previousMode === 'longBreak') { 
+                        // If we were in a long break (forced or natural)
                         if (appData.timerState.persistedPreviousPomodorosInCycle !== null) {
+                             // If LB was forced mid-cycle, restore progress
                              pomodorosInCycle = appData.timerState.persistedPreviousPomodorosInCycle;
                         } else { 
+                            // If LB was natural (after 4th pomodoro) or forced when cycle was already complete, start new cycle
                             pomodorosInCycle = 0; 
                         }
                     }
+                    // If forcing study from short break, pomodorosInCycle is already for the *next* study session
+                    // (because short break only starts AFTER a study is complete, incrementing pomodorosInCycle).
+                    // However, if it was a forced short break preserving context, this needs care.
+                    // Forcing study should clear any forced break context.
                     appData.timerState.forcedBreakContextSession = null; 
                     appData.timerState.persistedPreviousPomodorosInCycle = null;
                 }
@@ -1217,19 +1231,27 @@
              if (appData.settings.notificationsEnabled !== notificationsToggle.checked) {
                 appData.settings.notificationsEnabled = notificationsToggle.checked; settingsChanged = true;
             }
-
+            
+            settingsModal.classList.remove('show'); // Close modal first
             if(settingsChanged) {
                 saveData();
-                 if (!isRunning && currentMode === appData.timerState.persistedCurrentMode) { 
-                    setTimer(currentMode); 
-                } else if (!isRunning) {
-                     saveTimerState();
+                 if (!isRunning) { 
+                    // If timer is not running, update it to reflect new settings for current mode
+                    // Check if the current mode's time was the one changed
+                    let timeForCurrentModeChanged = false;
+                    if (currentMode === 'study' && appData.settings.studyTime !== newStudyTime) timeForCurrentModeChanged = true;
+                    if (currentMode === 'shortBreak' && appData.settings.shortBreakTime !== newShortBreakTime) timeForCurrentModeChanged = true;
+                    if (currentMode === 'longBreak' && appData.settings.longBreakTime !== newLongBreakTime) timeForCurrentModeChanged = true;
+                    
+                    if(timeForCurrentModeChanged || timeLeft === appData.timerState.persistedTimeLeft) { // if time for current mode changed, or if it was at full duration
+                        setTimer(currentMode); 
+                    } else {
+                        saveTimerState(); // Save existing timeLeft if it was a partially run timer of a mode whose duration didn't change
+                    }
                 } else {
+                    // If timer is running, new settings will apply to the next segment.
                     saveTimerState();
                 }
-            }
-            settingsModal.classList.remove('show'); 
-            if (settingsChanged) {
                 showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400", "OK");
             }
         });
@@ -1309,7 +1331,6 @@
 
             let initialMode = 'study';
             let initialTimeLeft = appData.settings.studyTime * 60;
-            let initialIsRunning = false; 
             let initialPomodorosInCycle = 0;
 
             if (appData.timerState && 
@@ -1320,15 +1341,18 @@
                 
                 initialMode = appData.timerState.persistedCurrentMode;
                 initialTimeLeft = appData.timerState.persistedTimeLeft;
-                isRunning = false; 
                 initialPomodorosInCycle = typeof appData.timerState.persistedPomodorosInCycle === 'number' ? appData.timerState.persistedPomodorosInCycle : 0;
             }
             
             currentMode = initialMode;
             timeLeft = initialTimeLeft;
-            isRunning = initialIsRunning; 
+            isRunning = false; // Always start paused on page load
             pomodorosInCycle = initialPomodorosInCycle;
             
+            // If loaded state was a forced break, keep its context for the first display
+            // This will be cleared if timer starts or mode changes naturally
+            // appData.timerState.forcedBreakContextSession remains as loaded for the initial updateCycleInfo
+
             updateTimerDisplay(); 
             
             let fullDurationForMode;
