@@ -1227,15 +1227,25 @@
 </body>
 <head>
     <style>
+        html {
+            overflow-y: scroll;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
         .donation-section {
             text-align: center;
             font-size: 0.8em;
             color: #5a687d;
             margin-top: 10px;
-
-            /* Define uma largura fixa para o container do botão */
-            display: inline-block;
-            width: 150px; /* ajuste o tamanho aqui conforme quiser */
+            width: 150px;
         }
 
         .donation-section p {
@@ -1243,12 +1253,11 @@
         }
 
         .donation-section .bmc-btn {
-            /* Remove o transform scale e aplica zoom */
             transform: none !important;
             zoom: 0.5;
             transform-origin: top center;
             display: inline-block;
-            width: 100%; /* faz o botão ajustar à largura do container */
+            width: 100%;
         }
     </style>
 </head>
