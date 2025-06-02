@@ -335,7 +335,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.38" 
+            appVersion: "1.0.39" 
         };
         
         const defaultAchievements = [
@@ -454,8 +454,14 @@
                         if (!parsedData.stats.daily) parsedData.stats.daily = {};
                         parsedData.stats.daily.totalTimeTodaySeconds = 0;
                      }
-                     if (!parsedData.timerState) {
-                        parsedData.timerState = { ...appData.timerState }; 
+                     if (!parsedData.timerState) { // Ensure timerState exists for older versions
+                        parsedData.timerState = { 
+                            lastTimerUsed: parsedData.timerState?.lastTimerUsed || null,
+                            persistedCurrentMode: parsedData.timerState?.persistedCurrentMode || 'study',
+                            persistedTimeLeft: parsedData.timerState?.persistedTimeLeft !== undefined ? parsedData.timerState.persistedTimeLeft : (appData.settings.studyTime * 60),
+                            persistedIsRunning: parsedData.timerState?.persistedIsRunning || false,
+                            persistedPomodorosInCycle: parsedData.timerState?.persistedPomodorosInCycle !== undefined ? parsedData.timerState.persistedPomodorosInCycle : (parsedData.pomodorosInCycle || 0)
+                        };
                      }
                 }
                 const mergedAchievements = defaultAchievements.map(defaultAch => {
@@ -481,6 +487,7 @@
                 };
                 pomodorosInCycle = isNaN(loadedPomodorosInCycle) ? 0 : loadedPomodorosInCycle;
                 
+                // Ensure new stats fields exist after merging
                 if (appData.stats.general.totalShortBreakSeconds === undefined) {
                     appData.stats.general.totalShortBreakSeconds = 0;
                 }
@@ -1243,7 +1250,7 @@
 
             if (appData.stats.daily.date !== getTodayDateString()) {
                  resetDailyStats(); 
-                 if (appData.timerState) { // Ensure timerState is reset for a new day if not running
+                 if (appData.timerState) { 
                     appData.timerState.persistedCurrentMode = 'study';
                     appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60;
                     appData.timerState.persistedIsRunning = false;
@@ -1252,22 +1259,20 @@
                  saveData(); 
             }
 
-            // Restore timer state if available
-            if (appData.timerState && appData.timerState.persistedTimeLeft !== null) {
-                currentMode = appData.timerState.persistedCurrentMode;
+            if (appData.timerState && typeof appData.timerState.persistedTimeLeft === 'number' && !isNaN(appData.timerState.persistedTimeLeft)) {
+                currentMode = appData.timerState.persistedCurrentMode || 'study';
                 timeLeft = appData.timerState.persistedTimeLeft;
-                isRunning = false; // ### MODIFICATION: Always start paused ###
-                pomodorosInCycle = appData.timerState.persistedPomodorosInCycle;
+                isRunning = false; 
+                pomodorosInCycle = typeof appData.timerState.persistedPomodorosInCycle === 'number' ? appData.timerState.persistedPomodorosInCycle : 0;
                 
                 updateTimerDisplay(); 
                 
-                // Determine button text based on whether the timer was partially through or at the start
                 let fullDurationForMode;
                 switch(currentMode) {
                     case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
                     case 'shortBreak': fullDurationForMode = appData.settings.shortBreakTime * 60; break;
                     case 'longBreak': fullDurationForMode = appData.settings.longBreakTime * 60; break;
-                    default: fullDurationForMode = appData.settings.studyTime * 60; // Fallback
+                    default: fullDurationForMode = appData.settings.studyTime * 60; 
                 }
 
                 if (timeLeft < fullDurationForMode && timeLeft > 0) {
