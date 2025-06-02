@@ -7,7 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link id="favicon" rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text x=%2250%22 y=%2250%22 dominant-baseline=%22central%22 text-anchor=%22middle%22 font-size=%2285%22>🍅</text></svg>">
+    <link id="favicon" rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text x="50" y="50" font-size="90" dominant-baseline="middle" text-anchor="middle">🍅</text></svg>'>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -136,7 +136,7 @@
             </nav>
         </div>
 
-        <div id="tabContent"> 
+        <div id="tabContent" class="min-h-[15rem]"> 
             <div id="statsContent" class="tab-pane active p-4 bg-slate-700 rounded-b-lg">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-semibold text-sky-300">Your Statistics</h3>
@@ -169,7 +169,7 @@
                     <input type="number" id="rewardThreshold" placeholder="Value" step="0.5" min="0.1" class="w-full md:w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
                     <button id="addRewardButton" class="w-full md:w-auto mt-2 md:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded transition-colors">Add Reward</button>
                 </div>
-                <div id="rewardsList" class="space-y-2 max-h-44 overflow-y-auto pr-2"> 
+                <div id="rewardsList" class="space-y-2 max-h-48 overflow-y-auto pr-2"> 
                     </div>
             </div>
 
@@ -330,7 +330,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.36" 
+            appVersion: "1.0.34" 
         };
         
         const defaultAchievements = [
