@@ -424,7 +424,7 @@
                     soundVolume = -6; 
                 }
                 
-                const timeToPlay = Tone.now() + 0.05; 
+                const timeToPlay = Tone.now() + 0.1; 
                 
                 synth.volume.setValueAtTime(soundVolume, timeToPlay);
                 synth.triggerAttackRelease(soundNote, soundDuration, timeToPlay);
