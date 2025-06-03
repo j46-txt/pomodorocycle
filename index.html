@@ -925,109 +925,117 @@
             saveTimerState(); 
         }
         
-        function handleTimerEnd() {
-            clearInterval(timerInterval);
-            isRunning = false; 
-            appData.timerState.lastTimerUsed = currentMode; 
-            updateLastTimerInfo();
-            let notificationTitle = "";
-            let notificationBody = "";
-            let soundNote = 'C4';
-            let autoStartNext = true; 
-            let showCycleCompleteAlert = false;
-            let completedTime = 0; 
+		function handleTimerEnd() {
+			clearInterval(timerInterval);
+			isRunning = false; 
+			appData.timerState.lastTimerUsed = currentMode; 
+			updateLastTimerInfo();
+			let notificationTitle = "";
+			let notificationBody = "";
+			let soundNote = 'C4';
+			let autoStartNext = true; 
+			let showCycleCompleteAlert = false;
+			let completedTime = 0; 
+			let nextMode = null;
 
-            appData.timerState.forcedBreakContextSession = null;
+			appData.timerState.forcedBreakContextSession = null;
 
-            if (currentMode === 'study') {
-                completedTime = appData.settings.studyTime * 60;
-                notificationTitle = "Study Session Complete!";
-                notificationBody = "Time for a break. Good job!";
-                soundNote = 'C5';
-                pomodorosInCycle++; 
-                if (!appData.stats.daily.firstStudySessionCompletedToday) {
-                    appData.stats.daily.firstStudySessionCompletedToday = true;
-                    const todayStr = getTodayDateString();
-                    if (appData.stats.general.lastStudyDate !== todayStr) { 
-                        appData.stats.general.totalDaysStudied++;
-                        const yesterday = new Date();
-                        yesterday.setDate(yesterday.getDate() - 1);
-                        const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-                        if (appData.stats.general.lastStudyDate === yesterdayStr) {
-                            appData.stats.general.streak++;
-                        } else if (appData.stats.general.lastStudyDate !== null) { 
-                            appData.stats.general.streak = 1; 
-                        } else { 
-                             appData.stats.general.streak = 1;
-                        }
-                        appData.stats.general.lastStudyDate = todayStr;
-                    }
-                }
-                if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
-                    setTimer('longBreak');
-                    appData.stats.daily.cyclesCompleted++;
-                    appData.stats.general.totalCyclesCompleted++;
-                    showCycleCompleteAlert = true; 
-                    // ### MODIFICATION: Long break should also auto-start ###
-                    // autoStartNext = false; // Kept as true now
-                } else {
-                    setTimer('shortBreak');
-                }
-            } else if (currentMode === 'shortBreak') {
-                completedTime = appData.settings.shortBreakTime * 60;
-                appData.stats.general.totalShortBreakSeconds += completedTime; 
-                notificationTitle = "Break Over!";
-                notificationBody = "Time to get back to focus!";
-                soundNote = 'E4';
-                setTimer('study');
-            } else if (currentMode === 'longBreak') { 
-                completedTime = appData.settings.longBreakTime * 60;
-                appData.stats.general.totalLongBreakSeconds += completedTime; 
-                notificationTitle = "Long Break Over!";
-                notificationBody = "Cycle complete! Ready for a new one?";
-                soundNote = 'E4';
-                pomodorosInCycle = 0; 
-                setTimer('study');
-                autoStartNext = false; 
-            }
-            
-            if (completedTime > 0) {
-                appData.stats.daily.totalTimeTodaySeconds += completedTime;
-            }
+			if (currentMode === 'study') {
+				completedTime = appData.settings.studyTime * 60;
+				notificationTitle = "Study Session Complete!";
+				notificationBody = "Time for a break. Good job!";
+				soundNote = 'C5';
+				pomodorosInCycle++; 
 
-            updateTimerDisplay(); 
-            updateStatsDisplay(); 
+				if (!appData.stats.daily.firstStudySessionCompletedToday) {
+					appData.stats.daily.firstStudySessionCompletedToday = true;
+					const todayStr = getTodayDateString();
+					if (appData.stats.general.lastStudyDate !== todayStr) { 
+						appData.stats.general.totalDaysStudied++;
+						const yesterday = new Date();
+						yesterday.setDate(yesterday.getDate() - 1);
+						const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+						if (appData.stats.general.lastStudyDate === yesterdayStr) {
+							appData.stats.general.streak++;
+						} else {
+							appData.stats.general.streak = 1;
+						}
+						appData.stats.general.lastStudyDate = todayStr;
+					}
+				}
 
-            playSound(soundNote, '4n', 'timerComplete');
-            showNotification(notificationTitle, notificationBody);
+				if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
+					nextMode = 'longBreak';
+					appData.stats.daily.cyclesCompleted++;
+					appData.stats.general.totalCyclesCompleted++;
+					showCycleCompleteAlert = true;
+					autoStartNext = true;
+				} else {
+					nextMode = 'shortBreak';
+					autoStartNext = true;
+				}
 
-            const handlePostAlertActions = () => {
-                checkRewards(); 
-                checkAchievements(); 
-                
-                if (autoStartNext) { 
-                     startTimer();
-                } else {
-                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                    saveTimerState();
-                }
-                saveData();
-            };
+			} else if (currentMode === 'shortBreak') {
+				completedTime = appData.settings.shortBreakTime * 60;
+				appData.stats.general.totalShortBreakSeconds += completedTime; 
+				notificationTitle = "Break Over!";
+				notificationBody = "Time to get back to focus!";
+				soundNote = 'E4';
+				nextMode = 'study';
+				autoStartNext = true;
 
-            if (showCycleCompleteAlert) {
-                showCustomAlert(
-                    "Cycle Complete!", 
-                    "Congratulations! You've completed a full Pomodoro cycle (4 study sessions). Enjoy your long break!",
-                    "fas fa-award text-yellow-400", 
-                    "Great!",
-                    null,
-                    handlePostAlertActions
-                );
-            } else {
-                handlePostAlertActions();
-            }
-            saveData(); 
-        }
+			} else if (currentMode === 'longBreak') { 
+				completedTime = appData.settings.longBreakTime * 60;
+				appData.stats.general.totalLongBreakSeconds += completedTime; 
+				notificationTitle = "Long Break Over!";
+				notificationBody = "Cycle complete! Ready for a new one?";
+				soundNote = 'E4';
+				pomodorosInCycle = 0; 
+				nextMode = 'study';
+				autoStartNext = false;
+			}
+
+			if (completedTime > 0) {
+				appData.stats.daily.totalTimeTodaySeconds += completedTime;
+			}
+
+			updateTimerDisplay(); 
+			updateStatsDisplay(); 
+			playSound(soundNote, '4n', 'timerComplete');
+			showNotification(notificationTitle, notificationBody);
+
+			const handlePostAlertActions = () => {
+				checkRewards(); 
+				checkAchievements(); 
+
+				if (nextMode) {
+					setTimer(nextMode);
+					if (autoStartNext) {
+						startTimer();
+					} else {
+						startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+						saveTimerState();
+					}
+				}
+
+				saveData();
+			};
+
+			if (showCycleCompleteAlert) {
+				showCustomAlert(
+					"Cycle Complete!", 
+					"Congratulations! You've completed a full Pomodoro cycle (4 study sessions). Enjoy your long break!",
+					"fas fa-award text-yellow-400", 
+					"Great!",
+					null,
+					handlePostAlertActions
+				);
+			} else {
+				handlePostAlertActions();
+			}
+
+			saveData(); 
+		}
 
         function resetCurrentTimer() {
             pauseTimer(); 
