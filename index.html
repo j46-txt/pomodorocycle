@@ -131,9 +131,9 @@
         <div class="flex justify-center space-x-2 mb-8">
             <button data-mode="study" class="manual-timer-select text-xs py-1.5 px-3 rounded-md transition-colors">Force Study</button>
             <button data-mode="shortBreak" class="manual-timer-select text-xs py-1.5 px-3 rounded-md transition-colors">Force Short Break</button>
-            <!--
+	    <!--
             <button data-mode="longBreak" class="manual-timer-select text-xs py-1.5 px-3 rounded-md transition-colors">Force Long Break</button>
-            -->
+	    -->
         </div>
 
         <div class="mb-6 border-b border-slate-700">
@@ -226,7 +226,7 @@
                     </label>
                 </div>
                 <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-slate-300">Enable Notifications:</span>
+                    <span class="text-sm font-medium text-slate-300">Enable Desktop Notifications:</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="notificationsToggle" class="sr-only peer">
                         <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
@@ -350,7 +350,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.49" 
+            appVersion: "1.0.50" 
         };
         
         const defaultAchievements = [
@@ -426,7 +426,7 @@
                     soundVolume = -6; 
                 }
                 
-                const timeToPlay = Tone.now() + 0.1; 
+                const timeToPlay = Tone.now() + 0.1; // Increased delay slightly
                 
                 synth.volume.setValueAtTime(soundVolume, timeToPlay);
                 synth.triggerAttackRelease(soundNote, soundDuration, timeToPlay);
@@ -661,20 +661,20 @@
                 case 'study':
                     modeText = 'Study';
                     bodyClass = 'bg-slate-900'; 
-                    timerTextEl.classList.remove('text-green-400', 'text-purple-400'); // Removed yellow
+                    timerTextEl.classList.remove('text-green-400', 'text-purple-400'); 
                     timerTextEl.classList.add('text-sky-500');
                     break;
                 case 'shortBreak':
                     modeText = 'Short Break';
                     bodyClass = 'bg-green-800'; 
-                    timerTextEl.classList.remove('text-sky-500', 'text-purple-400'); // Removed yellow
+                    timerTextEl.classList.remove('text-sky-500', 'text-purple-400'); 
                     timerTextEl.classList.add('text-green-400');
                     break;
                 case 'longBreak':
                     modeText = 'Long Break';
-                    bodyClass = 'bg-purple-800'; // ### MODIFICATION: Changed to purple ###
+                    bodyClass = 'bg-purple-800'; 
                     timerTextEl.classList.remove('text-sky-500', 'text-green-400');
-                    timerTextEl.classList.add('text-purple-400'); // ### MODIFICATION: Changed to purple ###
+                    timerTextEl.classList.add('text-purple-400'); 
                     break;
             }
             currentModeDisplayEl.textContent = `Current Mode: ${modeText}`;
@@ -894,29 +894,29 @@
             saveTimerState(); 
         }
 
-		function startTimer() {
-			if (timeLeft <= 0 && currentMode !== 'study' && currentMode !== 'shortBreak' && currentMode !== 'longBreak') { 
-				setTimer('study'); 
-			}
-			if (timeLeft <= 0) return;
-			isRunning = true;
-			startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-			clearInterval(timerInterval); 
-			appData.timerState.forcedBreakContextSession = null; 
-			timerInterval = setInterval(() => {
-				if (timeLeft <= 0) {
-					handleTimerEnd();
-				} else {
-					timeLeft--;
-					if (currentMode === 'study') {
-						appData.stats.daily.pureStudySeconds++;
-						appData.stats.general.totalPureStudySeconds++;
-					}
-					updateTimerDisplay();
-				}
-			}, 1000);
-			saveTimerState(); 
-		}
+        function startTimer() {
+            if (timeLeft <= 0 && currentMode !== 'study' && currentMode !== 'shortBreak' && currentMode !== 'longBreak') { 
+                 setTimer('study'); 
+            }
+            if (timeLeft <= 0) return;
+            isRunning = true;
+            startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+            clearInterval(timerInterval); 
+            appData.timerState.forcedBreakContextSession = null; 
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) { // Check before decrementing
+                    handleTimerEnd();
+                    return; // Exit interval callback once timer ends
+                }
+                timeLeft--;
+                if (currentMode === 'study') {
+                    appData.stats.daily.pureStudySeconds++;
+                    appData.stats.general.totalPureStudySeconds++;
+                }
+                 updateTimerDisplay(); // Update display every second
+            }, 1000);
+            saveTimerState(); 
+        }
 
         function pauseTimer() {
             isRunning = false;
@@ -925,117 +925,115 @@
             saveTimerState(); 
         }
         
-		function handleTimerEnd() {
-			clearInterval(timerInterval);
-			isRunning = false; 
-			appData.timerState.lastTimerUsed = currentMode; 
-			updateLastTimerInfo();
-			let notificationTitle = "";
-			let notificationBody = "";
-			let soundNote = 'C4';
-			let autoStartNext = true; 
-			let showCycleCompleteAlert = false;
-			let completedTime = 0; 
-			let nextMode = null;
+        function handleTimerEnd() {
+            clearInterval(timerInterval); // Ensure any existing interval is cleared
+            isRunning = false; 
+            const endedMode = currentMode; 
+            appData.timerState.lastTimerUsed = endedMode;
+            updateLastTimerInfo();
 
-			appData.timerState.forcedBreakContextSession = null;
+            let notificationTitle = "";
+            let notificationBody = "";
+            let soundNote = 'C4';
+            let nextModeToTransitionTo = null;
+            let shouldAutoStartTheNextTimer = true; 
+            let showCycleCompleteAlert = false;
+            let completedTime = 0; 
 
-			if (currentMode === 'study') {
-				completedTime = appData.settings.studyTime * 60;
-				notificationTitle = "Study Session Complete!";
-				notificationBody = "Time for a break. Good job!";
-				soundNote = 'C5';
-				pomodorosInCycle++; 
+            appData.timerState.forcedBreakContextSession = null; 
 
-				if (!appData.stats.daily.firstStudySessionCompletedToday) {
-					appData.stats.daily.firstStudySessionCompletedToday = true;
-					const todayStr = getTodayDateString();
-					if (appData.stats.general.lastStudyDate !== todayStr) { 
-						appData.stats.general.totalDaysStudied++;
-						const yesterday = new Date();
-						yesterday.setDate(yesterday.getDate() - 1);
-						const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
-						if (appData.stats.general.lastStudyDate === yesterdayStr) {
-							appData.stats.general.streak++;
-						} else {
-							appData.stats.general.streak = 1;
-						}
-						appData.stats.general.lastStudyDate = todayStr;
-					}
-				}
+            if (endedMode === 'study') {
+                completedTime = appData.settings.studyTime * 60;
+                notificationTitle = "Study Session Complete!";
+                notificationBody = "Time for a break. Good job!";
+                soundNote = 'C5';
+                pomodorosInCycle++; 
+                
+                if (!appData.stats.daily.firstStudySessionCompletedToday) {
+                    appData.stats.daily.firstStudySessionCompletedToday = true;
+                    const todayStr = getTodayDateString();
+                    if (appData.stats.general.lastStudyDate !== todayStr) { 
+                        appData.stats.general.totalDaysStudied++;
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+                        if (appData.stats.general.lastStudyDate === yesterdayStr) {
+                            appData.stats.general.streak++;
+                        } else { 
+                            appData.stats.general.streak = 1; 
+                        }
+                        appData.stats.general.lastStudyDate = todayStr;
+                    }
+                }
 
-				if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
-					nextMode = 'longBreak';
-					appData.stats.daily.cyclesCompleted++;
-					appData.stats.general.totalCyclesCompleted++;
-					showCycleCompleteAlert = true;
-					autoStartNext = true;
-				} else {
-					nextMode = 'shortBreak';
-					autoStartNext = true;
-				}
+                if (pomodorosInCycle >= POMODOROS_PER_CYCLE) { 
+                    nextModeToTransitionTo = 'longBreak';
+                    appData.stats.daily.cyclesCompleted++;
+                    appData.stats.general.totalCyclesCompleted++;
+                    showCycleCompleteAlert = true; 
+                    shouldAutoStartTheNextTimer = true; 
+                } else {
+                    nextModeToTransitionTo = 'shortBreak';
+                    shouldAutoStartTheNextTimer = true;
+                }
+            } else if (endedMode === 'shortBreak') {
+                completedTime = appData.settings.shortBreakTime * 60;
+                appData.stats.general.totalShortBreakSeconds += completedTime; 
+                notificationTitle = "Break Over!";
+                notificationBody = "Time to get back to focus!";
+                soundNote = 'E4';
+                nextModeToTransitionTo = 'study';
+                shouldAutoStartTheNextTimer = true;
+            } else if (endedMode === 'longBreak') { 
+                completedTime = appData.settings.longBreakTime * 60;
+                appData.stats.general.totalLongBreakSeconds += completedTime; 
+                notificationTitle = "Long Break Over!";
+                notificationBody = "Cycle complete! Ready for a new one?";
+                soundNote = 'E4';
+                pomodorosInCycle = 0; 
+                nextModeToTransitionTo = 'study';
+                shouldAutoStartTheNextTimer = false; 
+            }
+            
+            if (completedTime > 0) {
+                appData.stats.daily.totalTimeTodaySeconds += completedTime;
+            }
+            
+            // Set the next timer first, so UI updates reflect the new state before alerts/sounds
+            if (nextModeToTransitionTo) {
+                 setTimer(nextModeToTransitionTo); // This calls updateTimerDisplay and saveTimerState
+            }
 
-			} else if (currentMode === 'shortBreak') {
-				completedTime = appData.settings.shortBreakTime * 60;
-				appData.stats.general.totalShortBreakSeconds += completedTime; 
-				notificationTitle = "Break Over!";
-				notificationBody = "Time to get back to focus!";
-				soundNote = 'E4';
-				nextMode = 'study';
-				autoStartNext = true;
+            updateStatsDisplay(); 
+            playSound(soundNote, '4n', 'timerComplete'); 
+            showNotification(notificationTitle, notificationBody); 
 
-			} else if (currentMode === 'longBreak') { 
-				completedTime = appData.settings.longBreakTime * 60;
-				appData.stats.general.totalLongBreakSeconds += completedTime; 
-				notificationTitle = "Long Break Over!";
-				notificationBody = "Cycle complete! Ready for a new one?";
-				soundNote = 'E4';
-				pomodorosInCycle = 0; 
-				nextMode = 'study';
-				autoStartNext = false;
-			}
+            const performPostAlertActions = () => {
+                checkRewards(); 
+                checkAchievements(); 
+                
+                if (shouldAutoStartTheNextTimer && nextModeToTransitionTo) { 
+                     startTimer(); 
+                } else if (nextModeToTransitionTo) { // If not auto-starting, ensure button is correct
+                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                    // saveTimerState(); // Already called by setTimer
+                }
+                saveData(); 
+            };
 
-			if (completedTime > 0) {
-				appData.stats.daily.totalTimeTodaySeconds += completedTime;
-			}
-
-			updateTimerDisplay(); 
-			updateStatsDisplay(); 
-			playSound(soundNote, '4n', 'timerComplete');
-			showNotification(notificationTitle, notificationBody);
-
-			const handlePostAlertActions = () => {
-				checkRewards(); 
-				checkAchievements(); 
-
-				if (nextMode) {
-					setTimer(nextMode);
-					if (autoStartNext) {
-						startTimer();
-					} else {
-						startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-						saveTimerState();
-					}
-				}
-
-				saveData();
-			};
-
-			if (showCycleCompleteAlert) {
-				showCustomAlert(
-					"Cycle Complete!", 
-					"Congratulations! You've completed a full Pomodoro cycle (4 study sessions). Enjoy your long break!",
-					"fas fa-award text-yellow-400", 
-					"Great!",
-					null,
-					handlePostAlertActions
-				);
-			} else {
-				handlePostAlertActions();
-			}
-
-			saveData(); 
-		}
+            if (showCycleCompleteAlert) {
+                showCustomAlert(
+                    "Cycle Complete!", 
+                    "Congratulations! You've completed a full Pomodoro cycle (4 study sessions). Enjoy your long break!",
+                    "fas fa-award text-yellow-400", 
+                    "Great!",
+                    null, 
+                    performPostAlertActions
+                );
+            } else {
+                performPostAlertActions();
+            }
+        }
 
         function resetCurrentTimer() {
             pauseTimer(); 
@@ -1192,10 +1190,9 @@
                     <li class="study-session" style="--session-number: '4.'">Study Session (completes 1 Pomodoro cycle)</li>
                     <li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li>
                 </ul>
-                <p class="mb-3">Timers for study and short/long breaks will start automatically after the previous one ends.</p>
-                <p class="mb-3">After a long break, the timer will set up for a new cycle but will NOT start automatically.</p>
-                <p class="mb-3">Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" display.</p>
-                <p class="mb-3">The study streak only counts after completing the first study session of the day.</p>
+                <p class="mb-3">Timers for study and short/long breaks will start automatically after the previous one ends, EXCEPT for the study session after a long break, which requires a manual start.</p>
+                <p class="mb-1">You can customize timer durations in Settings (<i class='fas fa-cog'></i>).</p>
+                <p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" display.</p>
             `;
             showCustomAlert(
                 "How This Pomodoro Timer Works",
@@ -1209,30 +1206,33 @@
             button.addEventListener('click', (e) => {
                 pauseTimer(); 
                 const selectedMode = e.target.dataset.mode;
-                const previousMode = currentMode; 
-                const previousPomodorosInCycle = pomodorosInCycle; 
+                const previousActualMode = currentMode; 
+                const pomodorosBeforeForce = pomodorosInCycle; 
 
                 appData.timerState.persistedPreviousPomodorosInCycle = null; 
 
                 if (selectedMode === 'shortBreak') {
-                    if (previousMode === 'study') {
-                        appData.timerState.forcedBreakContextSession = pomodorosInCycle + 1;
+                    if (previousActualMode === 'study') {
+                        appData.timerState.forcedBreakContextSession = pomodorosBeforeForce + 1;
+                    } else if (previousActualMode === 'longBreak') {
+                        pomodorosInCycle = 0; 
+                        appData.timerState.forcedBreakContextSession = 1;
                     } else { 
-                         appData.timerState.forcedBreakContextSession = pomodorosInCycle +1 ; 
-                         if (appData.timerState.forcedBreakContextSession > POMODOROS_PER_CYCLE) appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE;
-                         if(previousMode === 'longBreak' && pomodorosInCycle >= POMODOROS_PER_CYCLE) {
-                             appData.timerState.forcedBreakContextSession = 1; 
-                         } else if (pomodorosInCycle === 0) {
-                             appData.timerState.forcedBreakContextSession = 1;
+                         appData.timerState.forcedBreakContextSession = pomodorosBeforeForce + 1; 
+                         if (appData.timerState.forcedBreakContextSession > POMODOROS_PER_CYCLE) {
+                             appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE; 
                          }
+                         if (pomodorosBeforeForce === 0) { 
+                            appData.timerState.forcedBreakContextSession = 1;
+                        }
                     }
                 } else if (selectedMode === 'longBreak') {
-                    if (pomodorosInCycle < POMODOROS_PER_CYCLE) { 
-                         appData.timerState.persistedPreviousPomodorosInCycle = pomodorosInCycle;
+                    if (pomodorosBeforeForce < POMODOROS_PER_CYCLE && previousActualMode === 'study') { 
+                         appData.timerState.persistedPreviousPomodorosInCycle = pomodorosBeforeForce;
                     }
                     appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE; 
                 } else if (selectedMode === 'study') {
-                    if (previousMode === 'longBreak') { 
+                    if (previousActualMode === 'longBreak') { 
                         if (appData.timerState.persistedPreviousPomodorosInCycle !== null) {
                              pomodorosInCycle = appData.timerState.persistedPreviousPomodorosInCycle;
                         } else { 
@@ -1289,15 +1289,19 @@
                 saveData();
                  if (!isRunning) { 
                     let durationChangedForCurrentMode = false;
-                    if (currentMode === 'study' && oldStudyTime !== newStudyTime) durationChangedForCurrentMode = true;
-                    if (currentMode === 'shortBreak' && oldShortBreakTime !== newShortBreakTime) durationChangedForCurrentMode = true;
-                    if (currentMode === 'longBreak' && oldLongBreakTime !== newLongBreakTime) durationChangedForCurrentMode = true;
+                    if (currentMode === 'study' && oldStudyTime !== appData.settings.studyTime) durationChangedForCurrentMode = true;
+                    if (currentMode === 'shortBreak' && oldShortBreakTime !== appData.settings.shortBreakTime) durationChangedForCurrentMode = true;
+                    if (currentMode === 'longBreak' && oldLongBreakTime !== appData.settings.longBreakTime) durationChangedForCurrentMode = true;
                     
-                    if(durationChangedForCurrentMode || timeLeft === 0 || 
-                       (currentMode === 'study' && timeLeft === oldStudyTime * 60) ||
-                       (currentMode === 'shortBreak' && timeLeft === oldShortBreakTime * 60) ||
-                       (currentMode === 'longBreak' && timeLeft === oldLongBreakTime * 60)
-                    ) {
+                    let fullDurationForCurrentModeBeforeChange;
+                     switch(currentMode) {
+                        case 'study': fullDurationForCurrentModeBeforeChange = oldStudyTime * 60; break;
+                        case 'shortBreak': fullDurationForCurrentModeBeforeChange = oldShortBreakTime * 60; break;
+                        case 'longBreak': fullDurationForCurrentModeBeforeChange = oldLongBreakTime * 60; break;
+                        default: fullDurationForCurrentModeBeforeChange = oldStudyTime * 60;
+                    }
+
+                    if(durationChangedForCurrentMode || timeLeft === 0 || timeLeft === fullDurationForCurrentModeBeforeChange) {
                         setTimer(currentMode); 
                     } else {
                         saveTimerState(); 
