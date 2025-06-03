@@ -80,14 +80,15 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
+        /* Style for the skip break button */
         #skipBreakButton {
-            background-color: #4a5568; 
-            color: #a0aec0; 
+            background-color: #4a5568; /* slate-700 */
+            color: #a0aec0; /* slate-400 */
             border: 1px solid #4a5568;
         }
         #skipBreakButton:hover {
-            background-color: #2d3748; 
-            color: #e2e8f0; 
+            background-color: #2d3748; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
             border-color: #2d3748;
         }
         /* Toast Notification Styles */
@@ -101,12 +102,14 @@
             font-size: 0.875rem;
             z-index: 1000;
             opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             max-width: 300px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateX(100%); /* Start off-screen */
         }
         #toastNotification.show {
             opacity: 1;
+            transform: translateX(0); /* Slide in */
         }
         #toastNotification.success { background-color: #34d399; } /* green-500 */
         #toastNotification.error { background-color: #ef4444; } /* red-500 */
@@ -116,21 +119,27 @@
         /* Badge Notification Styles */
         .tab-badge {
             position: absolute;
-            top: 0.5rem; /* Adjust as needed */
-            right: 0.5rem; /* Adjust as needed */
+            top: 0.5rem; 
+            right: 0.5rem; 
             background-color: #ef4444; /* red-500 */
             color: white;
-            border-radius: 9999px; /* pill shape */
+            border-radius: 9999px; 
             padding: 0.1rem 0.4rem;
             font-size: 0.65rem;
             font-weight: bold;
             line-height: 1;
-            min-width: 1rem; /* Ensure it's visible even with single digit */
+            min-width: 1rem; 
             text-align: center;
-            display: none; /* Hidden by default */
+            display: none; 
         }
         .tab-button {
-            position: relative; /* For badge positioning */
+            position: relative; 
+        }
+        .reward-item-content {
+            min-height: 2.5rem; 
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
     </style>
 </head>
@@ -261,7 +270,6 @@
                         <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
                     </label>
                 </div>
-                <!-- ### MODIFICATION: Removed Desktop Notifications Toggle ### -->
             </div>
             <div class="mt-8 flex justify-end space-x-3">
                 <button id="cancelSettingsButton" class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-600 hover:bg-slate-500 rounded-md transition-colors">Cancel</button>
@@ -286,7 +294,6 @@
         </div>
     </div>
 
-    <!-- ### MODIFICATION: Added Toast Notification Element ### -->
     <div id="toastNotification" class="fixed top-5 right-5 p-4 rounded-md text-white z-[1000] opacity-0 transition-opacity duration-500 max-w-xs shadow-lg">
         <strong id="toastTitle" class="font-bold"></strong>
         <p id="toastBody"></p>
@@ -314,7 +321,6 @@
         const shortBreakTimeInput = document.getElementById('shortBreakTimeInput');
         const longBreakTimeInput = document.getElementById('longBreakTimeInput');
         const soundToggle = document.getElementById('soundToggle');
-        // const notificationsToggle = document.getElementById('notificationsToggle'); // Removed
 
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
@@ -374,7 +380,6 @@
                 shortBreakTime: 5,
                 longBreakTime: 15,
                 soundEnabled: true,
-                // notificationsEnabled: true, // Removed desktop notifications
             },
             timerState: {
                 lastTimerUsed: null, 
@@ -399,11 +404,11 @@
             },
             rewards: [], 
             achievements: [], 
-            uiState: { // For badge notifications
+            uiState: { 
                 newRewardsCount: 0,
                 newAchievementsCount: 0
             },
-            appVersion: "1.1.13" 
+            appVersion: "1.1.14" 
         };
         
         const defaultAchievements = [
@@ -545,7 +550,6 @@
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
                 
-                // Version migration logic
                 if (parsedData.appVersion !== appData.appVersion) {
                      console.log(`Data version mismatch. Current: ${appData.appVersion}, Stored: ${parsedData.appVersion}. Merging data.`);
                      if (!parsedData.stats?.general?.totalShortBreakSeconds) {
@@ -563,7 +567,6 @@
                         if (!parsedData.stats.daily) parsedData.stats.daily = {};
                         parsedData.stats.daily.totalTimeTodaySeconds = 0;
                      }
-                     // Remove notificationsEnabled from settings if it exists from older versions
                      if (parsedData.settings && parsedData.settings.hasOwnProperty('notificationsEnabled')) {
                         delete parsedData.settings.notificationsEnabled;
                      }
@@ -575,13 +578,13 @@
                         ...defaultAch,
                         unlocked: userAch?.unlocked || false, 
                         unlockedDate: userAch?.unlockedDate || null,
-                        seen: userAch?.seen || (userAch?.unlocked || false) // If unlocked and seen is undefined, mark as seen
+                        seen: userAch?.seen || (userAch?.unlocked || false) 
                     };
                 });
                 
                 const userRewards = (parsedData.rewards || []).map(reward => ({
                     ...reward,
-                    seen: reward.seen || (reward.earnedToday || false) // If earnedToday and seen is undefined, mark as seen
+                    seen: reward.seen || (reward.earnedToday || false) 
                 }));
                 
                 const loadedTimerState = { ...defaultTimerState, ...(parsedData.timerState || {}) };
@@ -612,8 +615,8 @@
 
                 if (appData.stats.daily.date !== getTodayDateString()) {
                     resetDailyStats(); 
-                    appData.uiState.newRewardsCount = 0; // Reset badge counts on new day
-                    appData.rewards.forEach(r => r.seen = false); // Mark all as unseen for new day
+                    appData.uiState.newRewardsCount = 0; 
+                    appData.rewards.forEach(r => r.seen = false); 
                 }
             } else {
                 appData.achievements = defaultAchievements.map(ach => ({ ...ach, unlocked: false, unlockedDate: null, seen: false }));
@@ -629,7 +632,6 @@
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
             soundToggle.checked = appData.settings.soundEnabled;
-            // notificationsToggle.checked = appData.settings.notificationsEnabled; // Removed
             
             updateRewardTabNotificationBadge();
             updateAchievementTabNotificationBadge();
@@ -643,18 +645,18 @@
         // --- Toast Notifications ---
         let toastTimeout;
         function showToast(title, body, type = 'info', duration = 4000) {
-            clearTimeout(toastTimeout); // Clear existing toast timeout
+            clearTimeout(toastTimeout); 
 
             toastTitleEl.textContent = title;
             toastBodyEl.textContent = body;
 
-            toastNotificationEl.className = 'fixed top-5 right-5 p-4 rounded-md text-white z-[1000] opacity-0 transition-opacity duration-500 max-w-xs shadow-lg'; // Reset classes
+            toastNotificationEl.className = 'fixed top-5 right-5 p-4 rounded-md text-white z-[1000] opacity-0 transition-opacity duration-500 max-w-xs shadow-lg'; 
             
             switch(type) {
                 case 'success': toastNotificationEl.classList.add('bg-green-500'); break;
                 case 'error': toastNotificationEl.classList.add('bg-red-500'); break;
                 case 'warning': toastNotificationEl.classList.add('bg-yellow-500'); break;
-                default: toastNotificationEl.classList.add('bg-sky-500'); // Default to info
+                default: toastNotificationEl.classList.add('bg-sky-500'); 
             }
 
             toastNotificationEl.classList.add('show');
@@ -851,11 +853,13 @@
                     <div>
                         <p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'}">${reward.name} (${rewardTypeDisplay})</p>
                         <p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}</p>
+                        <div class="reward-item-content">
                         ${!reward.earnedToday ? `
                             <div class="progress-bar-container mt-1">
                                 <div class="progress-bar" style="width: ${progressPercent}%;"></div>
                             </div>
                         ` : '<p class="text-xs text-green-100 font-bold"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
+                        </div>
                     </div>
                     <button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors">
                         <i class="fas fa-trash-alt"></i>
@@ -1031,6 +1035,9 @@
 
             if (endedMode === 'study') {
                 completedTime = appData.settings.studyTime * 60;
+                appData.stats.daily.pureStudySeconds += completedTime; 
+                appData.stats.general.totalPureStudySeconds += completedTime; 
+
                 notificationTitleForEndedMode = "Study Session Complete!";
                 notificationBodyForEndedMode = "Time for a break. Good job!";
                 soundNoteForEndedMode = 'C5';
@@ -1100,7 +1107,7 @@
                 setTimer(nextModeToTransitionTo); 
                 
                 if (shouldAutoStartTheNextTimer) {
-                    requestAnimationFrame(() => { // Use requestAnimationFrame for smoother UI updates before starting timer
+                    requestAnimationFrame(() => { 
                         setTimeout(() => { 
                             startTimer(); 
                         }, 150); 
@@ -1133,11 +1140,11 @@
             };
             appData.rewards.forEach(reward => {
                 reward.earnedToday = false;
-                reward.notificationShown = false; // Reset for badge system
-                reward.seen = false; // Reset for badge system
+                reward.notificationShown = false; 
+                reward.seen = false; 
             });
              appData.achievements.forEach(ach => {
-                ach.seen = ach.unlocked; // If unlocked, mark as seen for new day if already seen previously
+                ach.seen = ach.unlocked; 
             });
             appData.uiState.newRewardsCount = 0;
             appData.uiState.newAchievementsCount = 0;
@@ -1162,8 +1169,8 @@
                 type,
                 threshold,
                 earnedToday: false,
-                notificationShown: false, // Tracks if toast has been shown for this earning
-                seen: false // Tracks if user has "seen" it by visiting the tab
+                notificationShown: false, 
+                seen: false 
             });
             rewardNameInput.value = '';
             rewardThresholdInput.value = '';
@@ -1173,8 +1180,9 @@
 
         function checkRewards() {
             let newRewardEarnedThisCheck = false;
+            let soundOffsetForReward = 0;
             appData.rewards.forEach(reward => {
-                if (reward.earnedToday && reward.notificationShown) return; 
+                if (reward.earnedToday && reward.notificationShown && reward.seen) return; 
                 let currentProgress = 0;
                 if (reward.type === 'cycles') {
                     currentProgress = appData.stats.daily.cyclesCompleted;
@@ -1183,13 +1191,13 @@
                 }
                 if (currentProgress >= reward.threshold && !reward.earnedToday) {
                     reward.earnedToday = true;
-                    reward.seen = false; // Mark as unseen for badge
+                    reward.seen = false; 
                     newRewardEarnedThisCheck = true;
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
                         showToast("Reward Earned!", message, 'success');
                         playSound('G5', '2n', 'reward'); 
-                        reward.notificationShown = true; // Mark toast as shown for this earning
+                        reward.notificationShown = true; 
                     }
                 }
             });
@@ -1204,7 +1212,7 @@
         function checkAchievements() {
             let newAchievementUnlockedThisCheck = false;
             appData.achievements.forEach(ach => {
-                if (ach.unlocked && ach.notificationShown) return; 
+                if (ach.unlocked && ach.notificationShown && ach.seen) return; 
                 let currentValue;
                 switch (ach.type) {
                     case 'totalDaysStudied': currentValue = appData.stats.general.totalDaysStudied; break;
@@ -1218,13 +1226,13 @@
                 if (currentValue >= ach.threshold && !ach.unlocked) {
                     ach.unlocked = true;
                     ach.unlockedDate = new Date().toISOString();
-                    ach.seen = false; // Mark as unseen for badge
+                    ach.seen = false; 
                     newAchievementUnlockedThisCheck = true;
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showToast("Achievement Unlocked!", message, 'success');
                         playSound('A5', '1n', 'achievement'); 
-                        ach.notificationShown = true; // Mark toast as shown for this earning
+                        ach.notificationShown = true; 
                     }
                 }
             });
@@ -1325,7 +1333,6 @@
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
             soundToggle.checked = appData.settings.soundEnabled;
-            // notificationsToggle.checked = appData.settings.notificationsEnabled; // Removed
             settingsModal.classList.remove('show');
         });
 
@@ -1351,7 +1358,6 @@
             if (appData.settings.soundEnabled !== soundToggle.checked) {
                 appData.settings.soundEnabled = soundToggle.checked; settingsChanged = true;
             }
-            // No notifications toggle to check
             
             if(settingsChanged) {
                 saveData();
