@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PomodoroCycle Timer</title>
+    <title>Gamified Pomodoro Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -315,6 +315,11 @@
         let pomodorosInCycle = 0; 
         const POMODOROS_PER_CYCLE = 4;
 
+        let lastSoundScheduledTime = 0;
+        const MIN_SOUND_INTERVAL = 0.05; 
+        const SOUND_BASE_DELAY = 0.05;   
+
+
         let appData = {
             settings: {
                 studyTime: 25,
@@ -346,7 +351,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.51" 
+            appVersion: "1.0.55" 
         };
         
         const defaultAchievements = [
@@ -396,6 +401,7 @@
             console.warn("Tone.js not loaded. Sound effects will be disabled.");
         }
 
+        // ### MODIFICATION: Updated playSound function for better scheduling ###
         function playSound(note = 'C4', duration = '8n', type = 'timerComplete') {
             if (!appData.settings.soundEnabled || !synth) return;
             
@@ -422,10 +428,13 @@
                     soundVolume = -6; 
                 }
                 
-                const timeToPlay = Tone.now() + 0.1; 
+                const currentTime = Tone.now();
+                // Ensure scheduledTime is always slightly in the future and after the last scheduled sound
+                const scheduledTime = Math.max(currentTime + SOUND_BASE_DELAY, lastSoundScheduledTime + MIN_SOUND_INTERVAL);
+                lastSoundScheduledTime = scheduledTime; // Update the last scheduled time
                 
-                synth.volume.setValueAtTime(soundVolume, timeToPlay);
-                synth.triggerAttackRelease(soundNote, soundDuration, timeToPlay);
+                synth.volume.setValueAtTime(soundVolume, scheduledTime);
+                synth.triggerAttackRelease(soundNote, soundDuration, scheduledTime);
 
             } catch (error) {
                 console.error(`Error playing sound (type: ${type}):`, error);
@@ -895,7 +904,7 @@
                  setTimer('study'); 
             }
             if (timeLeft <= 0) {
-                console.warn(`Timer not started for mode ${currentMode} because timeLeft is ${timeLeft}`);
+                console.warn(`Timer not started for mode ${currentMode}. Reason: timeLeft is ${timeLeft}.`);
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 isRunning = false; 
                 saveTimerState();
@@ -927,7 +936,7 @@
             saveTimerState(); 
         }
         
-        // ### MODIFICATION: Updated handleTimerEnd for auto-start logic ###
+        // ### MODIFICATION: Updated handleTimerEnd for auto-start logic and alert order ###
         function handleTimerEnd() {
             clearInterval(timerInterval);
             isRunning = false;
@@ -1002,43 +1011,35 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); 
-            }
-            
+            // Update UI for the timer that just ended BEFORE setting the next one
+            updateTimerDisplay(); // Shows 00:00 for the ended timer
             updateStatsDisplay(); 
             playSound(soundNote, '4n', 'timerComplete'); 
             showNotification(notificationTitle, notificationBody); 
 
-            const finalTimerActions = () => {
-                checkRewards();
-                checkAchievements();
+            const performPostAlertActions = () => {
+                // Now, set the next timer
+                if (nextModeToTransitionTo) {
+                    setTimer(nextModeToTransitionTo); 
+                }
+                
+                checkRewards(); 
+                checkAchievements(); 
                 
                 if (shouldAutoStartTheNextTimer && nextModeToTransitionTo) {
-                    startTimer();
+                    startTimer(); 
                 } else if (nextModeToTransitionTo) { 
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
-                saveData();
-            };
-
-            const checkRewardsAndAchievementsThenProceed = () => {
-                checkRewards();
-                checkAchievements();
-                finalTimerActions();
+                saveData(); 
             };
 
             if (showCycleCompleteAlert) {
-                showCustomAlert(
-                    "Cycle Complete!",
-                    "Congratulations! You've completed a full Pomodoro cycle (4 study sessions). Enjoy your long break!",
-                    "fas fa-award text-yellow-400",
-                    "Great!",
-                    null,
-                    checkRewardsAndAchievementsThenProceed
-                );
+                // Use notification instead of modal for cycle complete to avoid blocking
+                showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
+                performPostAlertActions(); // Proceed immediately after notification
             } else {
-                checkRewardsAndAchievementsThenProceed();
+                performPostAlertActions();
             }
         }
 
@@ -1089,6 +1090,7 @@
 
         function checkRewards() {
             let newRewardEarned = false;
+            let soundOffsetForReward = 0;
             appData.rewards.forEach(reward => {
                 if (reward.earnedToday && reward.notificationShown) return; 
                 let currentProgress = 0;
@@ -1104,7 +1106,8 @@
                         const message = `You earned the reward: "${reward.name}"!`;
                         showNotification("Reward Earned!", message);
                         showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
-                        playSound('G5', '2n', 'reward');
+                        playSound('G5', '2n', 'reward', soundOffsetForReward);
+                        soundOffsetForReward += 0.2; 
                         reward.notificationShown = true;
                     }
                 }
@@ -1118,6 +1121,7 @@
         // --- Achievements Logic ---
         function checkAchievements() {
             let newAchievementUnlocked = false;
+            let soundOffsetForAchievement = 0;
             appData.achievements.forEach(ach => {
                 if (ach.unlocked && ach.notificationShown) return; 
                 let currentValue;
@@ -1138,7 +1142,8 @@
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showNotification("Achievement Unlocked!", message);
                         showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
-                        playSound('A5', '1n', 'achievement');
+                        playSound('A5', '1n', 'achievement', soundOffsetForAchievement);
+                        soundOffsetForAchievement += 0.2; 
                         ach.notificationShown = true;
                     }
                 }
@@ -1264,7 +1269,7 @@
         });
 
         saveSettingsButton.addEventListener('click', () => {
-            settingsModal.classList.remove('show'); // ### MODIFICATION: Close modal first ###
+            settingsModal.classList.remove('show'); 
             const newStudyTime = parseInt(studyTimeInput.value);
             const newShortBreakTime = parseInt(shortBreakTimeInput.value);
             const newLongBreakTime = parseInt(longBreakTimeInput.value);
