@@ -350,7 +350,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.1.5" 
+            appVersion: "1.1.6" 
         };
         
         const defaultAchievements = [
@@ -871,13 +871,14 @@
         }
 
         // --- Timer Logic ---
-        function setTimer(mode) {
+        function setTimer(mode, autoStart = false) { // ### MODIFICATION: Added autoStart parameter ###
             appData.timerState.forcedBreakContextSession = null; 
             
             currentMode = mode;
-            isRunning = false;
+            isRunning = false; // Always set to false initially when setting a new timer
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             clearInterval(timerInterval);
+
             switch (mode) {
                 case 'study':
                     timeLeft = appData.settings.studyTime * 60;
@@ -888,25 +889,35 @@
                 case 'longBreak':
                     timeLeft = appData.settings.longBreakTime * 60;
                     break;
+                default: // Should not happen
+                    console.error("Unknown mode in setTimer:", mode);
+                    timeLeft = appData.settings.studyTime * 60; // Default to study
+                    currentMode = 'study';
             }
-            updateTimerDisplay(); // This will update the UI with the new timeLeft and mode
+            updateTimerDisplay(); // Update UI immediately with new mode and full time
             saveTimerState(); 
+
+            if (autoStart) {
+                // Use setTimeout to allow DOM updates to process before starting interval,
+                // which can be an issue in some browsers/conditions (e.g., background tabs, Safari mobile)
+                setTimeout(() => {
+                    startTimer();
+                }, 50); // Small delay
+            }
         }
 
         function startTimer() {
-            if (timeLeft <= 0 && !['study', 'shortBreak', 'longBreak'].includes(currentMode)) {
-                 setTimer('study'); 
-            }
             if (timeLeft <= 0) {
                 console.warn(`Timer not started for mode ${currentMode}. Reason: timeLeft is ${timeLeft}. Attempting to reset to default for mode.`);
-                setTimer(currentMode); 
-                if(timeLeft <= 0) { 
+                setTimer(currentMode); // Try to reset to full duration for the current mode
+                if(timeLeft <= 0) { // If still not positive (e.g., duration is 0 in settings), then don't start
                      console.error(`Cannot start timer for ${currentMode}: duration is zero or invalid.`);
                      startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                      isRunning = false; 
                      return;
                 }
             }
+
             isRunning = true;
             startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
             clearInterval(timerInterval); 
@@ -942,7 +953,7 @@
             isRunning = false;
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
-            // updateLastTimerInfo(); // Called by updateTimerDisplay
+            updateLastTimerInfo();
 
             let notificationTitle = "";
             let notificationBody = "";
@@ -1023,18 +1034,11 @@
 
             // Set up and potentially start the next timer
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); // This sets currentMode, timeLeft, and calls updateTimerDisplay for the new mode
-                
-                if (shouldAutoStartTheNextTimer) {
-                    setTimeout(() => { 
-                        startTimer(); 
-                    }, 100); 
-                } else {
-                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                }
+                setTimer(nextModeToTransitionTo, shouldAutoStartTheNextTimer); 
             }
             
             // Check rewards and achievements after setting up/starting the next timer.
+            // Use setTimeout for modals to avoid blocking timer start.
             setTimeout(() => {
                 checkRewards(); 
                 checkAchievements();
@@ -1232,7 +1236,7 @@
                 
                 appData.timerState.lastTimerUsed = skippedMode;
                 
-                setTimer(nextModeAfterSkip); 
+                setTimer(nextModeAfterSkip, false); // Explicitly false for autoStart
                 updateLastTimerInfo(); 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
                 isRunning = false; 
