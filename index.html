@@ -117,7 +117,6 @@
                 </button>
             </div>
             <p id="lastTimerInfo" class="text-xs text-slate-500 mt-1">Last timer: None</p>
-            <!-- ### MODIFICATION: Changed button text to "Skip Break" ### -->
             <button id="skipBreakButton" class="absolute bottom-3 right-3 hidden text-xs py-1 px-2 rounded-md shadow-md transition-transform transform hover:scale-105">
                 <i class="fas fa-forward fa-xs mr-1"></i>Skip Break
             </button>
@@ -351,7 +350,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.1.0" 
+            appVersion: "1.1.1" 
         };
         
         const defaultAchievements = [
@@ -898,12 +897,17 @@
             if (timeLeft <= 0 && !['study', 'shortBreak', 'longBreak'].includes(currentMode)) {
                  setTimer('study'); 
             }
+             // ### MODIFICATION: Ensure timeLeft is positive before starting ###
             if (timeLeft <= 0) {
-                console.warn(`Timer not started for mode ${currentMode}. Reason: timeLeft is ${timeLeft}.`);
-                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                isRunning = false; 
-                saveTimerState();
-                return;
+                console.warn(`Timer not started for mode ${currentMode}. Reason: timeLeft is ${timeLeft}. Attempting to reset to default for mode.`);
+                // Attempt to reset to default time for the mode if timeLeft is 0 or less
+                setTimer(currentMode); // This will reset timeLeft to full duration
+                if(timeLeft <= 0) { // If still not positive (e.g., duration is 0), then don't start
+                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                     isRunning = false; 
+                     saveTimerState();
+                     return;
+                }
             }
             isRunning = true;
             startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
@@ -1006,39 +1010,41 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            // Set the next timer first, so UI updates reflect the new state before alerts/sounds
-            if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); 
-            }
-            
+            // Update UI for the timer that just ended BEFORE setting the next one
+            updateTimerDisplay(); 
             updateStatsDisplay(); 
             playSound(soundNote, '4n', 'timerComplete'); 
             showNotification(notificationTitle, notificationBody); 
 
             const finalTimerActions = () => {
+                // Set the next timer *after* alerts and checks
+                if (nextModeToTransitionTo) {
+                    setTimer(nextModeToTransitionTo); 
+                }
                 checkRewards();
                 checkAchievements();
                 
                 if (shouldAutoStartTheNextTimer && nextModeToTransitionTo) {
-                    startTimer();
+                     setTimeout(() => { // Added timeout for robustness
+                        if (timeLeft > 0) {
+                           startTimer();
+                        } else {
+                            console.warn(`Auto-start for ${currentMode} aborted in setTimeout: timeLeft is not positive.`);
+                            startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                        }
+                    }, 50);
                 } else if (nextModeToTransitionTo) { 
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
                 saveData();
             };
 
-            const checkRewardsAndAchievementsThenProceed = () => {
-                checkRewards();
-                checkAchievements();
-                finalTimerActions();
-            };
-
             if (showCycleCompleteAlert) {
-                // Use notification instead of modal for cycle complete to avoid blocking
                 showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
-                checkRewardsAndAchievementsThenProceed(); // Proceed immediately after notification
+                // Call actions after a slight delay to allow notification to be processed
+                setTimeout(finalTimerActions, 100); 
             } else {
-                checkRewardsAndAchievementsThenProceed();
+                finalTimerActions();
             }
         }
 
@@ -1213,7 +1219,6 @@
             );
         });
 
-        // ### MODIFICATION: Event listener for Skip Break button ###
         skipBreakButton.addEventListener('click', () => {
             if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
                 pauseTimer(); 
