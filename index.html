@@ -694,10 +694,9 @@
             if (currentMode === 'study') {
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
-                // Short break is associated with the study session just completed
                 displayedSessionNumber = pomodorosInCycle; 
-                if (pomodorosInCycle === 0) displayedSessionNumber = 1; // If it's the break after the first study
-            } else { // longBreak
+                if (pomodorosInCycle === 0) displayedSessionNumber = 1; 
+            } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
             
@@ -1007,8 +1006,6 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            // Update UI for the timer that just ended (shows 00:00 for the endedMode)
-            updateTimerDisplay(); 
             updateStatsDisplay(); 
             playSound(soundNote, '4n', 'timerComplete'); 
             showNotification(notificationTitle, notificationBody); 
@@ -1019,24 +1016,22 @@
 
             // Set up and potentially start the next timer
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); // This sets currentMode and timeLeft for the new mode, and calls updateTimerDisplay
+                setTimer(nextModeToTransitionTo); // This sets currentMode, timeLeft, and calls updateTimerDisplay for the new mode
                 
                 if (shouldAutoStartTheNextTimer) {
                     setTimeout(() => { 
                         startTimer(); 
-                    }, 150); // Increased delay for Safari/mobile
+                    }, 150); 
                 } else {
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
             }
             
-            // Check rewards and achievements after setting up/starting the next timer.
-            // Use setTimeout for modals to avoid blocking timer start.
             setTimeout(() => {
                 checkRewards(); 
                 checkAchievements();
                 saveData(); 
-            }, 200); // Delay slightly more to ensure timer start has a chance
+            }, 200); 
         }
 
         function resetCurrentTimer() {
@@ -1229,7 +1224,7 @@
                 
                 appData.timerState.lastTimerUsed = skippedMode;
                 
-                setTimer(nextModeAfterSkip); // No autoStart here, user clicks "Start"
+                setTimer(nextModeAfterSkip); 
                 updateLastTimerInfo(); 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
                 isRunning = false; 
