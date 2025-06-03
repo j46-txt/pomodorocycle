@@ -350,7 +350,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.1.1" 
+            appVersion: "1.1.3" 
         };
         
         const defaultAchievements = [
@@ -889,7 +889,7 @@
                     timeLeft = appData.settings.longBreakTime * 60;
                     break;
             }
-            updateTimerDisplay();
+            updateTimerDisplay(); // This will update the UI with the new timeLeft and mode
             saveTimerState(); 
         }
 
@@ -897,15 +897,16 @@
             if (timeLeft <= 0 && !['study', 'shortBreak', 'longBreak'].includes(currentMode)) {
                  setTimer('study'); 
             }
-             // ### MODIFICATION: Ensure timeLeft is positive before starting ###
+            // ### MODIFICATION: Ensure timeLeft is positive before starting ###
             if (timeLeft <= 0) {
                 console.warn(`Timer not started for mode ${currentMode}. Reason: timeLeft is ${timeLeft}. Attempting to reset to default for mode.`);
                 // Attempt to reset to default time for the mode if timeLeft is 0 or less
-                setTimer(currentMode); // This will reset timeLeft to full duration
-                if(timeLeft <= 0) { // If still not positive (e.g., duration is 0), then don't start
+                setTimer(currentMode); // This resets timeLeft to full duration and updates display.
+                // If timeLeft is still 0 (e.g., duration is 0 in settings), then don't proceed.
+                if(timeLeft <= 0) { 
+                     console.error(`Cannot start timer for ${currentMode}: duration is zero or invalid.`);
                      startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                      isRunning = false; 
-                     saveTimerState();
                      return;
                 }
             }
@@ -914,16 +915,19 @@
             clearInterval(timerInterval); 
             appData.timerState.forcedBreakContextSession = null; 
             timerInterval = setInterval(() => {
-                if (timeLeft <= 0) { 
-                    handleTimerEnd();
-                    return; 
+                if (!isRunning) { 
+                    clearInterval(timerInterval);
+                    return;
                 }
+                
                 timeLeft--;
-                if (currentMode === 'study') {
-                    appData.stats.daily.pureStudySeconds++;
-                    appData.stats.general.totalPureStudySeconds++;
+                updateTimerDisplay(); 
+
+                if (timeLeft < 0) { 
+                    timeLeft = 0; 
+                    updateTimerDisplay(); 
+                    handleTimerEnd(); 
                 }
-                 updateTimerDisplay(); 
             }, 1000);
             saveTimerState(); 
         }
@@ -1010,41 +1014,40 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            // Update UI for the timer that just ended BEFORE setting the next one
+            // Update UI for the timer that just ended (shows 00:00 for the endedMode)
             updateTimerDisplay(); 
             updateStatsDisplay(); 
             playSound(soundNote, '4n', 'timerComplete'); 
             showNotification(notificationTitle, notificationBody); 
 
-            const finalTimerActions = () => {
+            const proceedToNextStepActions = () => {
                 // Set the next timer *after* alerts and checks
                 if (nextModeToTransitionTo) {
-                    setTimer(nextModeToTransitionTo); 
+                    setTimer(nextModeToTransitionTo); // This sets currentMode and timeLeft for the new mode, and calls updateTimerDisplay
                 }
-                checkRewards();
-                checkAchievements();
+                checkRewards(); 
+                checkAchievements(); 
                 
                 if (shouldAutoStartTheNextTimer && nextModeToTransitionTo) {
-                     setTimeout(() => { // Added timeout for robustness
-                        if (timeLeft > 0) {
-                           startTimer();
+                    setTimeout(() => { // Added timeout for robustness, especially on mobile/background
+                        if (timeLeft > 0) { // Check timeLeft again, it should be positive now
+                           startTimer(); 
                         } else {
-                            console.warn(`Auto-start for ${currentMode} aborted in setTimeout: timeLeft is not positive.`);
+                            console.warn(`Auto-start for ${currentMode} (intended: ${nextModeToTransitionTo}) aborted in setTimeout: timeLeft is ${timeLeft}.`);
                             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                         }
-                    }, 50);
+                    }, 50); 
                 } else if (nextModeToTransitionTo) { 
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
-                saveData();
+                saveData(); 
             };
 
             if (showCycleCompleteAlert) {
                 showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
-                // Call actions after a slight delay to allow notification to be processed
-                setTimeout(finalTimerActions, 100); 
+                setTimeout(proceedToNextStepActions, 100); 
             } else {
-                finalTimerActions();
+                proceedToNextStepActions();
             }
         }
 
@@ -1109,10 +1112,12 @@
                     newRewardEarned = true;
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
-                        showNotification("Reward Earned!", message);
-                        showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
-                        playSound('G5', '2n', 'reward', soundOffsetForReward);
-                        soundOffsetForReward += 0.2; 
+                        setTimeout(() => { // Delay showing modal alert
+                            showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
+                        }, 150 + soundOffsetForReward * 1000); // Stagger modal alerts slightly more
+                        showNotification("Reward Earned!", message); // Desktop notification can be immediate
+                        playSound('G5', '2n', 'reward', soundOffsetForReward * 0.2);
+                        soundOffsetForReward++; 
                         reward.notificationShown = true;
                     }
                 }
@@ -1146,9 +1151,11 @@
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showNotification("Achievement Unlocked!", message);
-                        showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
-                        playSound('A5', '1n', 'achievement', soundOffsetForAchievement);
-                        soundOffsetForAchievement += 0.2; 
+                        setTimeout(() => { // Delay showing modal alert
+                            showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
+                        }, 200 + soundOffsetForAchievement * 1000); // Stagger modal alerts slightly more
+                        playSound('A5', '1n', 'achievement', soundOffsetForAchievement * 0.2);
+                        soundOffsetForAchievement++; 
                         ach.notificationShown = true;
                     }
                 }
