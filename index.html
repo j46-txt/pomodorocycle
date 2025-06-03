@@ -894,29 +894,29 @@
             saveTimerState(); 
         }
 
-        function startTimer() {
-            if (timeLeft <= 0 && currentMode !== 'study' && currentMode !== 'shortBreak' && currentMode !== 'longBreak') { 
-                 setTimer('study'); 
-            }
-            if (timeLeft <= 0) return;
-            isRunning = true;
-            startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-            clearInterval(timerInterval); 
-            appData.timerState.forcedBreakContextSession = null; 
-            timerInterval = setInterval(() => {
-                timeLeft--;
-                if (currentMode === 'study') {
-                    appData.stats.daily.pureStudySeconds++;
-                    appData.stats.general.totalPureStudySeconds++;
-                }
-                if (timeLeft < 0) {
-                    handleTimerEnd();
-                } else {
-                    updateTimerDisplay();
-                }
-            }, 1000);
-            saveTimerState(); 
-        }
+		function startTimer() {
+			if (timeLeft <= 0 && currentMode !== 'study' && currentMode !== 'shortBreak' && currentMode !== 'longBreak') { 
+				setTimer('study'); 
+			}
+			if (timeLeft <= 0) return;
+			isRunning = true;
+			startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+			clearInterval(timerInterval); 
+			appData.timerState.forcedBreakContextSession = null; 
+			timerInterval = setInterval(() => {
+				if (timeLeft <= 0) {
+					handleTimerEnd();
+				} else {
+					timeLeft--;
+					if (currentMode === 'study') {
+						appData.stats.daily.pureStudySeconds++;
+						appData.stats.general.totalPureStudySeconds++;
+					}
+					updateTimerDisplay();
+				}
+			}, 1000);
+			saveTimerState(); 
+		}
 
         function pauseTimer() {
             isRunning = false;
