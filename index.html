@@ -350,7 +350,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.1.3" 
+            appVersion: "1.1.5" 
         };
         
         const defaultAchievements = [
@@ -1012,7 +1012,7 @@
             }
             
             // Update UI for the timer that just ended (shows 00:00 for the endedMode)
-            updateTimerDisplay(); // Ensures 00:00 is shown for endedMode
+            updateTimerDisplay(); 
             updateStatsDisplay(); 
             playSound(soundNote, '4n', 'timerComplete'); 
             showNotification(notificationTitle, notificationBody); 
@@ -1106,8 +1106,8 @@
                         showNotification("Reward Earned!", message);
                         setTimeout(() => {
                             showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
-                        }, 0 + soundOffsetForReward * 250); // Stagger modal alerts slightly more
-                        playSound('G5', '2n', 'reward'); // Removed offset from here, handled by global lastSoundScheduledTime
+                        }, 0 + soundOffsetForReward * 250); 
+                        playSound('G5', '2n', 'reward'); 
                         soundOffsetForReward++; 
                         reward.notificationShown = true;
                     }
@@ -1145,7 +1145,7 @@
                          setTimeout(() => { 
                             showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
                         }, 50 + soundOffsetForAchievement * 250); 
-                        playSound('A5', '1n', 'achievement'); // Removed offset from here
+                        playSound('A5', '1n', 'achievement'); 
                         soundOffsetForAchievement++; 
                         ach.notificationShown = true;
                     }
@@ -1233,7 +1233,7 @@
                 appData.timerState.lastTimerUsed = skippedMode;
                 
                 setTimer(nextModeAfterSkip); 
-                updateLastTimerInfo(); // Update immediately after setting lastTimerUsed
+                updateLastTimerInfo(); 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
                 isRunning = false; 
                 saveTimerState();
