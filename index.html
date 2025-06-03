@@ -994,28 +994,36 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
 
+            updateTimerDisplay(); 
+            updateStatsDisplay(); 
+
             playSound(soundNote, '4n', 'timerComplete');
             showNotification(notificationTitle, notificationBody);
+
+            const handlePostAlertActions = () => {
+                checkRewards(); 
+                checkAchievements(); 
+                
+                if (autoStartNext) { 
+                     startTimer();
+                } else {
+                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                    saveTimerState();
+                }
+                saveData();
+            };
 
             if (showCycleCompleteAlert) {
                 showCustomAlert(
                     "Cycle Complete!", 
                     "Congratulations! You've completed a full Pomodoro cycle (4 study sessions). Enjoy your long break!",
                     "fas fa-award text-yellow-400", 
-                    "Great!"
+                    "Great!",
+                    null,
+                    handlePostAlertActions
                 );
-            }
-            
-            updateTimerDisplay(); 
-            updateStatsDisplay(); 
-            checkRewards(); 
-            checkAchievements(); 
-            
-            if (autoStartNext) { 
-                 startTimer();
             } else {
-                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                saveTimerState(); 
+                handlePostAlertActions();
             }
             saveData(); 
         }
