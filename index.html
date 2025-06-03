@@ -179,7 +179,7 @@
                     <input type="number" id="rewardThreshold" placeholder="Value" step="0.5" min="0" class="w-full md:w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
                     <button id="addRewardButton" class="w-full md:w-auto mt-2 md:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded transition-colors">Add Reward</button>
                 </div>
-                <div id="rewardsList" class="space-y-2 max-h-[176px] overflow-y-auto pr-2"> 
+                <div id="rewardsList" class="space-y-2 max-h-44 overflow-y-auto pr-2"> 
                     </div>
             </div>
 
@@ -673,7 +673,6 @@
                     timerTextEl.classList.add('text-purple-400'); 
                     break;
             }
-            // ### MODIFICATION: Restored "Current Mode:" prefix ###
             currentModeDisplayEl.textContent = `Current Mode: ${modeText}`; 
             document.title = `${formatTime(timeLeft)} - ${modeText}`; 
             document.body.className = document.body.className.replace(/bg-(slate|green|yellow|purple)-(900|800)/g, '') + ` ${bodyClass}`;
@@ -1003,9 +1002,8 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            // Set the next timer first, so UI updates reflect the new state before alerts/sounds
             if (nextModeToTransitionTo) {
-                 setTimer(nextModeToTransitionTo); 
+                setTimer(nextModeToTransitionTo); 
             }
             
             updateStatsDisplay(); 
@@ -1266,6 +1264,7 @@
         });
 
         saveSettingsButton.addEventListener('click', () => {
+            settingsModal.classList.remove('show'); // ### MODIFICATION: Close modal first ###
             const newStudyTime = parseInt(studyTimeInput.value);
             const newShortBreakTime = parseInt(shortBreakTimeInput.value);
             const newLongBreakTime = parseInt(longBreakTimeInput.value);
@@ -1288,9 +1287,11 @@
             }
              if (appData.settings.notificationsEnabled !== notificationsToggle.checked) {
                 appData.settings.notificationsEnabled = notificationsToggle.checked; settingsChanged = true;
+                 if(appData.settings.notificationsEnabled && Notification.permission !== 'granted' && Notification.permission !== 'denied'){
+                    requestNotificationPermission();
+                }
             }
             
-            settingsModal.classList.remove('show'); 
             if(settingsChanged) {
                 saveData();
                  if (!isRunning) { 
