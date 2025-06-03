@@ -897,12 +897,9 @@
             if (timeLeft <= 0 && !['study', 'shortBreak', 'longBreak'].includes(currentMode)) {
                  setTimer('study'); 
             }
-            // ### MODIFICATION: Ensure timeLeft is positive before starting ###
             if (timeLeft <= 0) {
                 console.warn(`Timer not started for mode ${currentMode}. Reason: timeLeft is ${timeLeft}. Attempting to reset to default for mode.`);
-                // Attempt to reset to default time for the mode if timeLeft is 0 or less
-                setTimer(currentMode); // This resets timeLeft to full duration and updates display.
-                // If timeLeft is still 0 (e.g., duration is 0 in settings), then don't proceed.
+                setTimer(currentMode); 
                 if(timeLeft <= 0) { 
                      console.error(`Cannot start timer for ${currentMode}: duration is zero or invalid.`);
                      startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
@@ -952,7 +949,7 @@
             let soundNote = 'C4';
             let nextModeToTransitionTo = null;
             let shouldAutoStartTheNextTimer = true; 
-            let showCycleCompleteAlert = false;
+            let showCycleCompleteNotification = false; // Changed from Alert to Notification
             let completedTime = 0;
 
             appData.timerState.forcedBreakContextSession = null; 
@@ -985,7 +982,7 @@
                     nextModeToTransitionTo = 'longBreak';
                     appData.stats.daily.cyclesCompleted++;
                     appData.stats.general.totalCyclesCompleted++;
-                    showCycleCompleteAlert = true;
+                    showCycleCompleteNotification = true;
                     shouldAutoStartTheNextTimer = true; 
                 } else {
                     nextModeToTransitionTo = 'shortBreak';
@@ -1043,9 +1040,12 @@
                 saveData(); 
             };
 
-            if (showCycleCompleteAlert) {
+            if (showCycleCompleteNotification) {
                 showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
-                setTimeout(proceedToNextStepActions, 100); 
+                // Since it's a notification, we can proceed with other actions more quickly.
+                // However, reward/achievement alerts are still modal, so they need to be handled.
+                // We'll call proceedToNextStepActions directly, and the setTimeouts in checkRewards/Achievements will handle their modals.
+                proceedToNextStepActions();
             } else {
                 proceedToNextStepActions();
             }
@@ -1112,10 +1112,11 @@
                     newRewardEarned = true;
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
-                        setTimeout(() => { // Delay showing modal alert
+                        showNotification("Reward Earned!", message);
+                        // Delay modal alert to avoid interfering with timer flow
+                        setTimeout(() => {
                             showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
-                        }, 150 + soundOffsetForReward * 1000); // Stagger modal alerts slightly more
-                        showNotification("Reward Earned!", message); // Desktop notification can be immediate
+                        }, 100 + soundOffsetForReward * 200); // Stagger slightly
                         playSound('G5', '2n', 'reward', soundOffsetForReward * 0.2);
                         soundOffsetForReward++; 
                         reward.notificationShown = true;
@@ -1151,9 +1152,9 @@
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showNotification("Achievement Unlocked!", message);
-                        setTimeout(() => { // Delay showing modal alert
+                         setTimeout(() => { // Delay modal alert
                             showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
-                        }, 200 + soundOffsetForAchievement * 1000); // Stagger modal alerts slightly more
+                        }, 150 + soundOffsetForAchievement * 200); // Stagger slightly
                         playSound('A5', '1n', 'achievement', soundOffsetForAchievement * 0.2);
                         soundOffsetForAchievement++; 
                         ach.notificationShown = true;
