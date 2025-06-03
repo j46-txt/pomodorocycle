@@ -942,14 +942,14 @@
             isRunning = false;
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
-            updateLastTimerInfo();
+            // updateLastTimerInfo(); // Called by updateTimerDisplay
 
             let notificationTitle = "";
             let notificationBody = "";
             let soundNote = 'C4';
             let nextModeToTransitionTo = null;
             let shouldAutoStartTheNextTimer = true; 
-            let showCycleCompleteNotification = false; // Changed from Alert to Notification
+            let showCycleCompleteNotification = false;
             let completedTime = 0;
 
             appData.timerState.forcedBreakContextSession = null; 
@@ -1012,43 +1012,34 @@
             }
             
             // Update UI for the timer that just ended (shows 00:00 for the endedMode)
-            updateTimerDisplay(); 
+            updateTimerDisplay(); // Ensures 00:00 is shown for endedMode
             updateStatsDisplay(); 
             playSound(soundNote, '4n', 'timerComplete'); 
             showNotification(notificationTitle, notificationBody); 
 
-            const proceedToNextStepActions = () => {
-                // Set the next timer *after* alerts and checks
-                if (nextModeToTransitionTo) {
-                    setTimer(nextModeToTransitionTo); // This sets currentMode and timeLeft for the new mode, and calls updateTimerDisplay
-                }
-                checkRewards(); 
-                checkAchievements(); 
-                
-                if (shouldAutoStartTheNextTimer && nextModeToTransitionTo) {
-                    setTimeout(() => { // Added timeout for robustness, especially on mobile/background
-                        if (timeLeft > 0) { // Check timeLeft again, it should be positive now
-                           startTimer(); 
-                        } else {
-                            console.warn(`Auto-start for ${currentMode} (intended: ${nextModeToTransitionTo}) aborted in setTimeout: timeLeft is ${timeLeft}.`);
-                            startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                        }
-                    }, 50); 
-                } else if (nextModeToTransitionTo) { 
-                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                }
-                saveData(); 
-            };
-
             if (showCycleCompleteNotification) {
                 showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
-                // Since it's a notification, we can proceed with other actions more quickly.
-                // However, reward/achievement alerts are still modal, so they need to be handled.
-                // We'll call proceedToNextStepActions directly, and the setTimeouts in checkRewards/Achievements will handle their modals.
-                proceedToNextStepActions();
-            } else {
-                proceedToNextStepActions();
             }
+
+            // Set up and potentially start the next timer
+            if (nextModeToTransitionTo) {
+                setTimer(nextModeToTransitionTo); // This sets currentMode, timeLeft, and calls updateTimerDisplay for the new mode
+                
+                if (shouldAutoStartTheNextTimer) {
+                    setTimeout(() => { 
+                        startTimer(); 
+                    }, 100); 
+                } else {
+                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                }
+            }
+            
+            // Check rewards and achievements after setting up/starting the next timer.
+            setTimeout(() => {
+                checkRewards(); 
+                checkAchievements();
+                saveData(); 
+            }, 150); 
         }
 
         function resetCurrentTimer() {
@@ -1113,11 +1104,10 @@
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
                         showNotification("Reward Earned!", message);
-                        // Delay modal alert to avoid interfering with timer flow
                         setTimeout(() => {
                             showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
-                        }, 100 + soundOffsetForReward * 200); // Stagger slightly
-                        playSound('G5', '2n', 'reward', soundOffsetForReward * 0.2);
+                        }, 0 + soundOffsetForReward * 250); // Stagger modal alerts slightly more
+                        playSound('G5', '2n', 'reward'); // Removed offset from here, handled by global lastSoundScheduledTime
                         soundOffsetForReward++; 
                         reward.notificationShown = true;
                     }
@@ -1152,10 +1142,10 @@
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
                         showNotification("Achievement Unlocked!", message);
-                         setTimeout(() => { // Delay modal alert
+                         setTimeout(() => { 
                             showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
-                        }, 150 + soundOffsetForAchievement * 200); // Stagger slightly
-                        playSound('A5', '1n', 'achievement', soundOffsetForAchievement * 0.2);
+                        }, 50 + soundOffsetForAchievement * 250); 
+                        playSound('A5', '1n', 'achievement'); // Removed offset from here
                         soundOffsetForAchievement++; 
                         ach.notificationShown = true;
                     }
@@ -1229,6 +1219,7 @@
 
         skipBreakButton.addEventListener('click', () => {
             if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
+                const skippedMode = currentMode; 
                 pauseTimer(); 
                 
                 let nextModeAfterSkip = 'study';
@@ -1239,7 +1230,10 @@
                 appData.timerState.forcedBreakContextSession = null; 
                 appData.timerState.persistedPreviousPomodorosInCycle = null; 
                 
+                appData.timerState.lastTimerUsed = skippedMode;
+                
                 setTimer(nextModeAfterSkip); 
+                updateLastTimerInfo(); // Update immediately after setting lastTimerUsed
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
                 isRunning = false; 
                 saveTimerState();
