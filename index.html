@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamified Pomodoro Timer</title>
+    <title>PomodoroCycle Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -350,7 +350,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.1.8" 
+            appVersion: "1.1.9" 
         };
         
         const defaultAchievements = [
@@ -694,10 +694,9 @@
             if (currentMode === 'study') {
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
-                // Short break is associated with the study session just completed
                 displayedSessionNumber = pomodorosInCycle; 
-                if (pomodorosInCycle === 0) displayedSessionNumber = 1; // If it's the break after the first study, show 1/4
-            } else { // longBreak
+                if (pomodorosInCycle === 0) displayedSessionNumber = 1; 
+            } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
             
@@ -938,7 +937,8 @@
             isRunning = false;
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
-            
+            updateLastTimerInfo();
+
             let notificationTitleForEndedMode = "";
             let notificationBodyForEndedMode = "";
             let soundNoteForEndedMode = 'C4';
@@ -1006,6 +1006,7 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
+            // Update UI for the timer that just ended (shows 00:00 for the endedMode)
             updateStatsDisplay(); 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete'); 
             showNotification(notificationTitleForEndedMode, notificationBodyForEndedMode); 
@@ -1019,9 +1020,9 @@
                 setTimer(nextModeToTransitionTo); 
                 
                 if (shouldAutoStartTheNextTimer) {
-                    setTimeout(() => { 
+                    requestAnimationFrame(() => { // Using requestAnimationFrame for smoother transition
                         startTimer(); 
-                    }, 150); // Increased delay for Safari/mobile
+                    });
                 } else {
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
@@ -1399,8 +1400,8 @@
             
             let fullDurationForMode;
             switch(currentMode) {
-                case 'study': fullDurationForCurrentMode = appData.settings.studyTime * 60; break;
-                case 'shortBreak': fullDurationForCurrentMode = appData.settings.shortBreakTime * 60; break;
+                case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
+                case 'shortBreak': fullDurationForMode = appData.settings.shortBreakTime * 60; break;
                 case 'longBreak': fullDurationForMode = appData.settings.longBreakTime * 60; break;
                 default: fullDurationForMode = appData.settings.studyTime * 60; 
             }
