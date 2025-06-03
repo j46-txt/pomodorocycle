@@ -1429,7 +1429,7 @@
     </script>
 </body>
 <head>
-    <style>
+<style>
         body {
             display: flex;
             flex-direction: column;
@@ -1441,39 +1441,26 @@
 
         .donation-section {
             text-align: center;
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: #5a687d;
-            margin-top: 10px;
-            width: 150px;
+            margin-top: 20px;
+            max-width: 250px;
+            opacity: 0.75;
         }
 
-        .donation-section p {
-            margin: 0 0 5px 0;
+        .donation-section a {
+            color: #5a687d;
+            text-decoration: none;
         }
 
-        .donation-section .bmc-btn {
-            transform: none !important;
-            zoom: 0.5;
-            transform-origin: top center;
-            display: inline-block;
-            width: 100%;
+        .donation-section a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
 <body>
     <div class="donation-section">
-        <p>Enjoying the app?</p>
-        <script type="text/javascript" src="https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js"
-                data-name="bmc-button"
-                data-slug="lemonade299792458"
-                data-color="#FFDD00"
-                data-emoji="☕"
-                data-font="Comic"
-                data-text="Buy me a coffee"
-                data-outline-color="#000000"
-                data-font-color="#000000"
-                data-coffee-color="#ffffff">
-        </script>
+        <p>If you'd like to support this app, you can do so <a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank">here ☕</a></p>
     </div>
 </body>
 </html>
