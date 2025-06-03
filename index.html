@@ -346,7 +346,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.52" 
+            appVersion: "1.0.51" 
         };
         
         const defaultAchievements = [
@@ -928,6 +928,7 @@
             saveTimerState(); 
         }
         
+        // ### MODIFICATION: Updated handleTimerEnd for auto-start logic ###
         function handleTimerEnd() {
             clearInterval(timerInterval);
             isRunning = false;
@@ -1002,13 +1003,14 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
+            // Set the next timer first, so UI updates reflect the new state before alerts/sounds
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); 
+                 setTimer(nextModeToTransitionTo); 
             }
             
             updateStatsDisplay(); 
-            playSound(soundNote, '4n', 'timerComplete');
-            showNotification(notificationTitle, notificationBody);
+            playSound(soundNote, '4n', 'timerComplete'); 
+            showNotification(notificationTitle, notificationBody); 
 
             const finalTimerActions = () => {
                 checkRewards();
