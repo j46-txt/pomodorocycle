@@ -892,10 +892,10 @@
 
         function startTimer() {
             if (timeLeft <= 0) {
-                console.warn(`Timer not started for mode ${currentMode}. Reason: timeLeft is ${timeLeft}. Attempting to reset to default for mode.`);
+                console.warn(`startTimer: timeLeft is ${timeLeft} for ${currentMode}. Attempting to reset time via setTimer.`);
                 setTimer(currentMode); 
                 if(timeLeft <= 0) { 
-                     console.error(`Cannot start timer for ${currentMode}: duration is zero or invalid.`);
+                     console.error(`startTimer: Cannot start timer for ${currentMode}, timeLeft is still ${timeLeft} after reset. Check settings.`);
                      startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                      isRunning = false; 
                      return;
@@ -937,11 +937,11 @@
             isRunning = false;
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
-            updateLastTimerInfo();
+            // updateLastTimerInfo(); // Called by updateTimerDisplay within setTimer
 
-            let notificationTitle = "";
-            let notificationBody = "";
-            let soundNote = 'C4';
+            let notificationTitleForEndedMode = "";
+            let notificationBodyForEndedMode = "";
+            let soundNoteForEndedMode = 'C4';
             let nextModeToTransitionTo = null;
             let shouldAutoStartTheNextTimer = true; 
             let showCycleCompleteNotification = false;
@@ -951,9 +951,9 @@
 
             if (endedMode === 'study') {
                 completedTime = appData.settings.studyTime * 60;
-                notificationTitle = "Study Session Complete!";
-                notificationBody = "Time for a break. Good job!";
-                soundNote = 'C5';
+                notificationTitleForEndedMode = "Study Session Complete!";
+                notificationBodyForEndedMode = "Time for a break. Good job!";
+                soundNoteForEndedMode = 'C5';
                 pomodorosInCycle++;
 
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
@@ -986,17 +986,17 @@
             } else if (endedMode === 'shortBreak') {
                 completedTime = appData.settings.shortBreakTime * 60;
                 appData.stats.general.totalShortBreakSeconds += completedTime;
-                notificationTitle = "Break Over!";
-                notificationBody = "Time to get back to focus!";
-                soundNote = 'E4';
+                notificationTitleForEndedMode = "Break Over!";
+                notificationBodyForEndedMode = "Time to get back to focus!";
+                soundNoteForEndedMode = 'E4';
                 nextModeToTransitionTo = 'study';
                 shouldAutoStartTheNextTimer = true;
             } else if (endedMode === 'longBreak') {
                 completedTime = appData.settings.longBreakTime * 60;
                 appData.stats.general.totalLongBreakSeconds += completedTime;
-                notificationTitle = "Long Break Over!";
-                notificationBody = "Cycle complete! Ready for a new one?";
-                soundNote = 'E4';
+                notificationTitleForEndedMode = "Long Break Over!";
+                notificationBodyForEndedMode = "Cycle complete! Ready for a new one?";
+                soundNoteForEndedMode = 'E4';
                 pomodorosInCycle = 0;
                 nextModeToTransitionTo = 'study';
                 shouldAutoStartTheNextTimer = false; 
@@ -1007,31 +1007,33 @@
             }
             
             updateStatsDisplay(); 
-            playSound(soundNote, '4n', 'timerComplete'); 
-            showNotification(notificationTitle, notificationBody); 
+            playSound(soundNoteForEndedMode, '4n', 'timerComplete'); 
+            showNotification(notificationTitleForEndedMode, notificationBodyForEndedMode); 
 
             if (showCycleCompleteNotification) {
                 showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
             }
 
-            // Set up and potentially start the next timer
+            // Set up the next timer (this updates currentMode, timeLeft, and calls updateTimerDisplay for the new state)
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); // This sets currentMode, timeLeft, and calls updateTimerDisplay for the new mode
+                setTimer(nextModeToTransitionTo); 
                 
                 if (shouldAutoStartTheNextTimer) {
                     setTimeout(() => { 
                         startTimer(); 
-                    }, 150); 
+                    }, 150); // Delay to allow UI to settle, especially for Safari mobile
                 } else {
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
             }
             
+            // Check rewards and achievements after setting up/starting the next timer.
+            // Use setTimeout for modals to avoid blocking timer start.
             setTimeout(() => {
                 checkRewards(); 
                 checkAchievements();
                 saveData(); 
-            }, 200); 
+            }, 250); 
         }
 
         function resetCurrentTimer() {
