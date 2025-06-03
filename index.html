@@ -80,16 +80,57 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
-        /* Style for the skip break button */
         #skipBreakButton {
-            background-color: #4a5568; /* slate-700 */
-            color: #a0aec0; /* slate-400 */
+            background-color: #4a5568; 
+            color: #a0aec0; 
             border: 1px solid #4a5568;
         }
         #skipBreakButton:hover {
-            background-color: #2d3748; /* slate-800 */
-            color: #e2e8f0; /* slate-200 */
+            background-color: #2d3748; 
+            color: #e2e8f0; 
             border-color: #2d3748;
+        }
+        /* Toast Notification Styles */
+        #toastNotification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 0.875rem;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            max-width: 300px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        #toastNotification.show {
+            opacity: 1;
+        }
+        #toastNotification.success { background-color: #34d399; } /* green-500 */
+        #toastNotification.error { background-color: #ef4444; } /* red-500 */
+        #toastNotification.info { background-color: #3b82f6; } /* blue-500 */
+        #toastNotification.warning { background-color: #f59e0b; } /* amber-500 */
+
+        /* Badge Notification Styles */
+        .tab-badge {
+            position: absolute;
+            top: 0.5rem; /* Adjust as needed */
+            right: 0.5rem; /* Adjust as needed */
+            background-color: #ef4444; /* red-500 */
+            color: white;
+            border-radius: 9999px; /* pill shape */
+            padding: 0.1rem 0.4rem;
+            font-size: 0.65rem;
+            font-weight: bold;
+            line-height: 1;
+            min-width: 1rem; /* Ensure it's visible even with single digit */
+            text-align: center;
+            display: none; /* Hidden by default */
+        }
+        .tab-button {
+            position: relative; /* For badge positioning */
         }
     </style>
 </head>
@@ -137,10 +178,10 @@
                     <i class="fas fa-chart-line mr-2"></i>Statistics
                 </button>
                 <button data-tab="rewards" class="tab-button text-slate-400 border-transparent py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
-                    <i class="fas fa-gift mr-2"></i>Daily Rewards
+                    <i class="fas fa-gift mr-2"></i>Daily Rewards <span id="rewardsTabBadge" class="tab-badge"></span>
                 </button>
                 <button data-tab="achievements" class="tab-button text-slate-400 border-transparent py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
-                    <i class="fas fa-trophy mr-2"></i>Achievements
+                    <i class="fas fa-trophy mr-2"></i>Achievements <span id="achievementsTabBadge" class="tab-badge"></span>
                 </button>
             </nav>
         </div>
@@ -220,13 +261,7 @@
                         <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
                     </label>
                 </div>
-                <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-slate-300">Enable Desktop Notifications:</span>
-                    <label class="relative inline-flex items-center cursor-pointer">
-                        <input type="checkbox" id="notificationsToggle" class="sr-only peer">
-                        <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
-                    </label>
-                </div>
+                <!-- ### MODIFICATION: Removed Desktop Notifications Toggle ### -->
             </div>
             <div class="mt-8 flex justify-end space-x-3">
                 <button id="cancelSettingsButton" class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-600 hover:bg-slate-500 rounded-md transition-colors">Cancel</button>
@@ -251,6 +286,12 @@
         </div>
     </div>
 
+    <!-- ### MODIFICATION: Added Toast Notification Element ### -->
+    <div id="toastNotification" class="fixed top-5 right-5 p-4 rounded-md text-white z-[1000] opacity-0 transition-opacity duration-500 max-w-xs shadow-lg">
+        <strong id="toastTitle" class="font-bold"></strong>
+        <p id="toastBody"></p>
+    </div>
+
 
     <script>
         // --- DOM Elements ---
@@ -273,7 +314,7 @@
         const shortBreakTimeInput = document.getElementById('shortBreakTimeInput');
         const longBreakTimeInput = document.getElementById('longBreakTimeInput');
         const soundToggle = document.getElementById('soundToggle');
-        const notificationsToggle = document.getElementById('notificationsToggle');
+        // const notificationsToggle = document.getElementById('notificationsToggle'); // Removed
 
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
@@ -306,6 +347,14 @@
         
         const faviconEl = document.getElementById('favicon'); 
 
+        const toastNotificationEl = document.getElementById('toastNotification');
+        const toastTitleEl = document.getElementById('toastTitle');
+        const toastBodyEl = document.getElementById('toastBody');
+
+        const rewardsTabBadgeEl = document.getElementById('rewardsTabBadge');
+        const achievementsTabBadgeEl = document.getElementById('achievementsTabBadge');
+
+
         // --- State Variables ---
         let timerInterval;
         let timeLeft; 
@@ -325,7 +374,7 @@
                 shortBreakTime: 5,
                 longBreakTime: 15,
                 soundEnabled: true,
-                notificationsEnabled: true,
+                // notificationsEnabled: true, // Removed desktop notifications
             },
             timerState: {
                 lastTimerUsed: null, 
@@ -350,45 +399,49 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.1.11" 
+            uiState: { // For badge notifications
+                newRewardsCount: 0,
+                newAchievementsCount: 0
+            },
+            appVersion: "1.1.13" 
         };
         
         const defaultAchievements = [
             // Total Days Studied
-            { id: "days1", name: "Focused Beginner", description: "Complete your first day of study.", type: "totalDaysStudied", threshold: 1, icon: "fas fa-seedling" },
-            { id: "days7", name: "Weekly Commitment", description: "Study for 7 days.", type: "totalDaysStudied", threshold: 7, icon: "fas fa-calendar-check" },
-            { id: "days15", name: "Fortnightly Persistence", description: "Study for 15 days.", type: "totalDaysStudied", threshold: 15, icon: "fas fa-medal" },
-            { id: "days30", name: "Monthly Habit", description: "Study for 30 days.", type: "totalDaysStudied", threshold: 30, icon: "fas fa-award" },
-            { id: "days50", name: "Consistent Student", description: "Study for 50 days.", type: "totalDaysStudied", threshold: 50, icon: "fas fa-star" },
-            { id: "days75", name: "Study Marathoner", description: "Study for 75 days.", type: "totalDaysStudied", threshold: 75, icon: "fas fa-running" },
-            { id: "days100", name: "Habit Master", description: "Study for 100 days.", type: "totalDaysStudied", threshold: 100, icon: "fas fa-crown" },
-            { id: "days120", name: "Academic Legend", description: "Study for 120 days.", type: "totalDaysStudied", threshold: 120, icon: "fas fa-book-reader" },
-            { id: "days150", name: "Study Sage", description: "Study for 150 days.", type: "totalDaysStudied", threshold: 150, icon: "fas fa-graduation-cap" },
+            { id: "days1", name: "Focused Beginner", description: "Complete your first day of study.", type: "totalDaysStudied", threshold: 1, icon: "fas fa-seedling", seen: false },
+            { id: "days7", name: "Weekly Commitment", description: "Study for 7 days.", type: "totalDaysStudied", threshold: 7, icon: "fas fa-calendar-check", seen: false },
+            { id: "days15", name: "Fortnightly Persistence", description: "Study for 15 days.", type: "totalDaysStudied", threshold: 15, icon: "fas fa-medal", seen: false },
+            { id: "days30", name: "Monthly Habit", description: "Study for 30 days.", type: "totalDaysStudied", threshold: 30, icon: "fas fa-award", seen: false },
+            { id: "days50", name: "Consistent Student", description: "Study for 50 days.", type: "totalDaysStudied", threshold: 50, icon: "fas fa-star", seen: false },
+            { id: "days75", name: "Study Marathoner", description: "Study for 75 days.", type: "totalDaysStudied", threshold: 75, icon: "fas fa-running", seen: false },
+            { id: "days100", name: "Habit Master", description: "Study for 100 days.", type: "totalDaysStudied", threshold: 100, icon: "fas fa-crown", seen: false },
+            { id: "days120", name: "Academic Legend", description: "Study for 120 days.", type: "totalDaysStudied", threshold: 120, icon: "fas fa-book-reader", seen: false },
+            { id: "days150", name: "Study Sage", description: "Study for 150 days.", type: "totalDaysStudied", threshold: 150, icon: "fas fa-graduation-cap", seen: false },
             // Streak Achievements
-            { id: "streak3", name: "3-Day Combo!", description: "Maintain a 3-day study streak.", type: "streak", threshold: 3, icon: "fas fa-fire" },
-            { id: "streak7", name: "7-Day Combo: Unstoppable!", description: "Maintain a 7-day study streak.", type: "streak", threshold: 7, icon: "fas fa-bolt" },
-            { id: "streak14", name: "14-Day Combo: Power of Habit!", description: "Maintain a 14-day study streak.", type: "streak", threshold: 14, icon: "fas fa-dumbbell" },
-            { id: "streak30", name: "30-Day Combo: Master of Consistency!", description: "Maintain a 30-day study streak.", type: "streak", threshold: 30, icon: "fas fa-calendar-alt" },
-            { id: "streak50", name: "50-Day Streak: True Dedication!", description: "Maintain a 50-day study streak.", type: "streak", threshold: 50, icon: "fas fa-shield-alt" },
+            { id: "streak3", name: "3-Day Combo!", description: "Maintain a 3-day study streak.", type: "streak", threshold: 3, icon: "fas fa-fire", seen: false },
+            { id: "streak7", name: "7-Day Combo: Unstoppable!", description: "Maintain a 7-day study streak.", type: "streak", threshold: 7, icon: "fas fa-bolt", seen: false },
+            { id: "streak14", name: "14-Day Combo: Power of Habit!", description: "Maintain a 14-day study streak.", type: "streak", threshold: 14, icon: "fas fa-dumbbell", seen: false },
+            { id: "streak30", name: "30-Day Combo: Master of Consistency!", description: "Maintain a 30-day study streak.", type: "streak", threshold: 30, icon: "fas fa-calendar-alt", seen: false },
+            { id: "streak50", name: "50-Day Streak: True Dedication!", description: "Maintain a 50-day study streak.", type: "streak", threshold: 50, icon: "fas fa-shield-alt", seen: false },
             // Total Cycles Completed
-            { id: "cycles1", name: "First Full Cycle", description: "Complete 1 Pomodoro cycle.", type: "totalCyclesCompleted", threshold: 1, icon: "fas fa-flag-checkered" },
-            { id: "cycles10", name: "Ten Cycles of Focus", description: "Complete 10 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 10, icon: "fas fa-spinner fa-spin" },
-            { id: "cycles25", name: "Twenty-Five Cycles", description: "Complete 25 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 25, icon: "fas fa-cogs" },
-            { id: "cycles50", name: "Fifty Cycles of Productivity", description: "Complete 50 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 50, icon: "fas fa-rocket" },
-            { id: "cycles100", name: "One Hundred Cycles Mastered", description: "Complete 100 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 100, icon: "fas fa-gem" },
+            { id: "cycles1", name: "First Full Cycle", description: "Complete 1 Pomodoro cycle.", type: "totalCyclesCompleted", threshold: 1, icon: "fas fa-flag-checkered", seen: false },
+            { id: "cycles10", name: "Ten Cycles of Focus", description: "Complete 10 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 10, icon: "fas fa-spinner fa-spin", seen: false },
+            { id: "cycles25", name: "Twenty-Five Cycles", description: "Complete 25 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 25, icon: "fas fa-cogs", seen: false },
+            { id: "cycles50", name: "Fifty Cycles of Productivity", description: "Complete 50 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 50, icon: "fas fa-rocket", seen: false },
+            { id: "cycles100", name: "One Hundred Cycles Mastered", description: "Complete 100 Pomodoro cycles.", type: "totalCyclesCompleted", threshold: 100, icon: "fas fa-gem", seen: false },
             // Total Pure Study Hours
-            { id: "hours1", name: "First Hour of Focus", description: "Accumulate 1 hour of pure study.", type: "totalPureStudyHours", threshold: 1, icon: "fas fa-hourglass-start" },
-            { id: "hours10", name: "Ten Hours of Immersion", description: "Accumulate 10 hours of pure study.", type: "totalPureStudyHours", threshold: 10, icon: "fas fa-brain" },
-            { id: "hours50", name: "Fifty Hours of Dedication", description: "Accumulate 50 hours of pure study.", type: "totalPureStudyHours", threshold: 50, icon: "fas fa-microscope" },
-            { id: "hours100", name: "One Hundred Hours of Knowledge", description: "Accumulate 100 hours of pure study.", type: "totalPureStudyHours", threshold: 100, icon: "fas fa-university" },
+            { id: "hours1", name: "First Hour of Focus", description: "Accumulate 1 hour of pure study.", type: "totalPureStudyHours", threshold: 1, icon: "fas fa-hourglass-start", seen: false },
+            { id: "hours10", name: "Ten Hours of Immersion", description: "Accumulate 10 hours of pure study.", type: "totalPureStudyHours", threshold: 10, icon: "fas fa-brain", seen: false },
+            { id: "hours50", name: "Fifty Hours of Dedication", description: "Accumulate 50 hours of pure study.", type: "totalPureStudyHours", threshold: 50, icon: "fas fa-microscope", seen: false },
+            { id: "hours100", name: "One Hundred Hours of Knowledge", description: "Accumulate 100 hours of pure study.", type: "totalPureStudyHours", threshold: 100, icon: "fas fa-university", seen: false },
             // Total Short Break Time
-            { id: "sb_minutes_30", name: "Quick Breather", description: "Accumulate 30 minutes in short breaks.", type: "totalShortBreakSeconds", threshold: 30 * 60, icon: "fas fa-coffee" },
-            { id: "sb_hours_1", name: "Relaxation Adept", description: "Accumulate 1 hour in short breaks.", type: "totalShortBreakSeconds", threshold: 1 * 3600, icon: "fas fa-mug-hot" },
-            { id: "sb_hours_5", name: "Short Break Champion", description: "Accumulate 5 hours in short breaks.", type: "totalShortBreakSeconds", threshold: 5 * 3600, icon: "fas fa-couch" },
+            { id: "sb_minutes_30", name: "Quick Breather", description: "Accumulate 30 minutes in short breaks.", type: "totalShortBreakSeconds", threshold: 30 * 60, icon: "fas fa-coffee", seen: false },
+            { id: "sb_hours_1", name: "Relaxation Adept", description: "Accumulate 1 hour in short breaks.", type: "totalShortBreakSeconds", threshold: 1 * 3600, icon: "fas fa-mug-hot", seen: false },
+            { id: "sb_hours_5", name: "Short Break Champion", description: "Accumulate 5 hours in short breaks.", type: "totalShortBreakSeconds", threshold: 5 * 3600, icon: "fas fa-couch", seen: false },
             // Total Long Break Time
-            { id: "lb_hours_1", name: "Well Deserved Rest", description: "Accumulate 1 hour in long breaks.", type: "totalLongBreakSeconds", threshold: 1 * 3600, icon: "fas fa-bed" },
-            { id: "lb_hours_3", name: "Recharge Master", description: "Accumulate 3 hours in long breaks.", type: "totalLongBreakSeconds", threshold: 3 * 3600, icon: "fas fa-battery-full" },
-            { id: "lb_hours_10", name: "Leisure Expert", description: "Accumulate 10 hours in long breaks.", type: "totalLongBreakSeconds", threshold: 10 * 3600, icon: "fas fa-umbrella-beach" }
+            { id: "lb_hours_1", name: "Well Deserved Rest", description: "Accumulate 1 hour in long breaks.", type: "totalLongBreakSeconds", threshold: 1 * 3600, icon: "fas fa-bed", seen: false },
+            { id: "lb_hours_3", name: "Recharge Master", description: "Accumulate 3 hours in long breaks.", type: "totalLongBreakSeconds", threshold: 3 * 3600, icon: "fas fa-battery-full", seen: false },
+            { id: "lb_hours_10", name: "Leisure Expert", description: "Accumulate 10 hours in long breaks.", type: "totalLongBreakSeconds", threshold: 10 * 3600, icon: "fas fa-umbrella-beach", seen: false }
         ];
 
 
@@ -486,9 +539,13 @@
                 persistedPreviousPomodorosInCycle: null,
                 forcedBreakContextSession: null
             };
+            const defaultUiState = { newRewardsCount: 0, newAchievementsCount: 0 };
+
 
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
+                
+                // Version migration logic
                 if (parsedData.appVersion !== appData.appVersion) {
                      console.log(`Data version mismatch. Current: ${appData.appVersion}, Stored: ${parsedData.appVersion}. Merging data.`);
                      if (!parsedData.stats?.general?.totalShortBreakSeconds) {
@@ -506,19 +563,29 @@
                         if (!parsedData.stats.daily) parsedData.stats.daily = {};
                         parsedData.stats.daily.totalTimeTodaySeconds = 0;
                      }
+                     // Remove notificationsEnabled from settings if it exists from older versions
+                     if (parsedData.settings && parsedData.settings.hasOwnProperty('notificationsEnabled')) {
+                        delete parsedData.settings.notificationsEnabled;
+                     }
                 }
+
                 const mergedAchievements = defaultAchievements.map(defaultAch => {
                     const userAch = parsedData.achievements?.find(ua => ua.id === defaultAch.id);
                     return { 
                         ...defaultAch,
                         unlocked: userAch?.unlocked || false, 
                         unlockedDate: userAch?.unlockedDate || null,
-                        notificationShown: userAch?.notificationShown || false
+                        seen: userAch?.seen || (userAch?.unlocked || false) // If unlocked and seen is undefined, mark as seen
                     };
                 });
-                const userRewards = parsedData.rewards || [];
+                
+                const userRewards = (parsedData.rewards || []).map(reward => ({
+                    ...reward,
+                    seen: reward.seen || (reward.earnedToday || false) // If earnedToday and seen is undefined, mark as seen
+                }));
                 
                 const loadedTimerState = { ...defaultTimerState, ...(parsedData.timerState || {}) };
+                const loadedUiState = { ...defaultUiState, ...(parsedData.uiState || {}) };
                 
                 const loadedPomodorosInCycle = loadedTimerState.persistedPomodorosInCycle !== undefined ? 
                                                 parseInt(loadedTimerState.persistedPomodorosInCycle, 10) : 0;
@@ -528,7 +595,8 @@
                     ...parsedData, 
                     achievements: mergedAchievements, 
                     rewards: userRewards,
-                    timerState: loadedTimerState 
+                    timerState: loadedTimerState,
+                    uiState: loadedUiState
                 };
                 pomodorosInCycle = isNaN(loadedPomodorosInCycle) ? 0 : loadedPomodorosInCycle;
                 
@@ -544,21 +612,27 @@
 
                 if (appData.stats.daily.date !== getTodayDateString()) {
                     resetDailyStats(); 
+                    appData.uiState.newRewardsCount = 0; // Reset badge counts on new day
+                    appData.rewards.forEach(r => r.seen = false); // Mark all as unseen for new day
                 }
             } else {
-                appData.achievements = defaultAchievements.map(ach => ({ ...ach, unlocked: false, unlockedDate: null, notificationShown: false }));
+                appData.achievements = defaultAchievements.map(ach => ({ ...ach, unlocked: false, unlockedDate: null, seen: false }));
                 pomodorosInCycle = 0; 
                 appData.stats.general.totalShortBreakSeconds = 0; 
                 appData.stats.general.totalLongBreakSeconds = 0;
                 appData.stats.daily.totalTimeTodaySeconds = 0;
                 appData.timerState = { ...defaultTimerState }; 
                 appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60; 
+                appData.uiState = { ...defaultUiState };
             }
             studyTimeInput.value = appData.settings.studyTime;
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
             soundToggle.checked = appData.settings.soundEnabled;
-            notificationsToggle.checked = appData.settings.notificationsEnabled;
+            // notificationsToggle.checked = appData.settings.notificationsEnabled; // Removed
+            
+            updateRewardTabNotificationBadge();
+            updateAchievementTabNotificationBadge();
         }
 
         function saveData() {
@@ -566,44 +640,50 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         }
 
-        // --- Notifications ---
-        function requestNotificationPermission() {
-            if (!('Notification' in window)) {
-                console.warn("Desktop notifications not supported.");
-                appData.settings.notificationsEnabled = false;
-                notificationsToggle.checked = false;
-                notificationsToggle.disabled = true;
-                return;
+        // --- Toast Notifications ---
+        let toastTimeout;
+        function showToast(title, body, type = 'info', duration = 4000) {
+            clearTimeout(toastTimeout); // Clear existing toast timeout
+
+            toastTitleEl.textContent = title;
+            toastBodyEl.textContent = body;
+
+            toastNotificationEl.className = 'fixed top-5 right-5 p-4 rounded-md text-white z-[1000] opacity-0 transition-opacity duration-500 max-w-xs shadow-lg'; // Reset classes
+            
+            switch(type) {
+                case 'success': toastNotificationEl.classList.add('bg-green-500'); break;
+                case 'error': toastNotificationEl.classList.add('bg-red-500'); break;
+                case 'warning': toastNotificationEl.classList.add('bg-yellow-500'); break;
+                default: toastNotificationEl.classList.add('bg-sky-500'); // Default to info
             }
-            if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-                Notification.requestPermission().then(permission => {
-                    if (permission === 'granted') {
-                        appData.settings.notificationsEnabled = true;
-                    } else {
-                        appData.settings.notificationsEnabled = false;
-                        notificationsToggle.checked = false;
-                         console.warn("Desktop notifications permission denied.");
-                    }
-                    saveData(); 
-                });
-            } else if (Notification.permission === 'denied') {
-                 appData.settings.notificationsEnabled = false;
-                 notificationsToggle.checked = false;
-                 notificationsToggle.disabled = true; 
+
+            toastNotificationEl.classList.add('show');
+
+            toastTimeout = setTimeout(() => {
+                toastNotificationEl.classList.remove('show');
+            }, duration);
+        }
+
+        // --- Badge Notifications ---
+        function updateRewardTabNotificationBadge() {
+            const unseenRewards = appData.rewards.filter(r => r.earnedToday && !r.seen).length;
+            appData.uiState.newRewardsCount = unseenRewards;
+            if (unseenRewards > 0) {
+                rewardsTabBadgeEl.textContent = unseenRewards;
+                rewardsTabBadgeEl.style.display = 'inline-block';
+            } else {
+                rewardsTabBadgeEl.style.display = 'none';
             }
         }
 
-        function showNotification(title, body) { 
-            if (!appData.settings.notificationsEnabled || Notification.permission !== 'granted') return;
-            const options = {
-                body: body,
-                icon: 'data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍅</text></svg>'
-            };
-            try {
-                new Notification(title, options);
-            } catch (e) {
-                console.error("Error showing notification:", e);
-                new Notification(title, {body: body});
+        function updateAchievementTabNotificationBadge() {
+            const unseenAchievements = appData.achievements.filter(ach => ach.unlocked && !ach.seen).length;
+            appData.uiState.newAchievementsCount = unseenAchievements;
+            if (unseenAchievements > 0) {
+                achievementsTabBadgeEl.textContent = unseenAchievements;
+                achievementsTabBadgeEl.style.display = 'inline-block';
+            } else {
+                achievementsTabBadgeEl.style.display = 'none';
             }
         }
         
@@ -789,6 +869,7 @@
                     appData.rewards = appData.rewards.filter(r => r.id !== rewardId);
                     saveData();
                     renderRewards();
+                    updateRewardTabNotificationBadge(); 
                 });
             });
         }
@@ -862,7 +943,6 @@
         }
 
         // --- Timer Logic ---
-        // ### MODIFICATION: Simplified setTimer ###
         function setTimer(mode) { 
             appData.timerState.forcedBreakContextSession = null; 
             
@@ -936,7 +1016,7 @@
         function handleTimerEnd() {
             clearInterval(timerInterval);
             isRunning = false;
-            const endedMode = currentMode; // Store the mode that just finished
+            const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
             
             let notificationTitleForEndedMode = "";
@@ -1006,13 +1086,13 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            updateLastTimerInfo(); // Update last timer info before setting the new one.
+            updateLastTimerInfo(); 
             updateStatsDisplay(); 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete'); 
-            showNotification(notificationTitleForEndedMode, notificationBodyForEndedMode); 
+            showToast(notificationTitleForEndedMode, notificationBodyForEndedMode, 'info'); 
 
             if (showCycleCompleteNotification) {
-                showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
+                 showToast("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!", 'success');
             }
 
             // Set up the next timer (this updates currentMode, timeLeft, and calls updateTimerDisplay for the new state)
@@ -1020,20 +1100,16 @@
                 setTimer(nextModeToTransitionTo); 
                 
                 if (shouldAutoStartTheNextTimer) {
-                    // Using requestAnimationFrame to schedule startTimer for the next repaint,
-                    // which might help with issues on some browsers/devices.
-                    requestAnimationFrame(() => {
-                        setTimeout(() => { // Add a small delay on top of rAF
+                    requestAnimationFrame(() => { // Use requestAnimationFrame for smoother UI updates before starting timer
+                        setTimeout(() => { 
                             startTimer(); 
-                        }, 150); // Delay increased slightly
+                        }, 150); 
                     });
                 } else {
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
             }
             
-            // Check rewards and achievements after setting up/starting the next timer.
-            // Use setTimeout for modals to avoid blocking timer start.
             setTimeout(() => {
                 checkRewards(); 
                 checkAchievements();
@@ -1057,8 +1133,16 @@
             };
             appData.rewards.forEach(reward => {
                 reward.earnedToday = false;
-                reward.notificationShown = false;
+                reward.notificationShown = false; // Reset for badge system
+                reward.seen = false; // Reset for badge system
             });
+             appData.achievements.forEach(ach => {
+                ach.seen = ach.unlocked; // If unlocked, mark as seen for new day if already seen previously
+            });
+            appData.uiState.newRewardsCount = 0;
+            appData.uiState.newAchievementsCount = 0;
+            updateRewardTabNotificationBadge();
+            updateAchievementTabNotificationBadge();
             pomodorosInCycle = 0; 
             appData.timerState.forcedBreakContextSession = null; 
         }
@@ -1069,7 +1153,7 @@
             const type = rewardTypeSelect.value;
             const threshold = parseFloat(rewardThresholdInput.value);
             if (!name || isNaN(threshold) || threshold < 0) { 
-                showCustomAlert("Error", "Please fill in all reward fields correctly. Value must be 0 or greater.", "fas fa-exclamation-circle text-red-400", "OK");
+                showToast("Error", "Please fill in all reward fields correctly. Value must be 0 or greater.", "error");
                 return;
             }
             appData.rewards.push({
@@ -1078,7 +1162,8 @@
                 type,
                 threshold,
                 earnedToday: false,
-                notificationShown: false
+                notificationShown: false, // Tracks if toast has been shown for this earning
+                seen: false // Tracks if user has "seen" it by visiting the tab
             });
             rewardNameInput.value = '';
             rewardThresholdInput.value = '';
@@ -1087,8 +1172,7 @@
         });
 
         function checkRewards() {
-            let newRewardEarned = false;
-            let soundOffsetForReward = 0;
+            let newRewardEarnedThisCheck = false;
             appData.rewards.forEach(reward => {
                 if (reward.earnedToday && reward.notificationShown) return; 
                 let currentProgress = 0;
@@ -1099,29 +1183,26 @@
                 }
                 if (currentProgress >= reward.threshold && !reward.earnedToday) {
                     reward.earnedToday = true;
-                    newRewardEarned = true;
+                    reward.seen = false; // Mark as unseen for badge
+                    newRewardEarnedThisCheck = true;
                     if (!reward.notificationShown) {
                         const message = `You earned the reward: "${reward.name}"!`;
-                        showNotification("Reward Earned!", message);
-                        setTimeout(() => {
-                            showCustomAlert("Reward Earned!", message, "fas fa-gift text-yellow-400", "Awesome!"); 
-                        }, 0 + soundOffsetForReward * 250); 
+                        showToast("Reward Earned!", message, 'success');
                         playSound('G5', '2n', 'reward'); 
-                        soundOffsetForReward++; 
-                        reward.notificationShown = true;
+                        reward.notificationShown = true; // Mark toast as shown for this earning
                     }
                 }
             });
-            if (newRewardEarned) {
+            if (newRewardEarnedThisCheck) {
                 renderRewards(); 
+                updateRewardTabNotificationBadge();
                 saveData();
             }
         }
 
         // --- Achievements Logic ---
         function checkAchievements() {
-            let newAchievementUnlocked = false;
-            let soundOffsetForAchievement = 0;
+            let newAchievementUnlockedThisCheck = false;
             appData.achievements.forEach(ach => {
                 if (ach.unlocked && ach.notificationShown) return; 
                 let currentValue;
@@ -1137,21 +1218,19 @@
                 if (currentValue >= ach.threshold && !ach.unlocked) {
                     ach.unlocked = true;
                     ach.unlockedDate = new Date().toISOString();
-                    newAchievementUnlocked = true;
+                    ach.seen = false; // Mark as unseen for badge
+                    newAchievementUnlockedThisCheck = true;
                     if (!ach.notificationShown) {
                          const message = `You unlocked the achievement: "${ach.name}"!`;
-                        showNotification("Achievement Unlocked!", message);
-                         setTimeout(() => { 
-                            showCustomAlert("Achievement Unlocked!", message, `${ach.icon || 'fas fa-trophy'} text-yellow-400`, "Great!"); 
-                        }, 50 + soundOffsetForAchievement * 250); 
+                        showToast("Achievement Unlocked!", message, 'success');
                         playSound('A5', '1n', 'achievement'); 
-                        soundOffsetForAchievement++; 
-                        ach.notificationShown = true;
+                        ach.notificationShown = true; // Mark toast as shown for this earning
                     }
                 }
             });
-            if (newAchievementUnlocked) {
+            if (newAchievementUnlockedThisCheck) {
                 renderAchievements(); 
+                updateAchievementTabNotificationBadge();
                 saveData();
             }
         }
@@ -1246,7 +1325,7 @@
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
             soundToggle.checked = appData.settings.soundEnabled;
-            notificationsToggle.checked = appData.settings.notificationsEnabled;
+            // notificationsToggle.checked = appData.settings.notificationsEnabled; // Removed
             settingsModal.classList.remove('show');
         });
 
@@ -1272,12 +1351,7 @@
             if (appData.settings.soundEnabled !== soundToggle.checked) {
                 appData.settings.soundEnabled = soundToggle.checked; settingsChanged = true;
             }
-             if (appData.settings.notificationsEnabled !== notificationsToggle.checked) {
-                appData.settings.notificationsEnabled = notificationsToggle.checked; settingsChanged = true;
-                 if(appData.settings.notificationsEnabled && Notification.permission !== 'granted' && Notification.permission !== 'denied'){
-                    requestNotificationPermission();
-                }
-            }
+            // No notifications toggle to check
             
             if(settingsChanged) {
                 saveData();
@@ -1303,7 +1377,7 @@
                 } else {
                     saveTimerState();
                 }
-                showCustomAlert("Success", "Settings saved!", "fas fa-check-circle text-green-400", "OK");
+                showToast("Settings Saved", "Your new timer durations have been applied.", "success");
             }
         });
         
@@ -1323,6 +1397,17 @@
                         pane.classList.add('hidden');
                     }
                 });
+                // Clear badge when tab is clicked
+                if (targetTab === 'rewards') {
+                    appData.uiState.newRewardsCount = 0;
+                    appData.rewards.forEach(r => { if(r.earnedToday) r.seen = true; });
+                    updateRewardTabNotificationBadge();
+                } else if (targetTab === 'achievements') {
+                    appData.uiState.newAchievementsCount = 0;
+                    appData.achievements.forEach(ach => { if(ach.unlocked) ach.seen = true; });
+                    updateAchievementTabNotificationBadge();
+                }
+                saveData();
                 updateStatsDisplay();
                 renderRewards(); 
                 renderAchievements(); 
@@ -1404,10 +1489,10 @@
             
             let fullDurationForMode;
             switch(currentMode) {
-                case 'study': fullDurationForCurrentMode = appData.settings.studyTime * 60; break;
-                case 'shortBreak': fullDurationForCurrentMode = appData.settings.shortBreakTime * 60; break;
-                case 'longBreak': fullDurationForCurrentMode = appData.settings.longBreakTime * 60; break;
-                default: fullDurationForCurrentMode = appData.settings.studyTime * 60; 
+                case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
+                case 'shortBreak': fullDurationForMode = appData.settings.shortBreakTime * 60; break;
+                case 'longBreak': fullDurationForMode = appData.settings.longBreakTime * 60; break;
+                default: fullDurationForMode = appData.settings.studyTime * 60; 
             }
 
             if (timeLeft < fullDurationForMode && timeLeft > 0) {
@@ -1420,15 +1505,9 @@
             updateLastTimerInfo();
             renderRewards();
             renderAchievements();
+            updateRewardTabNotificationBadge();
+            updateAchievementTabNotificationBadge();
 
-            if (appData.settings.notificationsEnabled && Notification.permission !== 'granted' && Notification.permission !== 'denied') {
-                requestNotificationPermission(); 
-            } else if (Notification.permission === 'denied') {
-                appData.settings.notificationsEnabled = false; 
-                notificationsToggle.checked = false;
-                notificationsToggle.disabled = true;
-                saveData();
-            }
         }
 
         window.addEventListener('beforeunload', saveTimerState);
