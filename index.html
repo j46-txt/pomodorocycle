@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gamified Pomodoro Timer</title>
+    <title>PomodoroCycle Timer</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
@@ -80,15 +80,16 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
-        .manual-timer-select {
-            background-color: #4a5568; 
-            color: #a0aec0; 
-            border: 1px solid #4a5568; 
+        /* Style for the skip break button */
+        #skipBreakButton {
+            background-color: #4a5568; /* slate-700 */
+            color: #a0aec0; /* slate-400 */
+            border: 1px solid #4a5568;
         }
-        .manual-timer-select:hover {
-            background-color: #2d3748; 
-            color: #e2e8f0; 
-            border-color: #2d3748; 
+        #skipBreakButton:hover {
+            background-color: #2d3748; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
+            border-color: #2d3748;
         }
     </style>
 </head>
@@ -106,7 +107,7 @@
             </button>
         </div>
 
-        <div id="timerDisplay" class="text-center mb-6 pt-8 md:pt-4 pb-6 rounded-lg bg-slate-700 shadow-inner">
+        <div id="timerDisplay" class="relative text-center mb-6 pt-8 md:pt-4 pb-6 rounded-lg bg-slate-700 shadow-inner">
             <p id="currentModeDisplay" class="text-2xl font-semibold mb-2 text-sky-300">Current Mode: Study</p>
             <p id="timerText" class="timer-text font-mono font-bold text-sky-500">25:00</p>
             <div id="cycleInfoContainer" class="text-sm text-slate-400 mt-2 flex items-center justify-center">
@@ -116,6 +117,10 @@
                 </button>
             </div>
             <p id="lastTimerInfo" class="text-xs text-slate-500 mt-1">Last timer: None</p>
+            <!-- ### MODIFICATION: Changed button text to "Skip Break" ### -->
+            <button id="skipBreakButton" class="absolute bottom-3 right-3 hidden text-xs py-1 px-2 rounded-md shadow-md transition-transform transform hover:scale-105">
+                <i class="fas fa-forward fa-xs mr-1"></i>Skip Break
+            </button>
         </div>
 
         <div class="flex justify-center space-x-4 mb-8">
@@ -127,11 +132,6 @@
             </button>
         </div>
         
-        <div class="flex justify-center space-x-2 mb-8">
-            <button data-mode="study" class="manual-timer-select text-xs py-1.5 px-3 rounded-md transition-colors">Force Study</button>
-            <button data-mode="shortBreak" class="manual-timer-select text-xs py-1.5 px-3 rounded-md transition-colors">Force Short Break</button>
-        </div>
-
         <div class="mb-6 border-b border-slate-700">
             <nav class="flex space-x-1 -mb-px">
                 <button data-tab="stats" class="tab-button active text-sky-400 border-sky-400 py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
@@ -179,7 +179,7 @@
                     <input type="number" id="rewardThreshold" placeholder="Value" step="0.5" min="0" class="w-full md:w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
                     <button id="addRewardButton" class="w-full md:w-auto mt-2 md:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded transition-colors">Add Reward</button>
                 </div>
-                <div id="rewardsList" class="space-y-2 max-h-44 overflow-y-auto pr-2"> 
+                <div id="rewardsList" class="space-y-2 max-h-[176px] overflow-y-auto pr-2"> 
                     </div>
             </div>
 
@@ -263,7 +263,7 @@
         const lastTimerInfoEl = document.getElementById('lastTimerInfo');
         const startPauseButton = document.getElementById('startPauseButton');
         const resetButton = document.getElementById('resetButton');
-        const manualTimerSelectButtons = document.querySelectorAll('.manual-timer-select');
+        const skipBreakButton = document.getElementById('skipBreakButton'); 
         
         const settingsButton = document.getElementById('settingsButton');
         const helpButton = document.getElementById('helpButton'); 
@@ -351,7 +351,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.0.55" 
+            appVersion: "1.1.0" 
         };
         
         const defaultAchievements = [
@@ -401,7 +401,6 @@
             console.warn("Tone.js not loaded. Sound effects will be disabled.");
         }
 
-        // ### MODIFICATION: Updated playSound function for better scheduling ###
         function playSound(note = 'C4', duration = '8n', type = 'timerComplete') {
             if (!appData.settings.soundEnabled || !synth) return;
             
@@ -429,9 +428,8 @@
                 }
                 
                 const currentTime = Tone.now();
-                // Ensure scheduledTime is always slightly in the future and after the last scheduled sound
                 const scheduledTime = Math.max(currentTime + SOUND_BASE_DELAY, lastSoundScheduledTime + MIN_SOUND_INTERVAL);
-                lastSoundScheduledTime = scheduledTime; // Update the last scheduled time
+                lastSoundScheduledTime = scheduledTime; 
                 
                 synth.volume.setValueAtTime(soundVolume, scheduledTime);
                 synth.triggerAttackRelease(soundNote, soundDuration, scheduledTime);
@@ -668,18 +666,21 @@
                     bodyClass = 'bg-slate-900'; 
                     timerTextEl.classList.remove('text-green-400', 'text-purple-400'); 
                     timerTextEl.classList.add('text-sky-500');
+                    skipBreakButton.classList.add('hidden'); 
                     break;
                 case 'shortBreak':
                     modeText = 'Short Break';
                     bodyClass = 'bg-green-800'; 
                     timerTextEl.classList.remove('text-sky-500', 'text-purple-400'); 
                     timerTextEl.classList.add('text-green-400');
+                    skipBreakButton.classList.remove('hidden'); 
                     break;
                 case 'longBreak':
                     modeText = 'Long Break';
                     bodyClass = 'bg-purple-800'; 
                     timerTextEl.classList.remove('text-sky-500', 'text-green-400');
                     timerTextEl.classList.add('text-purple-400'); 
+                    skipBreakButton.classList.remove('hidden'); 
                     break;
             }
             currentModeDisplayEl.textContent = `Current Mode: ${modeText}`; 
@@ -872,13 +873,7 @@
 
         // --- Timer Logic ---
         function setTimer(mode) {
-            if (mode === 'study' && currentMode !== 'study') { 
-                if (!(currentMode === 'shortBreak' && appData.timerState.lastTimerUsed === 'shortBreak')) {
-                    appData.timerState.forcedBreakContextSession = null;
-                }
-            } else if (mode !== 'shortBreak' && mode !== 'longBreak') {
-                 appData.timerState.forcedBreakContextSession = null;
-            }
+            appData.timerState.forcedBreakContextSession = null; 
             
             currentMode = mode;
             isRunning = false;
@@ -1011,35 +1006,39 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            // Update UI for the timer that just ended BEFORE setting the next one
-            updateTimerDisplay(); // Shows 00:00 for the ended timer
+            // Set the next timer first, so UI updates reflect the new state before alerts/sounds
+            if (nextModeToTransitionTo) {
+                setTimer(nextModeToTransitionTo); 
+            }
+            
             updateStatsDisplay(); 
             playSound(soundNote, '4n', 'timerComplete'); 
             showNotification(notificationTitle, notificationBody); 
 
-            const performPostAlertActions = () => {
-                // Now, set the next timer
-                if (nextModeToTransitionTo) {
-                    setTimer(nextModeToTransitionTo); 
-                }
-                
-                checkRewards(); 
-                checkAchievements(); 
+            const finalTimerActions = () => {
+                checkRewards();
+                checkAchievements();
                 
                 if (shouldAutoStartTheNextTimer && nextModeToTransitionTo) {
-                    startTimer(); 
+                    startTimer();
                 } else if (nextModeToTransitionTo) { 
                     startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
                 }
-                saveData(); 
+                saveData();
+            };
+
+            const checkRewardsAndAchievementsThenProceed = () => {
+                checkRewards();
+                checkAchievements();
+                finalTimerActions();
             };
 
             if (showCycleCompleteAlert) {
                 // Use notification instead of modal for cycle complete to avoid blocking
                 showNotification("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!");
-                performPostAlertActions(); // Proceed immediately after notification
+                checkRewardsAndAchievementsThenProceed(); // Proceed immediately after notification
             } else {
-                performPostAlertActions();
+                checkRewardsAndAchievementsThenProceed();
             }
         }
 
@@ -1202,7 +1201,7 @@
                     <li class="study-session" style="--session-number: '4.'">Study Session (completes 1 Pomodoro cycle)</li>
                     <li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li>
                 </ul>
-                <p class="mb-3">Timers for study and short/long breaks will start automatically after the previous one ends, except for the study session after a long break, which requires a manual start.</p>
+                <p class="mb-3">Study sessions and breaks (short and long) will generally start automatically. You can skip breaks using the 'Skip Break' button. After a long break, the new study cycle will not start automatically; you need to click 'Start'.</p>
                 <p class="mb-3">The study streak only counts after completing the first study session of the day.</p>
                 <p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" display.</p>
             `;
@@ -1214,49 +1213,26 @@
             );
         });
 
-        manualTimerSelectButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
+        // ### MODIFICATION: Event listener for Skip Break button ###
+        skipBreakButton.addEventListener('click', () => {
+            if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
                 pauseTimer(); 
-                const selectedMode = e.target.dataset.mode;
-                const previousActualMode = currentMode; 
-                const pomodorosBeforeForce = pomodorosInCycle; 
-
-                appData.timerState.persistedPreviousPomodorosInCycle = null; 
-
-                if (selectedMode === 'shortBreak') {
-                    if (previousActualMode === 'study') {
-                        appData.timerState.forcedBreakContextSession = pomodorosBeforeForce + 1;
-                    } else { 
-                         appData.timerState.forcedBreakContextSession = pomodorosBeforeForce +1 ; 
-                         if (appData.timerState.forcedBreakContextSession > POMODOROS_PER_CYCLE) appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE;
-                         if(previousActualMode === 'longBreak' && pomodorosBeforeForce >= POMODOROS_PER_CYCLE) {
-                             appData.timerState.forcedBreakContextSession = 1; 
-                         } else if (pomodorosBeforeForce === 0) {
-                             appData.timerState.forcedBreakContextSession = 1;
-                         }
-                    }
-                } else if (selectedMode === 'longBreak') {
-                    if (pomodorosBeforeForce < POMODOROS_PER_CYCLE && previousActualMode === 'study') { 
-                         appData.timerState.persistedPreviousPomodorosInCycle = pomodorosBeforeForce;
-                    }
-                    appData.timerState.forcedBreakContextSession = POMODOROS_PER_CYCLE; 
-                } else if (selectedMode === 'study') {
-                    if (previousActualMode === 'longBreak') { 
-                        if (appData.timerState.persistedPreviousPomodorosInCycle !== null) {
-                             pomodorosInCycle = appData.timerState.persistedPreviousPomodorosInCycle;
-                        } else { 
-                            pomodorosInCycle = 0; 
-                        }
-                    }
-                    appData.timerState.forcedBreakContextSession = null; 
-                    appData.timerState.persistedPreviousPomodorosInCycle = null;
+                
+                let nextModeAfterSkip = 'study';
+                if (currentMode === 'longBreak') {
+                    pomodorosInCycle = 0; 
                 }
                 
-                setTimer(selectedMode); 
-                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                appData.timerState.forcedBreakContextSession = null; 
+                appData.timerState.persistedPreviousPomodorosInCycle = null; 
+                
+                setTimer(nextModeAfterSkip); 
+                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
                 isRunning = false; 
-            });
+                saveTimerState();
+            }
         });
+
 
         settingsButton.addEventListener('click', () => settingsModal.classList.add('show'));
         cancelSettingsButton.addEventListener('click', () => {
