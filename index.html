@@ -350,7 +350,7 @@
             },
             rewards: [], 
             achievements: [], 
-            appVersion: "1.1.9" 
+            appVersion: "1.1.10" 
         };
         
         const defaultAchievements = [
@@ -862,6 +862,7 @@
         }
 
         // --- Timer Logic ---
+        // ### MODIFICATION: Simplified setTimer, autoStart logic moved to handleTimerEnd ###
         function setTimer(mode) { 
             appData.timerState.forcedBreakContextSession = null; 
             
@@ -937,8 +938,7 @@
             isRunning = false;
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
-            updateLastTimerInfo();
-
+            
             let notificationTitleForEndedMode = "";
             let notificationBodyForEndedMode = "";
             let soundNoteForEndedMode = 'C4';
@@ -1006,7 +1006,7 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            // Update UI for the timer that just ended (shows 00:00 for the endedMode)
+            updateLastTimerInfo(); // Update last timer info before setting the new one.
             updateStatsDisplay(); 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete'); 
             showNotification(notificationTitleForEndedMode, notificationBodyForEndedMode); 
@@ -1020,7 +1020,7 @@
                 setTimer(nextModeToTransitionTo); 
                 
                 if (shouldAutoStartTheNextTimer) {
-                    requestAnimationFrame(() => { // Using requestAnimationFrame for smoother transition
+                    requestAnimationFrame(() => { // Use requestAnimationFrame for smoother UI updates before starting timer
                         startTimer(); 
                     });
                 } else {
@@ -1400,9 +1400,9 @@
             
             let fullDurationForMode;
             switch(currentMode) {
-                case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
-                case 'shortBreak': fullDurationForMode = appData.settings.shortBreakTime * 60; break;
-                case 'longBreak': fullDurationForMode = appData.settings.longBreakTime * 60; break;
+                case 'study': fullDurationForCurrentMode = appData.settings.studyTime * 60; break;
+                case 'shortBreak': fullDurationForCurrentMode = appData.settings.shortBreakTime * 60; break;
+                case 'longBreak': fullDurationForCurrentMode = appData.settings.longBreakTime * 60; break;
                 default: fullDurationForMode = appData.settings.studyTime * 60; 
             }
 
