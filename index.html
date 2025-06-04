@@ -80,16 +80,18 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
+        /* Style for the skip break button */
         #skipBreakButton {
-            background-color: #4a5568; 
-            color: #a0aec0; 
+            background-color: #4a5568; /* slate-700 */
+            color: #a0aec0; /* slate-400 */
             border: 1px solid #4a5568;
         }
         #skipBreakButton:hover {
-            background-color: #2d3748; 
-            color: #e2e8f0; 
+            background-color: #2d3748; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
             border-color: #2d3748;
         }
+        /* Toast Notification Styles */
         #toastNotification {
             position: fixed;
             top: 20px;
@@ -103,22 +105,23 @@
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             max-width: 300px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: translateX(100%); 
+            transform: translateX(100%); /* Start off-screen */
         }
         #toastNotification.show {
             opacity: 1;
-            transform: translateX(0); 
+            transform: translateX(0); /* Slide in */
         }
-        #toastNotification.success { background-color: #34d399; } 
-        #toastNotification.error { background-color: #ef4444; } 
-        #toastNotification.info { background-color: #3b82f6; } 
-        #toastNotification.warning { background-color: #f59e0b; } 
+        #toastNotification.success { background-color: #34d399; } /* green-500 */
+        #toastNotification.error { background-color: #ef4444; } /* red-500 */
+        #toastNotification.info { background-color: #3b82f6; } /* blue-500 */
+        #toastNotification.warning { background-color: #f59e0b; } /* amber-500 */
 
+        /* Badge Notification Styles */
         .tab-badge {
             position: absolute;
             top: 0.5rem; 
             right: 0.5rem; 
-            background-color: #ef4444; 
+            background-color: #ef4444; /* red-500 */
             color: white;
             border-radius: 9999px; 
             padding: 0.1rem 0.4rem;
@@ -132,7 +135,13 @@
         .tab-button {
             position: relative; 
         }
-        /* Removed .reward-item-content-area fixed height */
+        .reward-item-content-area {
+            min-height: 28px; /* Approx 1.75rem, adjust if needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; 
+            margin-top: 0.25rem; /* Equivalent to mt-1 */
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
@@ -471,7 +480,7 @@
                 newRewardsCount: 0,
                 newAchievementsCount: 0
             },
-            appVersion: "1.2.0" 
+            appVersion: "1.2.1" 
         };
         
         const defaultAchievements = [
@@ -1038,7 +1047,7 @@
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
             } else {
-                 clearInterval(timerInterval); // Clear main thread interval if worker failed
+                 clearInterval(timerInterval); 
             }
             updateTimerDisplay(); 
             saveTimerState(); 
@@ -1093,13 +1102,14 @@
         
         // ### MODIFICATION: Updated handleTimerEnd for auto-start logic and alert order ###
         function handleTimerEnd() {
-            // This function is now primarily called by the worker's 'end' message
-            // or if the main thread interval (fallback) reaches zero.
-            
             isRunning = false; // Ensure isRunning is false
-            // clearInterval(timerInterval); // Worker handles its own interval clearing
+            if (timerWorker) { // If worker was running, it would have cleared its interval
+                // No need to explicitly send pause to worker here, as 'end' message implies it stopped.
+            } else {
+                clearInterval(timerInterval); // Clear main thread interval if it was used as fallback
+            }
 
-            const endedMode = currentMode; // currentMode should be the one that just ended
+            const endedMode = currentMode; 
             appData.timerState.lastTimerUsed = endedMode;
             
             let notificationTitleForEndedMode = "";
