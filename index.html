@@ -914,8 +914,7 @@
                 const newIndicatorHTML = isNew ? '<span class="ml-2 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
                 
                 const rewardEl = document.createElement('div');
-                // Add relative positioning for absolute positioning of NEW if needed later, but flex should handle it.
-                rewardEl.className = `p-3 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'} ${isNew ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-700' : ''}`;
+                rewardEl.className = `p-3 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
                 
                 let progressText = '';
                 let progressPercent = 0;
@@ -930,8 +929,8 @@
                     progressPercent = Math.min(100, (currentHours / reward.threshold) * 100);
                 }
                 rewardEl.innerHTML = `
-                <div class="flex-grow overflow-hidden"> <!-- Allow title to take space and truncate -->
-                    <div class="flex items-baseline"> <!-- Flex for title and NEW indicator -->
+                <div class="flex-grow overflow-hidden"> 
+                    <div class="flex items-baseline"> 
                         <p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'} truncate mr-1">${reward.name} (${rewardTypeDisplay})</p>
                         ${newIndicatorHTML}
                     </div>
@@ -955,7 +954,7 @@
                     const rewardId = e.currentTarget.dataset.id;
                     appData.rewards = appData.rewards.filter(r => r.id !== rewardId);
                     saveData();
-                    renderRewards(); // Re-render after deleting
+                    renderRewards(); 
                     updateRewardTabNotificationBadge(); 
                 });
             });
@@ -973,13 +972,13 @@
                 const newIndicatorHTML = isNew ? '<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
 
                 const achEl = document.createElement('div');
-                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all transform hover:scale-105 ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-700' : ''}`;
+                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all transform hover:scale-105 ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
                 
                 let mainContentHTML = `
-                    <div class="flex items-start mb-1"> <!-- Changed to items-start for better alignment with multi-line desc -->
+                    <div class="flex items-start mb-1"> 
                         <i class="${ach.icon || 'fas fa-question-circle'} text-xl ${ach.unlocked ? 'text-yellow-300' : 'text-slate-400'} mr-2 mt-1"></i>
-                        <div class="flex-grow overflow-hidden"> <!-- Allow text to take space and truncate if needed -->
-                            <div class="flex items-baseline"> <!-- Flex for title and NEW indicator -->
+                        <div class="flex-grow overflow-hidden"> 
+                            <div class="flex items-baseline"> 
                                 <h4 class="font-semibold text-sm ${ach.unlocked ? 'text-white' : 'text-sky-300'} truncate mr-1">${ach.name}</h4>
                                 ${newIndicatorHTML}
                             </div>
@@ -1193,30 +1192,26 @@
                 }
                 // If !shouldAutoStart, button remains "Start" from setTimer
             } else {
-                // Should not happen in normal flow, but as a fallback:
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
         }
 
-        // Corrected resetCurrentTimer
         function resetCurrentTimer() {
-            // 1. Ensure the worker is paused if it was running.
             if (isRunning && timerWorker) {
                 timerWorker.postMessage({ command: 'pause' });
             }
-            // 2. Set the main thread state and UI for a fresh timer.
             isRunning = false; 
-            // Determine the duration for the current mode
+            
             let newTimeLeft;
             switch(currentMode) {
                 case 'study': newTimeLeft = appData.settings.studyTime * 60; break;
                 case 'shortBreak': newTimeLeft = appData.settings.shortBreakTime * 60; break;
                 case 'longBreak': newTimeLeft = appData.settings.longBreakTime * 60; break;
-                default: newTimeLeft = appData.settings.studyTime * 60; // Fallback
+                default: newTimeLeft = appData.settings.studyTime * 60;
             }
             timeLeft = newTimeLeft;
 
-            if (timerWorker) { // Tell worker to reset its mode and time
+            if (timerWorker) { 
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
             }
             
@@ -1358,12 +1353,11 @@
                 "Confirm", 
                 "Cancel",
                 () => { 
-                    if (isRunning) { // If it was running, ensure it's fully stopped and UI reflects this
+                    if (isRunning) { 
                         pauseTimer(); 
                     }
                     pomodorosInCycle = 0;
                     appData.timerState.forcedBreakContextSession = null; 
-                    // Reset to study mode, which will also reset the timer duration and button to "Start"
                     setTimer('study'); 
                     saveData(); 
                     console.log("Study cycle count reset to 1/4 and timer set to Study mode (paused).");
@@ -1421,7 +1415,6 @@
                
                 setTimer(nextModeAfterSkip); 
                 updateLastTimerInfo(); 
-                // setTimer already sets button to "Start"
             }
         });
 
@@ -1480,11 +1473,10 @@
                     if(durationChangedForCurrentMode || timeLeft === 0 || timeLeft === fullDurationForCurrentModeBeforeChange) {
                         setTimer(currentMode); 
                     } else {
-                        // If timer was paused mid-way and its duration type didn't change, just save state
                         saveTimerState(); 
                     }
-                } else { // Timer is running
-                    saveTimerState(); // Worker will continue with old duration until next 'setMode'
+                } else { 
+                    saveTimerState(); 
                 }
                 showToast("Settings Saved", "Your new timer durations have been applied.", "success");
             }
@@ -1530,10 +1522,9 @@
                     updateAchievementTabNotificationBadge();
                 }
                 saveData();
-                // Re-render the lists to apply/remove "NEW" highlights
                 renderRewards(); 
                 renderAchievements(); 
-                updateStatsDisplay(); // In case any stats are shown on these tabs
+                updateStatsDisplay(); 
             });
         });
 
@@ -1661,10 +1652,10 @@
                 default: fullDurationForMode = appData.settings.studyTime * 60; 
             }
 
-            if (appData.timerState.persistedIsRunning && timeLeft > 0) { // If it was running and persisted
-                isRunning = true; // Restore running state
+            if (appData.timerState.persistedIsRunning && timeLeft > 0) { 
+                isRunning = true; 
                 startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-                if(timerWorker) timerWorker.postMessage({ command: 'start' }); // Tell worker to resume
+                if(timerWorker) timerWorker.postMessage({ command: 'start' }); 
             } else if (timeLeft < fullDurationForMode && timeLeft > 0) { 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
             } else { 
@@ -1707,7 +1698,7 @@
         }
 
         .donation-section a {
-            color: #5a687d;
+            color: #475569;
             text-decoration: none;
             white-space: nowrap;
             transition: color 0.3s ease;
