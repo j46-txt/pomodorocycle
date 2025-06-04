@@ -27,6 +27,7 @@
             flex-direction: column;
             justify-content: space-between; 
             overflow: hidden; 
+            position: relative; /* For NEW indicator positioning */
         }
         .achievement-item.unlocked {
             opacity: 1;
@@ -80,7 +81,6 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
-        /* Style for the skip break button */
         #skipBreakButton {
             background-color: #4a5568; /* slate-700 */
             color: #a0aec0; /* slate-400 */
@@ -91,7 +91,6 @@
             color: #e2e8f0; /* slate-200 */
             border-color: #2d3748;
         }
-        /* Toast Notification Styles */
         #toastNotification {
             position: fixed;
             top: 20px;
@@ -105,23 +104,21 @@
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             max-width: 300px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: translateX(100%); /* Start off-screen */
+            transform: translateX(100%);
         }
         #toastNotification.show {
             opacity: 1;
-            transform: translateX(0); /* Slide in */
+            transform: translateX(0);
         }
-        #toastNotification.success { background-color: #34d399; } /* green-500 */
-        #toastNotification.error { background-color: #ef4444; } /* red-500 */
-        #toastNotification.info { background-color: #3b82f6; } /* blue-500 */
-        #toastNotification.warning { background-color: #f59e0b; } /* amber-500 */
-
-        /* Badge Notification Styles */
+        #toastNotification.success { background-color: #34d399; } 
+        #toastNotification.error { background-color: #ef4444; } 
+        #toastNotification.info { background-color: #3b82f6; } 
+        #toastNotification.warning { background-color: #f59e0b; } 
         .tab-badge {
             position: absolute;
             top: 0.5rem; 
             right: 0.5rem; 
-            background-color: #ef4444; /* red-500 */
+            background-color: #ef4444;
             color: white;
             border-radius: 9999px; 
             padding: 0.1rem 0.4rem;
@@ -134,6 +131,12 @@
         }
         .tab-button {
             position: relative; 
+        }
+        .new-indicator {
+            font-size: 0.65rem; /* Smaller text for NEW */
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+            line-height: 1;
         }
     </style>
 </head>
@@ -335,25 +338,29 @@
                 case 'pause':
                     workerIsRunning = false;
                     clearInterval(workerTimerInterval);
-                    postMessage({ type: 'paused', timeLeft: workerTimeLeft, mode: workerCurrentMode });
+                    // Main thread now handles UI updates for pause/resume state.
+                    // No 'paused' message needed from worker.
                     break;
                 case 'setMode':
                     workerCurrentMode = mode;
                     workerTimeLeft = duration;
-                    workerIsRunning = false;
+                    workerIsRunning = false; // Ensure timer is stopped before setting new mode
                     clearInterval(workerTimerInterval);
                     postMessage({ type: 'modeSet', timeLeft: workerTimeLeft, mode: workerCurrentMode }); 
                     break;
                 case 'updateSettings':
                     workerSettings = settings;
+                    // If timer is not running and mode is set, update its duration if settings changed
                     if (!workerIsRunning && workerCurrentMode) {
                          let newDuration;
                          if (workerCurrentMode === 'study') newDuration = workerSettings.studyTime * 60;
                          else if (workerCurrentMode === 'shortBreak') newDuration = workerSettings.shortBreakTime * 60;
                          else if (workerCurrentMode === 'longBreak') newDuration = workerSettings.longBreakTime * 60;
                          
+                         // Only update and post if the duration actually changed for the current non-running mode
                          if (newDuration && workerTimeLeft !== newDuration) {
                              workerTimeLeft = newDuration;
+                             // Post 'tick' to update main thread's timeLeft and display for non-running timer
                              postMessage({ type: 'tick', timeLeft: workerTimeLeft, mode: workerCurrentMode });
                          }
                     }
@@ -434,6 +441,9 @@
         let lastSoundScheduledTime = 0;
         const MIN_SOUND_INTERVAL = 0.05; 
         const SOUND_BASE_DELAY = 0.05;   
+
+        let justSeenRewardIds = []; 
+        let justSeenAchievementIds = []; 
 
 
         let appData = {
@@ -838,7 +848,11 @@
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
                 displayedSessionNumber = pomodorosInCycle; 
-                if (pomodorosInCycle === 0) displayedSessionNumber = 1; 
+                if (pomodorosInCycle === 0 && appData.timerState.lastTimerUsed === 'longBreak') {
+                    displayedSessionNumber = 1; 
+                } else if (pomodorosInCycle === 0) {
+                    displayedSessionNumber = 1;
+                }
             } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
@@ -896,8 +910,13 @@
                 return;
             }
             appData.rewards.forEach(reward => {
+                const isNew = justSeenRewardIds.includes(reward.id);
+                const newIndicatorHTML = isNew ? '<span class="ml-2 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
+                
                 const rewardEl = document.createElement('div');
-                rewardEl.className = `p-3 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'}`;
+                // Add relative positioning for absolute positioning of NEW if needed later, but flex should handle it.
+                rewardEl.className = `p-3 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'} ${isNew ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-700' : ''}`;
+                
                 let progressText = '';
                 let progressPercent = 0;
                 const rewardTypeDisplay = reward.type === 'cycles' ? 'Cycles' : 'Hours';
@@ -911,10 +930,11 @@
                     progressPercent = Math.min(100, (currentHours / reward.threshold) * 100);
                 }
                 rewardEl.innerHTML = `
-                <div>
-                    <p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'}">
-                        ${reward.name} (${rewardTypeDisplay})
-                    </p>
+                <div class="flex-grow overflow-hidden"> <!-- Allow title to take space and truncate -->
+                    <div class="flex items-baseline"> <!-- Flex for title and NEW indicator -->
+                        <p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'} truncate mr-1">${reward.name} (${rewardTypeDisplay})</p>
+                        ${newIndicatorHTML}
+                    </div>
                     <p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">
                         Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}
                     </p>
@@ -924,7 +944,7 @@
                         </div>
                     ` : '<p class="text-xs text-green-100 font-bold mt-1"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
                 </div>
-                <button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors">
+                <button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors flex-shrink-0 ml-2">
                     <i class="fas fa-trash-alt"></i>
                 </button>
                 `;
@@ -935,7 +955,7 @@
                     const rewardId = e.currentTarget.dataset.id;
                     appData.rewards = appData.rewards.filter(r => r.id !== rewardId);
                     saveData();
-                    renderRewards();
+                    renderRewards(); // Re-render after deleting
                     updateRewardTabNotificationBadge(); 
                 });
             });
@@ -949,13 +969,20 @@
                 return a.threshold - b.threshold;
             });
             appData.achievements.forEach(ach => {
+                const isNew = justSeenAchievementIds.includes(ach.id);
+                const newIndicatorHTML = isNew ? '<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
+
                 const achEl = document.createElement('div');
-                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all transform hover:scale-105 ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'}`;
+                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all transform hover:scale-105 ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-2 ring-yellow-400 ring-offset-2 ring-offset-slate-700' : ''}`;
+                
                 let mainContentHTML = `
-                    <div class="flex items-center mb-1">
-                        <i class="${ach.icon || 'fas fa-question-circle'} text-xl ${ach.unlocked ? 'text-yellow-300' : 'text-slate-400'} mr-2"></i>
-                        <div>
-                            <h4 class="font-semibold text-xs ${ach.unlocked ? 'text-white' : 'text-sky-300'}">${ach.name}</h4>
+                    <div class="flex items-start mb-1"> <!-- Changed to items-start for better alignment with multi-line desc -->
+                        <i class="${ach.icon || 'fas fa-question-circle'} text-xl ${ach.unlocked ? 'text-yellow-300' : 'text-slate-400'} mr-2 mt-1"></i>
+                        <div class="flex-grow overflow-hidden"> <!-- Allow text to take space and truncate if needed -->
+                            <div class="flex items-baseline"> <!-- Flex for title and NEW indicator -->
+                                <h4 class="font-semibold text-sm ${ach.unlocked ? 'text-white' : 'text-sky-300'} truncate mr-1">${ach.name}</h4>
+                                ${newIndicatorHTML}
+                            </div>
                             <p class="text-xs ${ach.unlocked ? 'text-sky-100' : 'text-slate-300'} leading-tight">${ach.description}</p>
                         </div>
                     </div>`;
@@ -1037,7 +1064,7 @@
                     currentMode = 'study';
             }
            
-            if (timerWorker) {
+            if (timerWorker) { 
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
             }
            
@@ -1067,7 +1094,7 @@
             saveTimerState(); 
         }
 
-        function pauseTimer() {
+        function pauseTimer() { 
             isRunning = false;
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
             if (timerWorker) {
@@ -1076,26 +1103,20 @@
             saveTimerState(); 
         }
        
-        // ### CORRECTED CODE: handleTimerEnd function with conditional auto-start ###
         function handleTimerEnd() {
-            isRunning = false;
-            if (!timerWorker && typeof timerInterval !== 'undefined') {
-                clearInterval(timerInterval);
-            }
+            isRunning = false; 
 
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
 
-            // Define variables for the transition
             let notificationTitleForEndedMode = "";
             let notificationBodyForEndedMode = "";
             let soundNoteForEndedMode = 'C4';
             let nextModeToTransitionTo = null;
             let showCycleCompleteNotification = false;
             let completedTime = 0;
-            let shouldAutoStart = true; // Default to auto-starting
+            let shouldAutoStart = true; 
 
-            // Process the completed timer, update stats, and determine the next mode
             if (endedMode === 'study') {
                 completedTime = appData.settings.studyTime * 60;
                 appData.stats.daily.pureStudySeconds += completedTime;
@@ -1143,45 +1164,67 @@
                 notificationTitleForEndedMode = "Long Break Over!";
                 notificationBodyForEndedMode = "Cycle complete! Ready for a new one?";
                 soundNoteForEndedMode = 'E4';
-                pomodorosInCycle = 0; // Reset cycle
+                pomodorosInCycle = 0; 
                 nextModeToTransitionTo = 'study';
-                shouldAutoStart = false; // The ONLY case where we don't auto-start
+                shouldAutoStart = false; 
             }
 
             if (completedTime > 0) {
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
 
-            // Update all stats, check for new rewards/achievements, and save the data
             updateStatsDisplay();
             updateLastTimerInfo();
             checkRewards();
             checkAchievements();
             saveData();
 
-            // Fire notifications for the timer that just finished
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
             showToast(notificationTitleForEndedMode, notificationBodyForEndedMode, 'info');
             if (showCycleCompleteNotification) {
                 showToast("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle.", 'success', 5000);
             }
 
-            // Set up the next timer and conditionally start it
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); 
+                setTimer(nextModeToTransitionTo); // Sets button to "Start", isRunning = false
                 
                 if (shouldAutoStart) {
-                    startTimer();
+                    startTimer(); // Sets button to "Pause", isRunning = true
                 }
+                // If !shouldAutoStart, button remains "Start" from setTimer
             } else {
+                // Should not happen in normal flow, but as a fallback:
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
         }
 
+        // Corrected resetCurrentTimer
         function resetCurrentTimer() {
-            pauseTimer(); 
-            setTimer(currentMode); 
+            // 1. Ensure the worker is paused if it was running.
+            if (isRunning && timerWorker) {
+                timerWorker.postMessage({ command: 'pause' });
+            }
+            // 2. Set the main thread state and UI for a fresh timer.
+            isRunning = false; 
+            // Determine the duration for the current mode
+            let newTimeLeft;
+            switch(currentMode) {
+                case 'study': newTimeLeft = appData.settings.studyTime * 60; break;
+                case 'shortBreak': newTimeLeft = appData.settings.shortBreakTime * 60; break;
+                case 'longBreak': newTimeLeft = appData.settings.longBreakTime * 60; break;
+                default: newTimeLeft = appData.settings.studyTime * 60; // Fallback
+            }
+            timeLeft = newTimeLeft;
+
+            if (timerWorker) { // Tell worker to reset its mode and time
+                timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
+            }
+            
+            startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
+            updateTimerDisplay(); 
+            saveTimerState(); 
         }
+
 
         // --- Stats Logic ---
         function resetDailyStats() {
@@ -1234,7 +1277,6 @@
 
         function checkRewards() {
             let newRewardEarnedThisCheck = false;
-            let soundOffsetForReward = 0;
             appData.rewards.forEach(reward => {
                 if (reward.earnedToday && reward.notificationShown && reward.seen) return; 
                 let currentProgress = 0;
@@ -1316,11 +1358,12 @@
                 "Confirm", 
                 "Cancel",
                 () => { 
-                    if (isRunning) {
+                    if (isRunning) { // If it was running, ensure it's fully stopped and UI reflects this
                         pauseTimer(); 
                     }
                     pomodorosInCycle = 0;
                     appData.timerState.forcedBreakContextSession = null; 
+                    // Reset to study mode, which will also reset the timer duration and button to "Start"
                     setTimer('study'); 
                     saveData(); 
                     console.log("Study cycle count reset to 1/4 and timer set to Study mode (paused).");
@@ -1378,7 +1421,7 @@
                
                 setTimer(nextModeAfterSkip); 
                 updateLastTimerInfo(); 
-                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
+                // setTimer already sets button to "Start"
             }
         });
 
@@ -1437,10 +1480,11 @@
                     if(durationChangedForCurrentMode || timeLeft === 0 || timeLeft === fullDurationForCurrentModeBeforeChange) {
                         setTimer(currentMode); 
                     } else {
+                        // If timer was paused mid-way and its duration type didn't change, just save state
                         saveTimerState(); 
                     }
-                } else {
-                    saveTimerState();
+                } else { // Timer is running
+                    saveTimerState(); // Worker will continue with old duration until next 'setMode'
                 }
                 showToast("Settings Saved", "Your new timer durations have been applied.", "success");
             }
@@ -1448,6 +1492,9 @@
        
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
+                justSeenRewardIds = []; 
+                justSeenAchievementIds = []; 
+
                 const targetTab = button.dataset.tab;
                 tabButtons.forEach(btn => {
                     btn.classList.remove('active', 'text-sky-400', 'border-sky-400');
@@ -1462,20 +1509,31 @@
                         pane.classList.add('hidden');
                     }
                 });
-                // Clear badge when tab is clicked
+                
                 if (targetTab === 'rewards') {
+                    appData.rewards.forEach(r => { 
+                        if (r.earnedToday && !r.seen) {
+                            justSeenRewardIds.push(r.id);
+                        }
+                        if (r.earnedToday) r.seen = true; 
+                    });
                     appData.uiState.newRewardsCount = 0;
-                    appData.rewards.forEach(r => { if(r.earnedToday) r.seen = true; });
                     updateRewardTabNotificationBadge();
                 } else if (targetTab === 'achievements') {
+                    appData.achievements.forEach(ach => { 
+                        if (ach.unlocked && !ach.seen) {
+                            justSeenAchievementIds.push(ach.id);
+                        }
+                        if (ach.unlocked) ach.seen = true; 
+                    });
                     appData.uiState.newAchievementsCount = 0;
-                    appData.achievements.forEach(ach => { if(ach.unlocked) ach.seen = true; });
                     updateAchievementTabNotificationBadge();
                 }
                 saveData();
-                updateStatsDisplay();
+                // Re-render the lists to apply/remove "NEW" highlights
                 renderRewards(); 
                 renderAchievements(); 
+                updateStatsDisplay(); // In case any stats are shown on these tabs
             });
         });
 
@@ -1499,12 +1557,9 @@
                         if (currentMode === workerMode) { 
                            handleTimerEnd();
                         }
-                    } else if (type === 'paused') {
-                        isRunning = false;
-                        startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
-                    } else if (type === 'modeSet'){
+                    } else if (type === 'modeSet'){ 
                         timeLeft = workerTimeLeftUpdate;
-                        updateTimerDisplay();
+                        updateTimerDisplay(); 
                     }
                 };
                 timerWorker.onerror = function(error) {
@@ -1606,7 +1661,11 @@
                 default: fullDurationForMode = appData.settings.studyTime * 60; 
             }
 
-            if (timeLeft < fullDurationForMode && timeLeft > 0) {
+            if (appData.timerState.persistedIsRunning && timeLeft > 0) { // If it was running and persisted
+                isRunning = true; // Restore running state
+                startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+                if(timerWorker) timerWorker.postMessage({ command: 'start' }); // Tell worker to resume
+            } else if (timeLeft < fullDurationForMode && timeLeft > 0) { 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
             } else { 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
