@@ -80,16 +80,18 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
+        /* Style for the skip break button */
         #skipBreakButton {
-            background-color: #4a5568; 
-            color: #a0aec0; 
+            background-color: #4a5568; /* slate-700 */
+            color: #a0aec0; /* slate-400 */
             border: 1px solid #4a5568;
         }
         #skipBreakButton:hover {
-            background-color: #2d3748; 
-            color: #e2e8f0; 
+            background-color: #2d3748; /* slate-800 */
+            color: #e2e8f0; /* slate-200 */
             border-color: #2d3748;
         }
+        /* Toast Notification Styles */
         #toastNotification {
             position: fixed;
             top: 20px;
@@ -103,22 +105,23 @@
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             max-width: 300px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: translateX(100%); 
+            transform: translateX(100%); /* Start off-screen */
         }
         #toastNotification.show {
             opacity: 1;
-            transform: translateX(0); 
+            transform: translateX(0); /* Slide in */
         }
-        #toastNotification.success { background-color: #34d399; } 
-        #toastNotification.error { background-color: #ef4444; } 
-        #toastNotification.info { background-color: #3b82f6; } 
-        #toastNotification.warning { background-color: #f59e0b; } 
+        #toastNotification.success { background-color: #34d399; } /* green-500 */
+        #toastNotification.error { background-color: #ef4444; } /* red-500 */
+        #toastNotification.info { background-color: #3b82f6; } /* blue-500 */
+        #toastNotification.warning { background-color: #f59e0b; } /* amber-500 */
 
+        /* Badge Notification Styles */
         .tab-badge {
             position: absolute;
             top: 0.5rem; 
             right: 0.5rem; 
-            background-color: #ef4444; 
+            background-color: #ef4444; /* red-500 */
             color: white;
             border-radius: 9999px; 
             padding: 0.1rem 0.4rem;
@@ -306,15 +309,14 @@
         let workerSettings = {}; // To store time settings
 
         function startWorkerTimer() {
-            if (workerIsRunning) return; // Already running
+            if (workerIsRunning) return; 
             if (workerTimeLeft <= 0) {
-                // console.log('Worker: Timer not started, timeLeft is 0 or less.');
-                postMessage({ type: 'end', mode: workerCurrentMode }); // Signal end if time is already up
+                postMessage({ type: 'end', mode: workerCurrentMode }); 
                 return;
             }
             workerIsRunning = true;
             workerTimerInterval = setInterval(() => {
-                if (!workerIsRunning) { // Should not happen if interval is cleared properly
+                if (!workerIsRunning) { 
                     clearInterval(workerTimerInterval);
                     return;
                 }
@@ -330,11 +332,10 @@
 
         self.onmessage = function(e) {
             const { command, mode, duration, settings } = e.data;
-            // console.log('Worker received command:', command, e.data);
 
             switch (command) {
                 case 'start':
-                    if (!workerIsRunning) { // Only start if not already running
+                    if (!workerIsRunning) { 
                         startWorkerTimer();
                     }
                     break;
@@ -348,11 +349,10 @@
                     workerTimeLeft = duration;
                     workerIsRunning = false;
                     clearInterval(workerTimerInterval);
-                    postMessage({ type: 'modeSet', timeLeft: workerTimeLeft, mode: workerCurrentMode }); // Acknowledge mode set
+                    postMessage({ type: 'modeSet', timeLeft: workerTimeLeft, mode: workerCurrentMode }); 
                     break;
                 case 'updateSettings':
                     workerSettings = settings;
-                    // If timer is not running and current mode's duration changed, update timeLeft
                     if (!workerIsRunning && workerCurrentMode) {
                          let newDuration;
                          if (workerCurrentMode === 'study') newDuration = workerSettings.studyTime * 60;
@@ -477,7 +477,7 @@
                 newRewardsCount: 0,
                 newAchievementsCount: 0
             },
-            appVersion: "1.1.18" 
+            appVersion: "1.1.19" 
         };
         
         const defaultAchievements = [
@@ -1105,7 +1105,6 @@
             isRunning = false; 
             if (timerWorker) {
                 // Worker will stop its own interval upon reaching 0 and sending 'end'
-                // No need to explicitly send pause to worker here for 'end' event
             } else {
                 clearInterval(timerInterval);
             }
@@ -1180,8 +1179,6 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
-            timeLeft = 0; // Ensure timeLeft is 0 for the ended mode before UI update
-            updateTimerDisplay(); // Update UI for the ended mode (shows 00:00)
             updateLastTimerInfo(); 
             updateStatsDisplay(); 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete'); 
