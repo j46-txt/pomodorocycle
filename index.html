@@ -425,7 +425,6 @@
 
 
         // --- State Variables ---
-        // let timerInterval; // Managed by worker now
         let timeLeft; 
         let currentMode = 'study'; 
         let isRunning = false;
@@ -1077,13 +1076,11 @@
             saveTimerState(); 
         }
        
-        // ### CÓDIGO CORRIGIDO: Função handleTimerEnd reestruturada ###
+        // ### CORRECTED CODE: handleTimerEnd function ###
         function handleTimerEnd() {
             // 1. Set state to not running
             isRunning = false;
-            if (timerWorker) {
-                // Worker has already stopped and sent the 'end' message.
-            } else if (typeof timerInterval !== 'undefined') {
+            if (!timerWorker && typeof timerInterval !== 'undefined') {
                 clearInterval(timerInterval);
             }
 
@@ -1156,7 +1153,6 @@
             }
 
             // 4. Update all stats, check for new rewards/achievements, and save the data
-            // This is the critical step: do all data processing before any UI or async actions for the *next* timer.
             updateStatsDisplay();
             updateLastTimerInfo();
             checkRewards();
@@ -1172,18 +1168,15 @@
 
             // 6. Set up and ALWAYS auto-start the next timer if one exists
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); // Set up the UI and state for the new timer
+                // This function sets up the state and sends the 'setMode' command to the worker.
+                setTimer(nextModeToTransitionTo); 
+                
+                // This function immediately sends the 'start' command to the worker,
+                // which is not throttled and will start counting down in the background.
+                startTimer();
 
-                // Use requestAnimationFrame to ensure the UI has a chance to update before we start the timer.
-                // This is more robust than setTimeout for inactive tabs.
-                requestAnimationFrame(() => {
-                    // Final check to ensure the user hasn't manually paused or reset in the split second.
-                    if (!isRunning) {
-                        startTimer();
-                    }
-                });
             } else {
-                // If for some reason there is no next mode, update button to reflect stopped state.
+                // If there is no next mode, ensure the button shows 'Start'
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
         }
@@ -1499,7 +1492,6 @@
 
                 timerWorker.onmessage = function(e) {
                     const { type, timeLeft: workerTimeLeftUpdate, mode: workerMode } = e.data;
-                    // console.log('Main received from worker:', e.data);
 
                     if (type === 'tick') {
                         timeLeft = workerTimeLeftUpdate;
