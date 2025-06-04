@@ -80,18 +80,16 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
-        /* Style for the skip break button */
         #skipBreakButton {
-            background-color: #4a5568; /* slate-700 */
-            color: #a0aec0; /* slate-400 */
+            background-color: #4a5568; 
+            color: #a0aec0; 
             border: 1px solid #4a5568;
         }
         #skipBreakButton:hover {
-            background-color: #2d3748; /* slate-800 */
-            color: #e2e8f0; /* slate-200 */
+            background-color: #2d3748; 
+            color: #e2e8f0; 
             border-color: #2d3748;
         }
-        /* Toast Notification Styles */
         #toastNotification {
             position: fixed;
             top: 20px;
@@ -105,23 +103,22 @@
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             max-width: 300px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: translateX(100%); /* Start off-screen */
+            transform: translateX(100%); 
         }
         #toastNotification.show {
             opacity: 1;
-            transform: translateX(0); /* Slide in */
+            transform: translateX(0); 
         }
-        #toastNotification.success { background-color: #34d399; } /* green-500 */
-        #toastNotification.error { background-color: #ef4444; } /* red-500 */
-        #toastNotification.info { background-color: #3b82f6; } /* blue-500 */
-        #toastNotification.warning { background-color: #f59e0b; } /* amber-500 */
+        #toastNotification.success { background-color: #34d399; } 
+        #toastNotification.error { background-color: #ef4444; } 
+        #toastNotification.info { background-color: #3b82f6; } 
+        #toastNotification.warning { background-color: #f59e0b; } 
 
-        /* Badge Notification Styles */
         .tab-badge {
             position: absolute;
             top: 0.5rem; 
             right: 0.5rem; 
-            background-color: #ef4444; /* red-500 */
+            background-color: #ef4444; 
             color: white;
             border-radius: 9999px; 
             padding: 0.1rem 0.4rem;
@@ -136,11 +133,11 @@
             position: relative; 
         }
         .reward-item-content-area {
-            min-height: 28px; /* Approx 1.75rem, adjust if needed */
+            min-height: 36px; /* Equivalent to h-9 in Tailwind, adjust if needed */
             display: flex;
             flex-direction: column;
             justify-content: center; 
-            margin-top: 0.25rem; /* Equivalent to mt-1 */
+            margin-top: 0.25rem; 
         }
     </style>
 </head>
@@ -480,7 +477,7 @@
                 newRewardsCount: 0,
                 newAchievementsCount: 0
             },
-            appVersion: "1.2.2" 
+            appVersion: "1.1.18" 
         };
         
         const defaultAchievements = [
@@ -1027,7 +1024,7 @@
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             
             if (timerWorker) {
-                timerWorker.postMessage({ command: 'pause' });
+                timerWorker.postMessage({ command: 'pause' }); 
             } else {
                 clearInterval(timerInterval); 
             }
@@ -1107,7 +1104,8 @@
         function handleTimerEnd() {
             isRunning = false; 
             if (timerWorker) {
-                 // Worker will stop its own interval upon reaching 0 and sending 'end'
+                // Worker will stop its own interval upon reaching 0 and sending 'end'
+                // No need to explicitly send pause to worker here for 'end' event
             } else {
                 clearInterval(timerInterval);
             }
@@ -1127,11 +1125,10 @@
                 completedTime = appData.settings.studyTime * 60;
                 appData.stats.daily.pureStudySeconds += completedTime; 
                 appData.stats.general.totalPureStudySeconds += completedTime; 
-
+                pomodorosInCycle++; 
                 notificationTitleForEndedMode = "Study Session Complete!";
                 notificationBodyForEndedMode = "Time for a break. Good job!";
                 soundNoteForEndedMode = 'C5';
-                pomodorosInCycle++;
 
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
                     appData.stats.daily.firstStudySessionCompletedToday = true;
@@ -1174,7 +1171,7 @@
                 notificationTitleForEndedMode = "Long Break Over!";
                 notificationBodyForEndedMode = "Cycle complete! Ready for a new one?";
                 soundNoteForEndedMode = 'E4';
-                pomodorosInCycle = 0;
+                pomodorosInCycle = 0; 
                 nextModeToTransitionTo = 'study';
                 shouldAutoStartTheNextTimer = false; 
             }
@@ -1183,6 +1180,8 @@
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
             
+            timeLeft = 0; // Ensure timeLeft is 0 for the ended mode before UI update
+            updateTimerDisplay(); // Update UI for the ended mode (shows 00:00)
             updateLastTimerInfo(); 
             updateStatsDisplay(); 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete'); 
@@ -1199,7 +1198,12 @@
                 if (shouldAutoStartTheNextTimer) {
                     requestAnimationFrame(() => { 
                         setTimeout(() => { 
-                            startTimer(); 
+                            if (currentMode === nextModeToTransitionTo && !isRunning && timeLeft > 0) {
+                                startTimer(); 
+                            } else {
+                                console.warn(`Auto-start for ${nextModeToTransitionTo} aborted. Current: ${currentMode}, Running: ${isRunning}, Time: ${timeLeft}`);
+                                if (!isRunning) startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                            }
                         }, 150); 
                     });
                 } else {
@@ -1401,7 +1405,7 @@
                     timerWorker.postMessage({ command: 'pause' });
                 }
                 isRunning = false; 
-                clearInterval(timerInterval); 
+                // clearInterval(timerInterval); // Worker handles its own interval
                 
                 let nextModeAfterSkip = 'study';
                 if (skippedMode === 'longBreak') {
