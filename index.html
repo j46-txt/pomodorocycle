@@ -142,7 +142,7 @@
     <div class="w-full max-w-3xl mx-auto bg-slate-800 shadow-2xl rounded-lg p-6 relative mt-4 mb-4"> 
         <div class="absolute top-6 left-6 z-10">
              <button id="helpButton" title="Help / How to Use" class="p-2 rounded-full text-sky-400 hover:bg-slate-700 hover:text-sky-300 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-opacity-50">
-                <i class="fas fa-question-circle text-xl"></i>
+                 <i class="fas fa-question-circle text-xl"></i>
             </button>
         </div>
         <div class="absolute top-6 right-6 z-10">
@@ -174,7 +174,7 @@
                 <i class="fas fa-undo mr-2"></i>Reset Current
             </button>
         </div>
-        
+       
         <div class="mb-6 border-b border-slate-700">
             <nav class="flex space-x-1 -mb-px">
                 <button data-tab="stats" class="tab-button active text-sky-400 border-sky-400 py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
@@ -207,7 +207,7 @@
                         <p>Total Cycles Completed: <span id="totalCycles">0</span></p>
                         <p>Total Pure Study Time: <span id="totalStudyTime">0h 0m</span></p>
                         <p>Total Days Studied: <span id="totalDaysStudied">0</span></p>
-                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -223,13 +223,13 @@
                     <button id="addRewardButton" class="w-full md:w-auto mt-2 md:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded transition-colors">Add Reward</button>
                 </div>
                 <div id="rewardsList" class="space-y-2 max-h-[176px] overflow-y-auto pr-2"> 
-                    </div>
+                </div>
             </div>
 
             <div id="achievementsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
                 <h3 class="text-xl font-semibold mb-4 text-sky-300">Your Achievements</h3>
                 <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2"> 
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -353,8 +353,8 @@
                          else if (workerCurrentMode === 'longBreak') newDuration = workerSettings.longBreakTime * 60;
                          
                          if (newDuration && workerTimeLeft !== newDuration) {
-                            workerTimeLeft = newDuration;
-                            postMessage({ type: 'tick', timeLeft: workerTimeLeft, mode: workerCurrentMode });
+                             workerTimeLeft = newDuration;
+                             postMessage({ type: 'tick', timeLeft: workerTimeLeft, mode: workerCurrentMode });
                          }
                     }
                     break;
@@ -374,7 +374,7 @@
         const startPauseButton = document.getElementById('startPauseButton');
         const resetButton = document.getElementById('resetButton');
         const skipBreakButton = document.getElementById('skipBreakButton'); 
-        
+
         const settingsButton = document.getElementById('settingsButton');
         const helpButton = document.getElementById('helpButton'); 
         const settingsModal = document.getElementById('settingsModal');
@@ -413,7 +413,7 @@
         const customAlertConfirmButton = document.getElementById('customAlertConfirmButton');
         const customAlertCancelButton = document.getElementById('customAlertCancelButton');
         const customAlertButtonsContainer = document.getElementById('customAlertButtons');
-        
+       
         const faviconEl = document.getElementById('favicon'); 
 
         const toastNotificationEl = document.getElementById('toastNotification');
@@ -472,7 +472,7 @@
             },
             appVersion: "1.1.19" 
         };
-        
+       
         const defaultAchievements = [
             // Total Days Studied
             { id: "days1", name: "Focused Beginner", description: "Complete your first day of study.", type: "totalDaysStudied", threshold: 1, icon: "fas fa-seedling", seen: false },
@@ -522,7 +522,7 @@
 
         function playSound(note = 'C4', duration = '8n', type = 'timerComplete') {
             if (!appData.settings.soundEnabled || !synth) return;
-            
+           
             if (Tone.context.state !== 'running') {
                 Tone.context.resume().catch(e => console.error("Error resuming AudioContext:", e));
             }
@@ -545,11 +545,11 @@
                     soundDuration = "4n";
                     soundVolume = -6; 
                 }
-                
+               
                 const currentTime = Tone.now();
                 const scheduledTime = Math.max(currentTime + SOUND_BASE_DELAY, lastSoundScheduledTime + MIN_SOUND_INTERVAL);
                 lastSoundScheduledTime = scheduledTime; 
-                
+               
                 synth.volume.setValueAtTime(soundVolume, scheduledTime);
                 synth.triggerAttackRelease(soundNote, soundDuration, scheduledTime);
 
@@ -557,7 +557,7 @@
                 console.error(`Error playing sound (type: ${type}):`, error);
             }
         }
-        
+       
         // --- Utility Functions ---
         function getTodayDateString() {
             const today = new Date();
@@ -575,7 +575,7 @@
             const minutes = Math.floor((totalSeconds % 3600) / 60);
             return `${hours}h ${minutes}m`;
         }
-        
+       
         function generateUUID() { 
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
                 var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
@@ -611,26 +611,26 @@
 
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
-                
+               
                 if (parsedData.appVersion !== appData.appVersion) {
                      console.log(`Data version mismatch. Current: ${appData.appVersion}, Stored: ${parsedData.appVersion}. Merging data.`);
                      if (!parsedData.stats?.general?.totalShortBreakSeconds) {
-                        if (!parsedData.stats) parsedData.stats = {};
-                        if (!parsedData.stats.general) parsedData.stats.general = {};
-                        parsedData.stats.general.totalShortBreakSeconds = 0;
+                         if (!parsedData.stats) parsedData.stats = {};
+                         if (!parsedData.stats.general) parsedData.stats.general = {};
+                         parsedData.stats.general.totalShortBreakSeconds = 0;
                      }
                      if (!parsedData.stats?.general?.totalLongBreakSeconds) {
-                        if (!parsedData.stats) parsedData.stats = {};
-                        if (!parsedData.stats.general) parsedData.stats.general = {};
-                        parsedData.stats.general.totalLongBreakSeconds = 0;
+                         if (!parsedData.stats) parsedData.stats = {};
+                         if (!parsedData.stats.general) parsedData.stats.general = {};
+                         parsedData.stats.general.totalLongBreakSeconds = 0;
                      }
                      if (!parsedData.stats?.daily?.totalTimeTodaySeconds) {
-                        if (!parsedData.stats) parsedData.stats = {};
-                        if (!parsedData.stats.daily) parsedData.stats.daily = {};
-                        parsedData.stats.daily.totalTimeTodaySeconds = 0;
+                         if (!parsedData.stats) parsedData.stats = {};
+                         if (!parsedData.stats.daily) parsedData.stats.daily = {};
+                         parsedData.stats.daily.totalTimeTodaySeconds = 0;
                      }
                      if (parsedData.settings && parsedData.settings.hasOwnProperty('notificationsEnabled')) {
-                        delete parsedData.settings.notificationsEnabled;
+                         delete parsedData.settings.notificationsEnabled;
                      }
                 }
 
@@ -643,17 +643,17 @@
                         seen: userAch?.seen || (userAch?.unlocked || false) 
                     };
                 });
-                
+               
                 const userRewards = (parsedData.rewards || []).map(reward => ({
                     ...reward,
                     seen: reward.seen || (reward.earnedToday || false) 
                 }));
-                
+               
                 const loadedTimerState = { ...defaultTimerState, ...(parsedData.timerState || {}) };
                 const loadedUiState = { ...defaultUiState, ...(parsedData.uiState || {}) };
-                
+               
                 const loadedPomodorosInCycle = loadedTimerState.persistedPomodorosInCycle !== undefined ? 
-                                                parseInt(loadedTimerState.persistedPomodorosInCycle, 10) : 0;
+                                                 parseInt(loadedTimerState.persistedPomodorosInCycle, 10) : 0;
 
                 appData = { 
                     ...appData, 
@@ -664,7 +664,7 @@
                     uiState: loadedUiState
                 };
                 pomodorosInCycle = isNaN(loadedPomodorosInCycle) ? 0 : loadedPomodorosInCycle;
-                
+               
                 if (appData.stats.general.totalShortBreakSeconds === undefined) {
                     appData.stats.general.totalShortBreakSeconds = 0;
                 }
@@ -694,7 +694,7 @@
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
             soundToggle.checked = appData.settings.soundEnabled;
-            
+           
             updateRewardTabNotificationBadge();
             updateAchievementTabNotificationBadge();
         }
@@ -713,7 +713,7 @@
             toastBodyEl.textContent = body;
 
             toastNotificationEl.className = 'fixed top-5 right-5 p-4 rounded-md text-white z-[1000] opacity-0 transition-opacity duration-500 max-w-xs shadow-lg'; 
-            
+           
             switch(type) {
                 case 'success': toastNotificationEl.classList.add('bg-green-500'); break;
                 case 'error': toastNotificationEl.classList.add('bg-red-500'); break;
@@ -750,7 +750,7 @@
                 achievementsTabBadgeEl.style.display = 'none';
             }
         }
-        
+       
         let currentConfirmCallback = null;
         let currentCancelCallback = null;
 
@@ -758,7 +758,7 @@
             customAlertTitleEl.textContent = title;
             customAlertMessageEl.innerHTML = message; 
             customAlertIconEl.className = `text-3xl mr-4 mt-1 ${iconClass}`; 
-            
+           
             customAlertConfirmButton.textContent = confirmText;
             currentConfirmCallback = confirmCallback; 
 
@@ -774,7 +774,7 @@
                 customAlertButtonsContainer.classList.add('justify-end');
                 currentCancelCallback = null;
             }
-            
+           
             customAlertModal.classList.add('show');
         }
 
@@ -800,7 +800,7 @@
         // --- UI Update Functions ---
         function updateTimerDisplay() {
             timerTextEl.textContent = formatTime(timeLeft);
-            
+           
             let modeText = '';
             let bodyClass = 'bg-slate-900'; 
             switch (currentMode) {
@@ -829,7 +829,7 @@
             currentModeDisplayEl.textContent = `Current Mode: ${modeText}`; 
             document.title = `${formatTime(timeLeft)} - ${modeText}`; 
             document.body.className = document.body.className.replace(/bg-(slate|green|yellow|purple)-(900|800)/g, '') + ` ${bodyClass}`;
-            
+           
             updateCycleInfo();
         }
 
@@ -843,11 +843,11 @@
             } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
-            
+           
             displayedSessionNumber = Math.max(1, Math.min(displayedSessionNumber, POMODOROS_PER_CYCLE));
             cycleInfoTextEl.textContent = `Study Session: ${displayedSessionNumber}/${POMODOROS_PER_CYCLE}`;
         }
-        
+       
         function updateLastTimerInfo() {
             let lastTimerText = "None";
             if (appData.timerState.lastTimerUsed) {
@@ -864,11 +864,11 @@
             dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted; 
             dailyStudyTimeEl.textContent = formatHoursMinutes(appData.stats.daily.pureStudySeconds);
             if (dailyTotalTimeEl) dailyTotalTimeEl.textContent = formatHoursMinutes(appData.stats.daily.totalTimeTodaySeconds);
-            
+           
             totalDaysStudiedEl.textContent = appData.stats.general.totalDaysStudied;
             totalCyclesEl.textContent = appData.stats.general.totalCyclesCompleted;
             totalStudyTimeEl.textContent = formatHoursMinutes(appData.stats.general.totalPureStudySeconds);
-            
+           
             if(streakCounterHeaderEl) streakCounterHeaderEl.textContent = appData.stats.general.streak;
             if(streakFireIconContainerEl) {
                 const streak = appData.stats.general.streak;
@@ -883,13 +883,13 @@
                 else if (streak >= 10) fireColorClass = 'text-red-500';
                 else if (streak >= 5) fireColorClass = 'text-red-400';
                 else if (streak >= 1) fireColorClass = 'text-orange-400';
-                
+               
                 streakFireIconContainerEl.className = ''; 
                 streakFireIconContainerEl.classList.add(fireColorClass); 
                 streakFireIconContainerEl.innerHTML = '<i class="fas fa-fire"></i>'; 
             }
         }
-        
+       
         function renderRewards() {
             rewardsListEl.innerHTML = '';
             if (appData.rewards.length === 0) {
@@ -1013,15 +1013,13 @@
         // --- Timer Logic ---
         function setTimer(mode) { 
             appData.timerState.forcedBreakContextSession = null; 
-            
+           
             currentMode = mode;
             isRunning = false; 
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-            
+           
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'pause' }); 
-            } else {
-                clearInterval(timerInterval); 
             }
 
             switch (mode) {
@@ -1039,11 +1037,11 @@
                     timeLeft = appData.settings.studyTime * 60; 
                     currentMode = 'study';
             }
-            
+           
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
             }
-            
+           
             updateTimerDisplay(); 
             saveTimerState(); 
         }
@@ -1063,24 +1061,9 @@
 
             isRunning = true;
             startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-            
+           
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'start' });
-            } else { 
-                clearInterval(timerInterval); 
-                timerInterval = setInterval(() => {
-                    if (!isRunning) { 
-                        clearInterval(timerInterval);
-                        return;
-                    }
-                    timeLeft--;
-                    updateTimerDisplay(); 
-                    if (timeLeft < 0) { 
-                        timeLeft = 0; 
-                        updateTimerDisplay(); 
-                        handleTimerEnd(); 
-                    }
-                }, 1000);
             }
             saveTimerState(); 
         }
@@ -1091,39 +1074,41 @@
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'pause' });
             }
-            clearInterval(timerInterval); 
             saveTimerState(); 
         }
-        
-        // ### MODIFICATION: Updated handleTimerEnd for auto-start logic and alert order ###
+       
+        // ### CÓDIGO CORRIGIDO: Função handleTimerEnd reestruturada ###
         function handleTimerEnd() {
-            isRunning = false; 
+            // 1. Set state to not running
+            isRunning = false;
             if (timerWorker) {
-                // Worker will stop its own interval upon reaching 0 and sending 'end'
-            } else {
+                // Worker has already stopped and sent the 'end' message.
+            } else if (typeof timerInterval !== 'undefined') {
                 clearInterval(timerInterval);
             }
 
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
-            
+
+            // 2. Define variables for the transition
             let notificationTitleForEndedMode = "";
             let notificationBodyForEndedMode = "";
             let soundNoteForEndedMode = 'C4';
             let nextModeToTransitionTo = null;
-            let shouldAutoStartTheNextTimer = true; 
             let showCycleCompleteNotification = false;
             let completedTime = 0;
-            
+
+            // 3. Process the completed timer, update stats, and determine the next mode
             if (endedMode === 'study') {
                 completedTime = appData.settings.studyTime * 60;
-                appData.stats.daily.pureStudySeconds += completedTime; 
-                appData.stats.general.totalPureStudySeconds += completedTime; 
-                pomodorosInCycle++; 
+                appData.stats.daily.pureStudySeconds += completedTime;
+                appData.stats.general.totalPureStudySeconds += completedTime;
+                pomodorosInCycle++;
                 notificationTitleForEndedMode = "Study Session Complete!";
                 notificationBodyForEndedMode = "Time for a break. Good job!";
                 soundNoteForEndedMode = 'C5';
 
+                // Streak and daily stats logic
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
                     appData.stats.daily.firstStudySessionCompletedToday = true;
                     const todayStr = getTodayDateString();
@@ -1146,10 +1131,8 @@
                     appData.stats.daily.cyclesCompleted++;
                     appData.stats.general.totalCyclesCompleted++;
                     showCycleCompleteNotification = true;
-                    shouldAutoStartTheNextTimer = true; 
                 } else {
                     nextModeToTransitionTo = 'shortBreak';
-                    shouldAutoStartTheNextTimer = true;
                 }
             } else if (endedMode === 'shortBreak') {
                 completedTime = appData.settings.shortBreakTime * 60;
@@ -1158,56 +1141,51 @@
                 notificationBodyForEndedMode = "Time to get back to focus!";
                 soundNoteForEndedMode = 'E4';
                 nextModeToTransitionTo = 'study';
-                shouldAutoStartTheNextTimer = true;
             } else if (endedMode === 'longBreak') {
                 completedTime = appData.settings.longBreakTime * 60;
                 appData.stats.general.totalLongBreakSeconds += completedTime;
                 notificationTitleForEndedMode = "Long Break Over!";
-                notificationBodyForEndedMode = "Cycle complete! Ready for a new one?";
+                notificationBodyForEndedMode = "Cycle complete! Ready for the next one?";
                 soundNoteForEndedMode = 'E4';
-                pomodorosInCycle = 0; 
+                pomodorosInCycle = 0; // Reset cycle
                 nextModeToTransitionTo = 'study';
-                shouldAutoStartTheNextTimer = false; 
             }
 
             if (completedTime > 0) {
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
-            
-            updateLastTimerInfo(); 
-            updateStatsDisplay(); 
-            playSound(soundNoteForEndedMode, '4n', 'timerComplete'); 
-            showToast(notificationTitleForEndedMode, notificationBodyForEndedMode, 'info'); 
 
+            // 4. Update all stats, check for new rewards/achievements, and save the data
+            // This is the critical step: do all data processing before any UI or async actions for the *next* timer.
+            updateStatsDisplay();
+            updateLastTimerInfo();
+            checkRewards();
+            checkAchievements();
+            saveData();
+
+            // 5. Fire notifications for the timer that just finished
+            playSound(soundNoteForEndedMode, '4n', 'timerComplete');
+            showToast(notificationTitleForEndedMode, notificationBodyForEndedMode, 'info');
             if (showCycleCompleteNotification) {
-                 showToast("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle. Enjoy your long break!", 'success');
+                showToast("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle.", 'success', 5000);
             }
 
-            // Set up the next timer (this updates currentMode, timeLeft, and calls updateTimerDisplay for the new state)
+            // 6. Set up and ALWAYS auto-start the next timer if one exists
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); 
-                
-                if (shouldAutoStartTheNextTimer) {
-                    requestAnimationFrame(() => { 
-                        setTimeout(() => { 
-                            if (currentMode === nextModeToTransitionTo && !isRunning && timeLeft > 0) {
-                                startTimer(); 
-                            } else {
-                                console.warn(`Auto-start for ${nextModeToTransitionTo} aborted. Current: ${currentMode}, Running: ${isRunning}, Time: ${timeLeft}`);
-                                if (!isRunning) startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                            }
-                        }, 150); 
-                    });
-                } else {
-                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-                }
+                setTimer(nextModeToTransitionTo); // Set up the UI and state for the new timer
+
+                // Use requestAnimationFrame to ensure the UI has a chance to update before we start the timer.
+                // This is more robust than setTimeout for inactive tabs.
+                requestAnimationFrame(() => {
+                    // Final check to ensure the user hasn't manually paused or reset in the split second.
+                    if (!isRunning) {
+                        startTimer();
+                    }
+                });
+            } else {
+                // If for some reason there is no next mode, update button to reflect stopped state.
+                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
-            
-            setTimeout(() => {
-                checkRewards(); 
-                checkAchievements();
-                saveData(); 
-            }, 250); 
         }
 
         function resetCurrentTimer() {
@@ -1377,7 +1355,7 @@
                     <li class="study-session" style="--session-number: '4.'">Study Session (completes 1 Pomodoro cycle)</li>
                     <li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li>
                 </ul>
-                <p class="mb-3">Study sessions and breaks begin automatically. After the long break, however, you'll need to start the new cycle manually.</p>
+                <p class="mb-3">All timers start automatically after the previous one finishes.</p>
                 <p class="mb-3">The study streak only increases after completing the first study session of the day.</p>
                 <p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" counter.</p>
             `;
@@ -1392,28 +1370,25 @@
         skipBreakButton.addEventListener('click', () => {
             if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
                 const skippedMode = currentMode; 
-                
+               
                 if (timerWorker) {
                     timerWorker.postMessage({ command: 'pause' });
                 }
                 isRunning = false; 
-                // clearInterval(timerInterval); // Worker handles its own interval
-                
+               
                 let nextModeAfterSkip = 'study';
                 if (skippedMode === 'longBreak') {
                     pomodorosInCycle = 0; 
                 }
-                
+               
                 appData.timerState.forcedBreakContextSession = null; 
                 appData.timerState.persistedPreviousPomodorosInCycle = null; 
-                
+               
                 appData.timerState.lastTimerUsed = skippedMode;
-                
+               
                 setTimer(nextModeAfterSkip); 
                 updateLastTimerInfo(); 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start'; 
-                // isRunning is already false from setTimer
-                // saveTimerState(); // Called by setTimer
             }
         });
 
@@ -1449,7 +1424,7 @@
             if (appData.settings.soundEnabled !== soundToggle.checked) {
                 appData.settings.soundEnabled = soundToggle.checked; settingsChanged = true;
             }
-            
+           
             if(settingsChanged) {
                 saveData();
                 if (timerWorker) { 
@@ -1460,13 +1435,13 @@
                     if (currentMode === 'study' && oldStudyTime !== appData.settings.studyTime) durationChangedForCurrentMode = true;
                     if (currentMode === 'shortBreak' && oldShortBreakTime !== appData.settings.shortBreakTime) durationChangedForCurrentMode = true;
                     if (currentMode === 'longBreak' && oldLongBreakTime !== appData.settings.longBreakTime) durationChangedForCurrentMode = true;
-                    
+                   
                     let fullDurationForCurrentModeBeforeChange;
                      switch(currentMode) {
-                        case 'study': fullDurationForCurrentModeBeforeChange = oldStudyTime * 60; break;
-                        case 'shortBreak': fullDurationForCurrentModeBeforeChange = oldShortBreakTime * 60; break;
-                        case 'longBreak': fullDurationForCurrentModeBeforeChange = oldLongBreakTime * 60; break;
-                        default: fullDurationForCurrentModeBeforeChange = oldStudyTime * 60;
+                         case 'study': fullDurationForCurrentModeBeforeChange = oldStudyTime * 60; break;
+                         case 'shortBreak': fullDurationForCurrentModeBeforeChange = oldShortBreakTime * 60; break;
+                         case 'longBreak': fullDurationForCurrentModeBeforeChange = oldLongBreakTime * 60; break;
+                         default: fullDurationForCurrentModeBeforeChange = oldStudyTime * 60;
                     }
 
                     if(durationChangedForCurrentMode || timeLeft === 0 || timeLeft === fullDurationForCurrentModeBeforeChange) {
@@ -1480,7 +1455,7 @@
                 showToast("Settings Saved", "Your new timer durations have been applied.", "success");
             }
         });
-        
+       
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 const targetTab = button.dataset.tab;
@@ -1577,7 +1552,7 @@
             }
 
             loadData(); 
-            
+           
             const todayStrInitialize = getTodayDateString();
             if (appData.stats.general.lastStudyDate && appData.stats.general.lastStudyDate !== todayStrInitialize) {
                 const lastStudy = new Date(appData.stats.general.lastStudyDate);
@@ -1587,7 +1562,7 @@
 
                 lastStudy.setHours(0,0,0,0); 
                 yesterday.setHours(0,0,0,0);
-                
+               
                 if (lastStudy.getTime() < yesterday.getTime()) { 
                     appData.stats.general.streak = 0;
                     console.log("Streak reset to 0 due to inactivity upon app load.");
@@ -1598,11 +1573,11 @@
             if (appData.stats.daily.date !== getTodayDateString()) {
                  resetDailyStats(); 
                  if (appData.timerState) { 
-                    appData.timerState.persistedCurrentMode = 'study';
-                    appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60;
-                    appData.timerState.persistedIsRunning = false;
-                    appData.timerState.persistedPomodorosInCycle = 0;
-                    appData.timerState.forcedBreakContextSession = null;
+                     appData.timerState.persistedCurrentMode = 'study';
+                     appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60;
+                     appData.timerState.persistedIsRunning = false;
+                     appData.timerState.persistedPomodorosInCycle = 0;
+                     appData.timerState.forcedBreakContextSession = null;
                  }
                  saveData(); 
             }
@@ -1616,24 +1591,24 @@
                 !isNaN(appData.timerState.persistedTimeLeft) &&
                 appData.timerState.persistedCurrentMode &&
                 ['study', 'shortBreak', 'longBreak'].includes(appData.timerState.persistedCurrentMode)) {
-                
+               
                 initialMode = appData.timerState.persistedCurrentMode;
                 initialTimeLeft = appData.timerState.persistedTimeLeft;
                 initialPomodorosInCycle = typeof appData.timerState.persistedPomodorosInCycle === 'number' ? appData.timerState.persistedPomodorosInCycle : 0;
             }
-            
+           
             currentMode = initialMode;
             timeLeft = initialTimeLeft;
             isRunning = false; 
             pomodorosInCycle = initialPomodorosInCycle;
-            
+           
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
             }
-            
+           
             updateTimerDisplay(); 
-            
+           
             let fullDurationForMode;
             switch(currentMode) {
                 case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
@@ -1647,7 +1622,7 @@
             } else { 
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
-            
+           
             updateStatsDisplay();
             updateLastTimerInfo();
             renderRewards();
