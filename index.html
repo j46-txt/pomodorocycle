@@ -912,18 +912,22 @@
                     progressPercent = Math.min(100, (currentHours / reward.threshold) * 100);
                 }
                 rewardEl.innerHTML = `
-                    <div>
-                        <p class="font-semibold <span class="math-inline">\{reward\.earnedToday ? 'text\-white' \: 'text\-sky\-300'\}"\></span>{reward.name} (${rewardTypeDisplay})</p>
-                        <p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}</p>
-                        ${!reward.earnedToday ? `
-                            <div class="progress-bar-container mt-1">
-                                <div class="progress-bar" style="width: ${progressPercent}%;"></div>
-                            </div>
-                        ` : '<p class="text-xs text-green-100 font-bold mt-1"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
-                    </div>
-                    <button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
+                <div>
+                    <p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'}">
+                        ${reward.name} (${rewardTypeDisplay})
+                    </p>
+                    <p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">
+                        Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}
+                    </p>
+                    ${!reward.earnedToday ? `
+                        <div class="progress-bar-container mt-1">
+                            <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+                        </div>
+                    ` : '<p class="text-xs text-green-100 font-bold mt-1"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
+                </div>
+                <button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
                 `;
                 rewardsListEl.appendChild(rewardEl);
             });
