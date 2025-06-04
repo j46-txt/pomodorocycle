@@ -1076,9 +1076,8 @@
             saveTimerState(); 
         }
        
-        // ### CORRECTED CODE: handleTimerEnd function ###
+        // ### CORRECTED CODE: handleTimerEnd function with conditional auto-start ###
         function handleTimerEnd() {
-            // 1. Set state to not running
             isRunning = false;
             if (!timerWorker && typeof timerInterval !== 'undefined') {
                 clearInterval(timerInterval);
@@ -1087,15 +1086,16 @@
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
 
-            // 2. Define variables for the transition
+            // Define variables for the transition
             let notificationTitleForEndedMode = "";
             let notificationBodyForEndedMode = "";
             let soundNoteForEndedMode = 'C4';
             let nextModeToTransitionTo = null;
             let showCycleCompleteNotification = false;
             let completedTime = 0;
+            let shouldAutoStart = true; // Default to auto-starting
 
-            // 3. Process the completed timer, update stats, and determine the next mode
+            // Process the completed timer, update stats, and determine the next mode
             if (endedMode === 'study') {
                 completedTime = appData.settings.studyTime * 60;
                 appData.stats.daily.pureStudySeconds += completedTime;
@@ -1105,7 +1105,6 @@
                 notificationBodyForEndedMode = "Time for a break. Good job!";
                 soundNoteForEndedMode = 'C5';
 
-                // Streak and daily stats logic
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
                     appData.stats.daily.firstStudySessionCompletedToday = true;
                     const todayStr = getTodayDateString();
@@ -1142,41 +1141,39 @@
                 completedTime = appData.settings.longBreakTime * 60;
                 appData.stats.general.totalLongBreakSeconds += completedTime;
                 notificationTitleForEndedMode = "Long Break Over!";
-                notificationBodyForEndedMode = "Cycle complete! Ready for the next one?";
+                notificationBodyForEndedMode = "Cycle complete! Ready for a new one?";
                 soundNoteForEndedMode = 'E4';
                 pomodorosInCycle = 0; // Reset cycle
                 nextModeToTransitionTo = 'study';
+                shouldAutoStart = false; // The ONLY case where we don't auto-start
             }
 
             if (completedTime > 0) {
                 appData.stats.daily.totalTimeTodaySeconds += completedTime;
             }
 
-            // 4. Update all stats, check for new rewards/achievements, and save the data
+            // Update all stats, check for new rewards/achievements, and save the data
             updateStatsDisplay();
             updateLastTimerInfo();
             checkRewards();
             checkAchievements();
             saveData();
 
-            // 5. Fire notifications for the timer that just finished
+            // Fire notifications for the timer that just finished
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
             showToast(notificationTitleForEndedMode, notificationBodyForEndedMode, 'info');
             if (showCycleCompleteNotification) {
                 showToast("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle.", 'success', 5000);
             }
 
-            // 6. Set up and ALWAYS auto-start the next timer if one exists
+            // Set up the next timer and conditionally start it
             if (nextModeToTransitionTo) {
-                // This function sets up the state and sends the 'setMode' command to the worker.
                 setTimer(nextModeToTransitionTo); 
                 
-                // This function immediately sends the 'start' command to the worker,
-                // which is not throttled and will start counting down in the background.
-                startTimer();
-
+                if (shouldAutoStart) {
+                    startTimer();
+                }
             } else {
-                // If there is no next mode, ensure the button shows 'Start'
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
         }
@@ -1348,7 +1345,7 @@
                     <li class="study-session" style="--session-number: '4.'">Study Session (completes 1 Pomodoro cycle)</li>
                     <li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li>
                 </ul>
-                <p class="mb-3">All timers start automatically after the previous one finishes.</p>
+                <p class="mb-3">Study sessions and breaks begin automatically. After the long break, however, you'll need to start the new cycle manually.</p>
                 <p class="mb-3">The study streak only increases after completing the first study session of the day.</p>
                 <p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" counter.</p>
             `;
