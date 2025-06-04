@@ -132,13 +132,7 @@
         .tab-button {
             position: relative; 
         }
-        .reward-item-content-area {
-            height: 2rem; /* Fixed height for consistency */
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            margin-top: 0.25rem; /* Equivalent to mt-1 */
-        }
+        /* Removed .reward-item-content-area fixed height */
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
@@ -477,7 +471,7 @@
                 newRewardsCount: 0,
                 newAchievementsCount: 0
             },
-            appVersion: "1.1.18" 
+            appVersion: "1.2.0" 
         };
         
         const defaultAchievements = [
@@ -927,7 +921,7 @@
                             <div class="progress-bar-container mt-1">
                                 <div class="progress-bar" style="width: ${progressPercent}%;"></div>
                             </div>
-                        ` : '<p class="text-xs text-green-100 font-bold"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
+                        ` : '<p class="text-xs text-green-100 font-bold mt-1"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
                         </div>
                     </div>
                     <button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors">
@@ -1016,7 +1010,6 @@
         }
 
         // --- Timer Logic ---
-        // ### MODIFICATION: Simplified setTimer, autoStart logic moved to handleTimerEnd ###
         function setTimer(mode) { 
             appData.timerState.forcedBreakContextSession = null; 
             
@@ -1024,32 +1017,30 @@
             isRunning = false; 
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             
-            // Tell worker to stop its current timer
-            if (timerWorker) {
-                timerWorker.postMessage({ command: 'pause' });
-            }
-            clearInterval(timerInterval); // Clear main thread interval if any was running (legacy)
-
-
+            let durationInSeconds;
             switch (mode) {
                 case 'study':
-                    timeLeft = appData.settings.studyTime * 60;
+                    durationInSeconds = appData.settings.studyTime * 60;
                     break;
                 case 'shortBreak':
-                    timeLeft = appData.settings.shortBreakTime * 60;
+                    durationInSeconds = appData.settings.shortBreakTime * 60;
                     break;
                 case 'longBreak':
-                    timeLeft = appData.settings.longBreakTime * 60;
+                    durationInSeconds = appData.settings.longBreakTime * 60;
                     break;
                 default:
                     console.error("Unknown mode in setTimer:", mode);
-                    timeLeft = appData.settings.studyTime * 60; 
+                    durationInSeconds = appData.settings.studyTime * 60; 
                     currentMode = 'study';
             }
-            updateTimerDisplay(); 
+            timeLeft = durationInSeconds;
+            
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
+            } else {
+                 clearInterval(timerInterval); // Clear main thread interval if worker failed
             }
+            updateTimerDisplay(); 
             saveTimerState(); 
         }
 
@@ -1071,7 +1062,7 @@
             
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'start' });
-            } else { // Fallback if worker fails
+            } else { 
                 clearInterval(timerInterval); 
                 timerInterval = setInterval(() => {
                     if (!isRunning) { 
@@ -1096,7 +1087,7 @@
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'pause' });
             }
-            clearInterval(timerInterval); // Clear main thread interval if any
+            clearInterval(timerInterval); 
             saveTimerState(); 
         }
         
@@ -1106,7 +1097,7 @@
             // or if the main thread interval (fallback) reaches zero.
             
             isRunning = false; // Ensure isRunning is false
-            clearInterval(timerInterval); // Clear any main thread interval
+            // clearInterval(timerInterval); // Worker handles its own interval clearing
 
             const endedMode = currentMode; // currentMode should be the one that just ended
             appData.timerState.lastTimerUsed = endedMode;
@@ -1190,13 +1181,12 @@
 
             // Set up the next timer (this updates currentMode, timeLeft, and calls updateTimerDisplay for the new state)
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); // This updates currentMode and timeLeft on main thread
-                                                // AND sends 'setMode' to worker.
+                setTimer(nextModeToTransitionTo); 
                 
                 if (shouldAutoStartTheNextTimer) {
                     requestAnimationFrame(() => { 
                         setTimeout(() => { 
-                            startTimer(); // This will send 'start' command to worker
+                            startTimer(); 
                         }, 150); 
                     });
                 } else {
@@ -1448,7 +1438,7 @@
             
             if(settingsChanged) {
                 saveData();
-                if (timerWorker) { // ### MODIFICATION: Update worker with new settings ###
+                if (timerWorker) { 
                     timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 }
                  if (!isRunning) { 
@@ -1524,26 +1514,23 @@
 
                     if (type === 'tick') {
                         timeLeft = workerTimeLeftUpdate;
-                        if (currentMode === workerMode) { // Ensure UI updates only if mode matches
+                        if (currentMode === workerMode) { 
                            updateTimerDisplay();
                         }
                     } else if (type === 'end') {
-                        if (currentMode === workerMode) { // Ensure handleTimerEnd is for the correct mode
+                        if (currentMode === workerMode) { 
                            handleTimerEnd();
                         }
                     } else if (type === 'paused') {
-                        // Worker confirmed pause, main thread state should already reflect this
                         isRunning = false;
                         startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
                     } else if (type === 'modeSet'){
-                        // Worker confirmed mode set, main thread state should already reflect this
                         timeLeft = workerTimeLeftUpdate;
                         updateTimerDisplay();
                     }
                 };
                 timerWorker.onerror = function(error) {
                     console.error('Worker Error:', error);
-                    // Fallback to main thread timer if worker fails
                     timerWorker = null; 
                 };
             } catch (e) {
@@ -1626,7 +1613,6 @@
             isRunning = false; 
             pomodorosInCycle = initialPomodorosInCycle;
             
-            // Initialize worker with current settings and state
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
