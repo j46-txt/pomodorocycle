@@ -80,18 +80,16 @@
         .help-content li.break-session {
             color: #a0aec0; 
         }
-        /* Style for the skip break button */
         #skipBreakButton {
-            background-color: #4a5568; /* slate-700 */
-            color: #a0aec0; /* slate-400 */
+            background-color: #4a5568; 
+            color: #a0aec0; 
             border: 1px solid #4a5568;
         }
         #skipBreakButton:hover {
-            background-color: #2d3748; /* slate-800 */
-            color: #e2e8f0; /* slate-200 */
+            background-color: #2d3748; 
+            color: #e2e8f0; 
             border-color: #2d3748;
         }
-        /* Toast Notification Styles */
         #toastNotification {
             position: fixed;
             top: 20px;
@@ -105,23 +103,22 @@
             transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
             max-width: 300px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transform: translateX(100%); /* Start off-screen */
+            transform: translateX(100%); 
         }
         #toastNotification.show {
             opacity: 1;
-            transform: translateX(0); /* Slide in */
+            transform: translateX(0); 
         }
-        #toastNotification.success { background-color: #34d399; } /* green-500 */
-        #toastNotification.error { background-color: #ef4444; } /* red-500 */
-        #toastNotification.info { background-color: #3b82f6; } /* blue-500 */
-        #toastNotification.warning { background-color: #f59e0b; } /* amber-500 */
+        #toastNotification.success { background-color: #34d399; } 
+        #toastNotification.error { background-color: #ef4444; } 
+        #toastNotification.info { background-color: #3b82f6; } 
+        #toastNotification.warning { background-color: #f59e0b; } 
 
-        /* Badge Notification Styles */
         .tab-badge {
             position: absolute;
             top: 0.5rem; 
             right: 0.5rem; 
-            background-color: #ef4444; /* red-500 */
+            background-color: #ef4444; 
             color: white;
             border-radius: 9999px; 
             padding: 0.1rem 0.4rem;
@@ -135,12 +132,12 @@
         .tab-button {
             position: relative; 
         }
-        /* ### MODIFICATION: Min height for reward item content ### */
         .reward-item-content-area {
-            min-height: 28px; /* Approx 1.75rem, adjust if needed */
+            height: 2rem; /* Fixed height for consistency */
             display: flex;
             flex-direction: column;
             justify-content: center; 
+            margin-top: 0.25rem; /* Equivalent to mt-1 */
         }
     </style>
 </head>
@@ -300,6 +297,78 @@
         <p id="toastBody"></p>
     </div>
 
+    <script id="timerWorkerScript" type="javascript/worker">
+        // This script will be run in a separate thread by the Web Worker.
+        let workerTimeLeft;
+        let workerIsRunning = false;
+        let workerTimerInterval;
+        let workerCurrentMode;
+        let workerSettings = {}; // To store time settings
+
+        function startWorkerTimer() {
+            if (workerIsRunning) return; // Already running
+            if (workerTimeLeft <= 0) {
+                // console.log('Worker: Timer not started, timeLeft is 0 or less.');
+                postMessage({ type: 'end', mode: workerCurrentMode }); // Signal end if time is already up
+                return;
+            }
+            workerIsRunning = true;
+            workerTimerInterval = setInterval(() => {
+                if (!workerIsRunning) { // Should not happen if interval is cleared properly
+                    clearInterval(workerTimerInterval);
+                    return;
+                }
+                workerTimeLeft--;
+                postMessage({ type: 'tick', timeLeft: workerTimeLeft, mode: workerCurrentMode });
+                if (workerTimeLeft <= 0) {
+                    clearInterval(workerTimerInterval);
+                    workerIsRunning = false;
+                    postMessage({ type: 'end', mode: workerCurrentMode });
+                }
+            }, 1000);
+        }
+
+        self.onmessage = function(e) {
+            const { command, mode, duration, settings } = e.data;
+            // console.log('Worker received command:', command, e.data);
+
+            switch (command) {
+                case 'start':
+                    if (!workerIsRunning) { // Only start if not already running
+                        startWorkerTimer();
+                    }
+                    break;
+                case 'pause':
+                    workerIsRunning = false;
+                    clearInterval(workerTimerInterval);
+                    postMessage({ type: 'paused', timeLeft: workerTimeLeft, mode: workerCurrentMode });
+                    break;
+                case 'setMode':
+                    workerCurrentMode = mode;
+                    workerTimeLeft = duration;
+                    workerIsRunning = false;
+                    clearInterval(workerTimerInterval);
+                    postMessage({ type: 'modeSet', timeLeft: workerTimeLeft, mode: workerCurrentMode }); // Acknowledge mode set
+                    break;
+                case 'updateSettings':
+                    workerSettings = settings;
+                    // If timer is not running and current mode's duration changed, update timeLeft
+                    if (!workerIsRunning && workerCurrentMode) {
+                         let newDuration;
+                         if (workerCurrentMode === 'study') newDuration = workerSettings.studyTime * 60;
+                         else if (workerCurrentMode === 'shortBreak') newDuration = workerSettings.shortBreakTime * 60;
+                         else if (workerCurrentMode === 'longBreak') newDuration = workerSettings.longBreakTime * 60;
+                         
+                         if (newDuration && workerTimeLeft !== newDuration) {
+                            workerTimeLeft = newDuration;
+                            postMessage({ type: 'tick', timeLeft: workerTimeLeft, mode: workerCurrentMode });
+                         }
+                    }
+                    break;
+            }
+        };
+    </script>
+
 
     <script>
         // --- DOM Elements ---
@@ -363,7 +432,7 @@
 
 
         // --- State Variables ---
-        let timerInterval;
+        // let timerInterval; // Managed by worker now
         let timeLeft; 
         let currentMode = 'study'; 
         let isRunning = false;
@@ -389,7 +458,6 @@
                 persistedIsRunning: false,
                 persistedPomodorosInCycle: 0,
                 persistedPreviousPomodorosInCycle: null, 
-                forcedBreakContextSession: null 
             },
             stats: {
                 daily: { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false },
@@ -409,7 +477,7 @@
                 newRewardsCount: 0,
                 newAchievementsCount: 0
             },
-            appVersion: "1.1.17" 
+            appVersion: "1.1.18" 
         };
         
         const defaultAchievements = [
@@ -777,9 +845,9 @@
             if (currentMode === 'study') {
                 displayedSessionNumber = pomodorosInCycle + 1;
             } else if (currentMode === 'shortBreak') {
-                displayedSessionNumber = pomodorosInCycle; // Shows the number of the study session just completed
-                if (pomodorosInCycle === 0) displayedSessionNumber = 1; // For the very first short break after study 1
-            } else { // longBreak
+                displayedSessionNumber = pomodorosInCycle; 
+                if (pomodorosInCycle === 0) displayedSessionNumber = 1; 
+            } else { 
                 displayedSessionNumber = POMODOROS_PER_CYCLE;
             }
             
@@ -948,13 +1016,20 @@
         }
 
         // --- Timer Logic ---
+        // ### MODIFICATION: Simplified setTimer, autoStart logic moved to handleTimerEnd ###
         function setTimer(mode) { 
             appData.timerState.forcedBreakContextSession = null; 
             
             currentMode = mode;
             isRunning = false; 
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
-            clearInterval(timerInterval);
+            
+            // Tell worker to stop its current timer
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'pause' });
+            }
+            clearInterval(timerInterval); // Clear main thread interval if any was running (legacy)
+
 
             switch (mode) {
                 case 'study':
@@ -972,6 +1047,9 @@
                     currentMode = 'study';
             }
             updateTimerDisplay(); 
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
+            }
             saveTimerState(); 
         }
 
@@ -990,38 +1068,47 @@
 
             isRunning = true;
             startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
-            clearInterval(timerInterval); 
-            appData.timerState.forcedBreakContextSession = null; 
-            timerInterval = setInterval(() => {
-                if (!isRunning) { 
-                    clearInterval(timerInterval);
-                    return;
-                }
-                
-                timeLeft--;
-                updateTimerDisplay(); 
-
-                if (timeLeft < 0) { 
-                    timeLeft = 0; 
+            
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'start' });
+            } else { // Fallback if worker fails
+                clearInterval(timerInterval); 
+                timerInterval = setInterval(() => {
+                    if (!isRunning) { 
+                        clearInterval(timerInterval);
+                        return;
+                    }
+                    timeLeft--;
                     updateTimerDisplay(); 
-                    handleTimerEnd(); 
-                }
-            }, 1000);
+                    if (timeLeft < 0) { 
+                        timeLeft = 0; 
+                        updateTimerDisplay(); 
+                        handleTimerEnd(); 
+                    }
+                }, 1000);
+            }
             saveTimerState(); 
         }
 
         function pauseTimer() {
             isRunning = false;
             startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
-            clearInterval(timerInterval);
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'pause' });
+            }
+            clearInterval(timerInterval); // Clear main thread interval if any
             saveTimerState(); 
         }
         
         // ### MODIFICATION: Updated handleTimerEnd for auto-start logic and alert order ###
         function handleTimerEnd() {
-            clearInterval(timerInterval);
-            isRunning = false;
-            const endedMode = currentMode;
+            // This function is now primarily called by the worker's 'end' message
+            // or if the main thread interval (fallback) reaches zero.
+            
+            isRunning = false; // Ensure isRunning is false
+            clearInterval(timerInterval); // Clear any main thread interval
+
+            const endedMode = currentMode; // currentMode should be the one that just ended
             appData.timerState.lastTimerUsed = endedMode;
             
             let notificationTitleForEndedMode = "";
@@ -1031,9 +1118,7 @@
             let shouldAutoStartTheNextTimer = true; 
             let showCycleCompleteNotification = false;
             let completedTime = 0;
-
-            appData.timerState.forcedBreakContextSession = null; 
-
+            
             if (endedMode === 'study') {
                 completedTime = appData.settings.studyTime * 60;
                 appData.stats.daily.pureStudySeconds += completedTime; 
@@ -1105,12 +1190,13 @@
 
             // Set up the next timer (this updates currentMode, timeLeft, and calls updateTimerDisplay for the new state)
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); 
+                setTimer(nextModeToTransitionTo); // This updates currentMode and timeLeft on main thread
+                                                // AND sends 'setMode' to worker.
                 
                 if (shouldAutoStartTheNextTimer) {
                     requestAnimationFrame(() => { 
                         setTimeout(() => { 
-                            startTimer(); 
+                            startTimer(); // This will send 'start' command to worker
                         }, 150); 
                     });
                 } else {
@@ -1294,7 +1380,6 @@
                 </ul>
                 <p class="mb-3">Study sessions and breaks (short and long) will generally start automatically. You can skip breaks using the 'Skip Break' button. After a long break, the new study cycle will not start automatically; you need to click 'Start'.</p>
                 <p class="mb-3">The study streak only counts after completing the first study session of the day.</p>
-                <p class="mb-1">Timer behavior in background tabs may vary by browser.</p>
                 <p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button next to the "Study Session" display.</p>
             `;
             showCustomAlert(
@@ -1363,6 +1448,9 @@
             
             if(settingsChanged) {
                 saveData();
+                if (timerWorker) { // ### MODIFICATION: Update worker with new settings ###
+                    timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
+                }
                  if (!isRunning) { 
                     let durationChangedForCurrentMode = false;
                     if (currentMode === 'study' && oldStudyTime !== appData.settings.studyTime) durationChangedForCurrentMode = true;
@@ -1421,6 +1509,51 @@
                 renderAchievements(); 
             });
         });
+
+        // --- Web Worker Setup ---
+        let timerWorker;
+        if (window.Worker) {
+            try {
+                const workerScript = document.getElementById('timerWorkerScript').textContent;
+                const blob = new Blob([workerScript], { type: 'application/javascript' });
+                timerWorker = new Worker(URL.createObjectURL(blob));
+
+                timerWorker.onmessage = function(e) {
+                    const { type, timeLeft: workerTimeLeftUpdate, mode: workerMode } = e.data;
+                    // console.log('Main received from worker:', e.data);
+
+                    if (type === 'tick') {
+                        timeLeft = workerTimeLeftUpdate;
+                        if (currentMode === workerMode) { // Ensure UI updates only if mode matches
+                           updateTimerDisplay();
+                        }
+                    } else if (type === 'end') {
+                        if (currentMode === workerMode) { // Ensure handleTimerEnd is for the correct mode
+                           handleTimerEnd();
+                        }
+                    } else if (type === 'paused') {
+                        // Worker confirmed pause, main thread state should already reflect this
+                        isRunning = false;
+                        startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
+                    } else if (type === 'modeSet'){
+                        // Worker confirmed mode set, main thread state should already reflect this
+                        timeLeft = workerTimeLeftUpdate;
+                        updateTimerDisplay();
+                    }
+                };
+                timerWorker.onerror = function(error) {
+                    console.error('Worker Error:', error);
+                    // Fallback to main thread timer if worker fails
+                    timerWorker = null; 
+                };
+            } catch (e) {
+                console.error('Error creating worker:', e);
+                timerWorker = null;
+            }
+        } else {
+            console.warn('Web Workers not supported. Timer will run on main thread.');
+        }
+
 
         // --- Initialization ---
         function initializeApp() {
@@ -1492,6 +1625,12 @@
             timeLeft = initialTimeLeft;
             isRunning = false; 
             pomodorosInCycle = initialPomodorosInCycle;
+            
+            // Initialize worker with current settings and state
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
+                timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
+            }
             
             updateTimerDisplay(); 
             
