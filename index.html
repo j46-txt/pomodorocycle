@@ -909,7 +909,8 @@
                 const newIndicatorHTML = isNew ? '<span class="ml-2 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
                 
                 const rewardEl = document.createElement('div');
-                rewardEl.className = `p-3 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
+                // Corrected: Changed p-3 to p-2 for a slightly shorter reward item.
+                rewardEl.className = `p-2 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
                 
                 let progressText = '';
                 let progressPercent = 0;
@@ -932,7 +933,7 @@
                     <p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">
                         Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}
                     </p>
-                    <div class="mt-1 h-4 flex items-center"> <!-- Corrected: Consistent height container using h-4 (1rem) -->
+                    <div class="mt-1 h-4 flex items-center"> 
                         ${!reward.earnedToday ? `
                             <div class="progress-bar-container w-full"> 
                                 <div class="progress-bar" style="width: ${progressPercent}%;"></div>
@@ -959,7 +960,6 @@
 
         function renderAchievements() {
             achievementsListEl.innerHTML = '';
-            // Sort achievements based on new logic
             appData.achievements.sort((a, b) => {
                 const aIsNewlyUnlocked = justSeenAchievementIds.includes(a.id);
                 const bIsNewlyUnlocked = justSeenAchievementIds.includes(b.id);
@@ -970,7 +970,7 @@
                 const aIsUnlocked = a.unlocked;
                 const bIsUnlocked = b.unlocked;
 
-                if (!aIsUnlocked && !bIsUnlocked) { // Both not unlocked
+                if (!aIsUnlocked && !bIsUnlocked) { 
                     let currentValueA = 0;
                     switch (a.type) {
                         case 'totalDaysStudied': currentValueA = appData.stats.general.totalDaysStudied; break;
@@ -1014,7 +1014,6 @@
                 const newIndicatorHTML = isNew ? '<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
 
                 const achEl = document.createElement('div');
-                // Corrected: Removed hover:scale-105 from achievement items
                 achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
                 
                 let mainContentHTML = `
