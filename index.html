@@ -338,29 +338,24 @@
                 case 'pause':
                     workerIsRunning = false;
                     clearInterval(workerTimerInterval);
-                    // Main thread now handles UI updates for pause/resume state.
-                    // No 'paused' message needed from worker.
                     break;
                 case 'setMode':
                     workerCurrentMode = mode;
                     workerTimeLeft = duration;
-                    workerIsRunning = false; // Ensure timer is stopped before setting new mode
+                    workerIsRunning = false; 
                     clearInterval(workerTimerInterval);
                     postMessage({ type: 'modeSet', timeLeft: workerTimeLeft, mode: workerCurrentMode }); 
                     break;
                 case 'updateSettings':
                     workerSettings = settings;
-                    // If timer is not running and mode is set, update its duration if settings changed
                     if (!workerIsRunning && workerCurrentMode) {
                          let newDuration;
                          if (workerCurrentMode === 'study') newDuration = workerSettings.studyTime * 60;
                          else if (workerCurrentMode === 'shortBreak') newDuration = workerSettings.shortBreakTime * 60;
                          else if (workerCurrentMode === 'longBreak') newDuration = workerSettings.longBreakTime * 60;
                          
-                         // Only update and post if the duration actually changed for the current non-running mode
                          if (newDuration && workerTimeLeft !== newDuration) {
                              workerTimeLeft = newDuration;
-                             // Post 'tick' to update main thread's timeLeft and display for non-running timer
                              postMessage({ type: 'tick', timeLeft: workerTimeLeft, mode: workerCurrentMode });
                          }
                     }
@@ -937,11 +932,13 @@
                     <p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">
                         Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}
                     </p>
-                    ${!reward.earnedToday ? `
-                        <div class="progress-bar-container mt-1">
-                            <div class="progress-bar" style="width: ${progressPercent}%;"></div>
-                        </div>
-                    ` : '<p class="text-xs text-green-100 font-bold mt-1"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
+                    <div class="mt-1 min-h-[1.25rem]"> <!-- Consistent height container -->
+                        ${!reward.earnedToday ? `
+                            <div class="progress-bar-container"> 
+                                <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+                            </div>
+                        ` : '<p class="text-xs text-green-100 font-bold"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
+                    </div>
                 </div>
                 <button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors flex-shrink-0 ml-2">
                     <i class="fas fa-trash-alt"></i>
@@ -962,17 +959,62 @@
 
         function renderAchievements() {
             achievementsListEl.innerHTML = '';
-            appData.achievements.sort((a,b) => { 
-                if (a.unlocked && !b.unlocked) return -1;
-                if (!a.unlocked && b.unlocked) return 1;
-                return a.threshold - b.threshold;
+            // Sort achievements based on new logic
+            appData.achievements.sort((a, b) => {
+                const aIsNew = justSeenAchievementIds.includes(a.id);
+                const bIsNew = justSeenAchievementIds.includes(b.id);
+
+                if (aIsNew && !bIsNew) return -1;
+                if (!aIsNew && bIsNew) return 1;
+
+                if (a.unlocked && !aIsNew && !b.unlocked) return 1;
+                if (!a.unlocked && b.unlocked && !bIsNew) return -1;
+                
+                if (a.unlocked && !aIsNew && b.unlocked && !bIsNew) {
+                     return new Date(b.unlockedDate) - new Date(a.unlockedDate); // Sort unlocked non-new by date, newest last (or however preferred)
+                }
+
+
+                if (!a.unlocked && !b.unlocked) {
+                    let currentValueA = 0;
+                    switch (a.type) {
+                        case 'totalDaysStudied': currentValueA = appData.stats.general.totalDaysStudied; break;
+                        case 'totalCyclesCompleted': currentValueA = appData.stats.general.totalCyclesCompleted; break;
+                        case 'totalPureStudyHours': currentValueA = appData.stats.general.totalPureStudySeconds / 3600; break;
+                        case 'streak': currentValueA = appData.stats.general.streak; break;
+                        case 'totalShortBreakSeconds': currentValueA = appData.stats.general.totalShortBreakSeconds; break;
+                        case 'totalLongBreakSeconds': currentValueA = appData.stats.general.totalLongBreakSeconds; break;
+                    }
+                    const progressA = Math.min(100, (currentValueA / a.threshold) * 100); // Cap at 100%
+
+                    let currentValueB = 0;
+                    switch (b.type) {
+                        case 'totalDaysStudied': currentValueB = appData.stats.general.totalDaysStudied; break;
+                        case 'totalCyclesCompleted': currentValueB = appData.stats.general.totalCyclesCompleted; break;
+                        case 'totalPureStudyHours': currentValueB = appData.stats.general.totalPureStudySeconds / 3600; break;
+                        case 'streak': currentValueB = appData.stats.general.streak; break;
+                        case 'totalShortBreakSeconds': currentValueB = appData.stats.general.totalShortBreakSeconds; break;
+                        case 'totalLongBreakSeconds': currentValueB = appData.stats.general.totalLongBreakSeconds; break;
+                    }
+                    const progressB = Math.min(100, (currentValueB / b.threshold) * 100); // Cap at 100%
+
+                    if (progressA > progressB) return -1; // Higher progress (closer to completion) first
+                    if (progressA < progressB) return 1;
+
+                    if (a.threshold < b.threshold) return -1; // Lower threshold (easier) first
+                    if (a.threshold > b.threshold) return 1;
+                    return 0;
+                }
+                return 0;
             });
+
             appData.achievements.forEach(ach => {
                 const isNew = justSeenAchievementIds.includes(ach.id);
                 const newIndicatorHTML = isNew ? '<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
 
                 const achEl = document.createElement('div');
-                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all transform hover:scale-105 ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
+                // Removed hover:scale-105
+                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
                 
                 let mainContentHTML = `
                     <div class="flex items-start mb-1"> 
@@ -1074,7 +1116,6 @@
 
         function startTimer() {
             if (timeLeft <= 0) {
-                console.warn(`startTimer: timeLeft is ${timeLeft} for ${currentMode}. Attempting to reset time via setTimer.`);
                 setTimer(currentMode); 
                 if(timeLeft <= 0) { 
                      console.error(`startTimer: Cannot start timer for ${currentMode}, timeLeft is still ${timeLeft} after reset. Check settings.`);
@@ -1185,12 +1226,11 @@
             }
 
             if (nextModeToTransitionTo) {
-                setTimer(nextModeToTransitionTo); // Sets button to "Start", isRunning = false
+                setTimer(nextModeToTransitionTo); 
                 
                 if (shouldAutoStart) {
-                    startTimer(); // Sets button to "Pause", isRunning = true
+                    startTimer(); 
                 }
-                // If !shouldAutoStart, button remains "Start" from setTimer
             } else {
                 startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
             }
@@ -1690,7 +1730,7 @@
         .donation-section {
             text-align: center;
             font-size: 0.75em;
-            color: #475569;
+            color: #5a687d;
             margin-top: 20px;
             max-width: 300px;
             opacity: 0.75;
@@ -1698,7 +1738,7 @@
         }
 
         .donation-section a {
-            color: #475569;
+            color: #5a687d;
             text-decoration: none;
             white-space: nowrap;
             transition: color 0.3s ease;
