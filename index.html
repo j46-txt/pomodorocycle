@@ -27,7 +27,7 @@
             flex-direction: column;
             justify-content: space-between; 
             overflow: hidden; 
-            position: relative; /* For NEW indicator positioning */
+            position: relative; 
         }
         .achievement-item.unlocked {
             opacity: 1;
@@ -133,7 +133,7 @@
             position: relative; 
         }
         .new-indicator {
-            font-size: 0.65rem; /* Smaller text for NEW */
+            font-size: 0.65rem; 
             padding: 0.1rem 0.3rem;
             border-radius: 0.25rem;
             line-height: 1;
@@ -932,9 +932,9 @@
                     <p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">
                         Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}
                     </p>
-                    <div class="mt-1 min-h-[1.25rem]"> <!-- Consistent height container -->
+                    <div class="mt-1 h-5 flex items-center"> <!-- Consistent height container -->
                         ${!reward.earnedToday ? `
-                            <div class="progress-bar-container"> 
+                            <div class="progress-bar-container w-full"> 
                                 <div class="progress-bar" style="width: ${progressPercent}%;"></div>
                             </div>
                         ` : '<p class="text-xs text-green-100 font-bold"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}
@@ -961,21 +961,16 @@
             achievementsListEl.innerHTML = '';
             // Sort achievements based on new logic
             appData.achievements.sort((a, b) => {
-                const aIsNew = justSeenAchievementIds.includes(a.id);
-                const bIsNew = justSeenAchievementIds.includes(b.id);
+                const aIsNewlyUnlocked = justSeenAchievementIds.includes(a.id);
+                const bIsNewlyUnlocked = justSeenAchievementIds.includes(b.id);
 
-                if (aIsNew && !bIsNew) return -1;
-                if (!aIsNew && bIsNew) return 1;
+                if (aIsNewlyUnlocked && !bIsNewlyUnlocked) return -1;
+                if (!aIsNewlyUnlocked && bIsNewlyUnlocked) return 1;
 
-                if (a.unlocked && !aIsNew && !b.unlocked) return 1;
-                if (!a.unlocked && b.unlocked && !bIsNew) return -1;
-                
-                if (a.unlocked && !aIsNew && b.unlocked && !bIsNew) {
-                     return new Date(b.unlockedDate) - new Date(a.unlockedDate); // Sort unlocked non-new by date, newest last (or however preferred)
-                }
+                const aIsUnlocked = a.unlocked;
+                const bIsUnlocked = b.unlocked;
 
-
-                if (!a.unlocked && !b.unlocked) {
+                if (!aIsUnlocked && !bIsUnlocked) { // Both not unlocked
                     let currentValueA = 0;
                     switch (a.type) {
                         case 'totalDaysStudied': currentValueA = appData.stats.general.totalDaysStudied; break;
@@ -985,9 +980,9 @@
                         case 'totalShortBreakSeconds': currentValueA = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValueA = appData.stats.general.totalLongBreakSeconds; break;
                     }
-                    const progressA = Math.min(100, (currentValueA / a.threshold) * 100); // Cap at 100%
+                    const progressA = a.threshold > 0 ? (currentValueA / a.threshold) : -1; 
 
-                    let currentValueB = 0;
+                    let currentValueB = 0; 
                     switch (b.type) {
                         case 'totalDaysStudied': currentValueB = appData.stats.general.totalDaysStudied; break;
                         case 'totalCyclesCompleted': currentValueB = appData.stats.general.totalCyclesCompleted; break;
@@ -996,14 +991,20 @@
                         case 'totalShortBreakSeconds': currentValueB = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValueB = appData.stats.general.totalLongBreakSeconds; break;
                     }
-                    const progressB = Math.min(100, (currentValueB / b.threshold) * 100); // Cap at 100%
+                    const progressB = b.threshold > 0 ? (currentValueB / b.threshold) : -1;
 
-                    if (progressA > progressB) return -1; // Higher progress (closer to completion) first
+                    if (progressA > progressB) return -1; 
                     if (progressA < progressB) return 1;
-
-                    if (a.threshold < b.threshold) return -1; // Lower threshold (easier) first
+                    if (a.threshold < b.threshold) return -1; 
                     if (a.threshold > b.threshold) return 1;
                     return 0;
+                }
+
+                if (!aIsUnlocked && bIsUnlocked && !bIsNewlyUnlocked) return -1; // a (not unlocked) before b (unlocked but not new)
+                if (aIsUnlocked && !aIsNewlyUnlocked && !bIsUnlocked) return 1;  // a (unlocked but not new) after b (not unlocked)
+
+                if (aIsUnlocked && !aIsNewlyUnlocked && bIsUnlocked && !bIsNewlyUnlocked) { // Both unlocked and not new
+                    return new Date(a.unlockedDate) - new Date(b.unlockedDate); // Oldest unlocked (not new) first
                 }
                 return 0;
             });
@@ -1013,7 +1014,6 @@
                 const newIndicatorHTML = isNew ? '<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
 
                 const achEl = document.createElement('div');
-                // Removed hover:scale-105
                 achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
                 
                 let mainContentHTML = `
@@ -1064,7 +1064,7 @@
                         displayThreshold = ach.threshold;
                     }
 
-                    const progressPercent = Math.min(100, (currentValue / ach.threshold) * 100);
+                    const progressPercent = ach.threshold > 0 ? Math.min(100, (currentValue / ach.threshold) * 100) : 0;
                     progressSectionHTML += `
                         <div class="progress-bar-container">
                             <div class="progress-bar bg-sky-400" style="width: ${progressPercent.toFixed(2)}%;"></div>
