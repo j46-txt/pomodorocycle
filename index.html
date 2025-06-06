@@ -940,7 +940,7 @@
         startPauseButton.addEventListener('click', () => { isRunning ? pauseTimer() : startTimer(); });
         resetButton.addEventListener('click', resetCurrentTimer);
         resetCycleCountButtonEl.addEventListener('click', () => {
-            showCustomAlert("Confirm Reset", "Are you sure you want to reset the current cycle? This will set the Study Session to 1/4 and pause the timer.", "fas fa-exclamation-triangle text-yellow-400", "Confirm", "Cancel", () => {
+            showCustomAlert("Confirm Reset", "Are you sure you want to reset the current cycle? This will set the study session to 1/4.", "fas fa-exclamation-triangle text-yellow-400", "Confirm", "Cancel", () => {
                 if (isRunning) pauseTimer();
                 pomodorosInCycle = 0;
                 appData.timerState.forcedBreakContextSession = null;
@@ -950,7 +950,7 @@
             }, () => { console.log("Study cycle reset cancelled."); });
         });
         helpButton.addEventListener('click', () => {
-            const helpText = `<p class="mb-3">The <strong>Pomodoro Technique</strong> is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p><p class="mb-1 font-semibold">This Timer's Cycle:</p><ul><li>1. Study Session (e.g., 25 min)</li><li class="break-session" style="padding-left: 35px;">Short Break (e.g., 5 min)</li><li>2. Study Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>3. Study Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>4. Study Session (completes 1 Pomodoro cycle)</li><li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li></ul><p class="mb-3">Study sessions and breaks begin automatically. After the long break, however, you'll need to start the new cycle manually.</p><p class="mb-3">The study streak only increases after completing the first study session of the day.</p><p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button.</p>`;
+            const helpText = `<p class="mb-3">The <strong>Pomodoro Technique</strong> is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p><p class="mb-1 font-semibold">This Timer's Cycle:</p><ul><li>1. Study Session (e.g., 25 min)</li><li class="break-session" style="padding-left: 35px;">Short Break (e.g., 5 min)</li><li>2. Study Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>3. Study Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>4. Study Session (completes 1 cycle)</li><li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li></ul><p class="mb-3">Study sessions and breaks begin automatically. After the long break, however, you'll need to start the new cycle manually.</p><p class="mb-3">The study streak only increases after completing the first study session of the day.</p><p>Reset the current cycle using the <i class='fas fa-sync-alt fa-xs'></i> button.</p>`;
             showCustomAlert("How This Pomodoro Timer Works", helpText, "fas fa-question-circle text-sky-400", "Got it!");
         });
         skipBreakButton.addEventListener('click', () => {
