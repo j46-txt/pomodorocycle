@@ -89,7 +89,6 @@
             border-radius: 9999px;
             transition: all 0.3s ease;
         }
-        /* Donation Section Styles */
         .donation-section {
             text-align: center;
             font-size: 0.75em;
@@ -124,18 +123,14 @@
             </button>
         </div>
 
-        <!-- Timer Display Updated -->
         <div id="timerDisplay" class="relative text-center mb-6 pt-8 md:pt-4 pb-4 rounded-lg bg-slate-700 shadow-inner">
-            <!-- Mode Indicator with Label -->
             <div id="modeIndicator" class="h-8 flex items-center justify-center mb-2 text-slate-300 font-medium">
                 <span>Current mode:&nbsp;</span>
                 <span id="modePill" class="py-1 px-3 rounded-full text-sm font-semibold transition-all duration-500">Study</span>
             </div>
-            
-            <!-- Timer Text without shadow -->
+           
             <p id="timerText" class="timer-text text-sky-400 transition-colors duration-500">25:00</p>
-            
-            <!-- Cycle Info with corrected alignment -->
+           
             <div class="flex justify-center items-center mt-4 h-8">
                 <div id="cycleDotsContainer" class="flex items-center justify-center space-x-2.5" title="Study Sessions in Current Cycle">
                     <div class="cycle-dot"></div>
@@ -143,12 +138,11 @@
                     <div class="cycle-dot"></div>
                     <div class="cycle-dot"></div>
                 </div>
-                <!-- Discreet Reset Button using margin for spacing -->
                 <button id="resetCycleCountButton" title="Reset cycle" class="ml-3 text-slate-500 hover:text-sky-400 transition-colors focus:outline-none focus:ring-0 text-[11px]">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
-            
+           
             <button id="skipBreakButton" class="absolute bottom-3 right-3 hidden text-xs py-1 px-2 rounded-md shadow-md transition-transform transform hover:scale-105">
                 <i class="fas fa-forward fa-xs mr-1"></i>Skip Break
             </button>
@@ -162,7 +156,7 @@
                 <i class="fas fa-undo mr-2"></i>Reset Current
             </button>
         </div>
-        
+       
         <div class="mb-6 border-b border-slate-700">
             <nav class="flex space-x-1 -mb-px">
                 <button data-tab="stats" class="tab-button active text-sky-400 border-sky-400 py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
@@ -223,7 +217,6 @@
         </div>
     </div>
 
-    <!-- Donation Section Added Here -->
     <div class="donation-section">
         <p>If you'd like to support this app, you can do so <a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank">here ☕</a></p>
     </div>
@@ -278,11 +271,9 @@
         <p id="toastBody"></p>
     </div>
     <script id="timerWorkerScript" type="javascript/worker">
-        // Worker script (inalterado)
         let workerTimeLeft; let workerIsRunning=!1; let workerTimerInterval; let workerCurrentMode; let workerSettings={}; function startWorkerTimer(){if(workerIsRunning)return;if(workerTimeLeft<=0){postMessage({type:"end",mode:workerCurrentMode});return}workerIsRunning=!0;workerTimerInterval=setInterval(()=>{if(!workerIsRunning){clearInterval(workerTimerInterval);return}workerTimeLeft--;postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode});if(workerTimeLeft<=0){clearInterval(workerTimerInterval);workerIsRunning=!1;postMessage({type:"end",mode:workerCurrentMode})}},1e3)}self.onmessage=function(e){const{command:o,mode:t,duration:s,settings:i}=e.data;switch(o){case"start":workerIsRunning||startWorkerTimer();break;case"pause":workerIsRunning=!1;clearInterval(workerTimerInterval);break;case"setMode":workerCurrentMode=t;workerTimeLeft=s;workerIsRunning=!1;clearInterval(workerTimerInterval);postMessage({type:"modeSet",timeLeft:workerTimeLeft,mode:workerCurrentMode});break;case"updateSettings":workerSettings=i;if(!workerIsRunning&&workerCurrentMode){let e;e="study"===workerCurrentMode?workerSettings.studyTime*60:"shortBreak"===workerCurrentMode?workerSettings.shortBreakTime*60:"longBreak"===workerCurrentMode?workerSettings.longBreakTime*60:null;e&&workerTimeLeft!==e&&(workerTimeLeft=e,postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode}))}}};
     </script>
     <script>
-        // --- DOM Elements ---
         const timerTextEl = document.getElementById('timerText');
         const modePillEl = document.getElementById('modePill');
         const cycleDotsContainerEl = document.getElementById('cycleDotsContainer');
@@ -329,7 +320,6 @@
         const rewardsTabBadgeEl = document.getElementById('rewardsTabBadge');
         const achievementsTabBadgeEl = document.getElementById('achievementsTabBadge');
 
-        // --- State Variables ---
         let timeLeft;
         let currentMode = 'study';
         let isRunning = false;
@@ -348,11 +338,10 @@
             rewards: [],
             achievements: [],
             uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-            appVersion: "1.7.0" // Version updated for fixes
+            appVersion: "1.7.0"
         };
         const defaultAchievements = [{"id":"days1","name":"Focused Beginner","description":"Complete your first day of study.","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling","seen":!1},{"id":"days7","name":"Weekly Commitment","description":"Study for 7 days.","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check","seen":!1},{"id":"days15","name":"Fortnightly Focus","description":"Study for 15 days.","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal","seen":!1},{"id":"days30","name":"Monthly Landmark","description":"Study for 30 days.","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award","seen":!1},{"id":"days50","name":"Shooting Star","description":"Study for 50 days.","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star","seen":!1},{"id":"days75","name":"Study Marathoner","description":"Study for 75 days.","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running","seen":!1},{"id":"days100","name":"Habit Master","description":"Study for 100 days.","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown","seen":!1},{"id":"days120","name":"Focus Legend","description":"Study for 120 days.","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader","seen":!1},{"id":"days150","name":"Study Sage","description":"Study for 150 days.","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap","seen":!1},{"id":"streak3","name":"3-Day Combo!","description":"Maintain a 3-day study streak.","type":"streak","threshold":3,"icon":"fas fa-fire","seen":!1},{"id":"streak7","name":"A Week Streak","description":"Maintain a 7-day study streak.","type":"streak","threshold":7,"icon":"fas fa-bolt","seen":!1},{"id":"streak14","name":"Habit Power-Up","description":"Maintain a 14-day study streak.","type":"streak","threshold":14,"icon":"fas fa-dumbbell","seen":!1},{"id":"streak30","name":"Simply Unstoppable","description":"Maintain a 30-day study streak.","type":"streak","threshold":30,"icon":"fas fa-calendar-alt","seen":!1},{"id":"streak50","name":"True Dedication","description":"Maintain a 50-day study streak.","type":"streak","threshold":50,"icon":"fas fa-shield-alt","seen":!1},{"id":"cycles1","name":"First Full Cycle","description":"Complete 1 Pomodoro cycle.","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered","seen":!1},{"id":"cycles10","name":"Ten Cycles of Focus","description":"Complete 10 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin","seen":!1},{"id":"cycles25","name":"Productivity Pro","description":"Complete 25 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs","seen":!1},{"id":"cycles50","name":"To The Moon","description":"Complete 50 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket","seen":!1},{"id":"cycles100","name":"Cycle Centurion","description":"Complete 100 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem","seen":!1},{"id":"hours1","name":"First Hour of Focus","description":"Accumulate 1 hour of pure study.","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start","seen":!1},{"id":"hours10","name":"Immersive Thinker","description":"Accumulate 10 hours of pure study.","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain","seen":!1},{"id":"hours50","name":"Knowledge Fountain","description":"Accumulate 50 hours of pure study.","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope","seen":!1},{"id":"hours100","name":"Pure Scholar","description":"Accumulate 100 hours of pure study.","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university","seen":!1},{"id":"sb_minutes_30","name":"Quick Breather","description":"Accumulate 30 minutes in short breaks.","type":"totalShortBreakSeconds","threshold":1800,"icon":"fas fa-coffee","seen":!1},{"id":"sb_hours_1","name":"Relaxation Adept","description":"Accumulate 1 hour in short breaks.","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-mug-hot","seen":!1},{"id":"sb_hours_5","name":"Short Break Champion","description":"Accumulate 5 hours in short breaks.","type":"totalShortBreakSeconds","threshold":18e3,"icon":"fas fa-couch","seen":!1},{"id":"lb_hours_1","name":"Well Deserved Rest","description":"Accumulate 1 hour in long breaks.","type":"totalLongBreakSeconds","threshold":3600,"icon":"fas fa-bed","seen":!1},{"id":"lb_hours_3","name":"Recharge Master","description":"Accumulate 3 hours in long breaks.","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-battery-full","seen":!1},{"id":"lb_hours_10","name":"Leisure Expert","description":"Accumulate 10 hours in long breaks.","type":"totalLongBreakSeconds","threshold":36e3,"icon":"fas fa-umbrella-beach","seen":!1}];
 
-        // --- Sound Synthesis (Tone.js) ---
         let synth;
         if (typeof Tone !== 'undefined') {
             synth = new Tone.Synth().toDestination();
@@ -381,8 +370,7 @@
                 console.error(`Error playing sound (type: ${type}):`, error);
             }
         }
-        
-        // --- Utility Functions ---
+       
         function getTodayDateString() {
             const today = new Date();
             return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -404,7 +392,6 @@
             });
         }
 
-        // --- Data Persistence (localStorage) ---
         const STORAGE_KEY = 'pomodoroGamifiedAppData';
         function saveTimerState() {
             appData.timerState.persistedCurrentMode = currentMode;
@@ -477,7 +464,6 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
         }
 
-        // --- Toast & Alerts ---
         let toastTimeout;
         function showToast(title, body, type = 'info', duration = 4000) {
             clearTimeout(toastTimeout);
@@ -536,11 +522,10 @@
             currentConfirmCallback = null; currentCancelCallback = null;
         });
 
-        // --- UI Update Functions ---
         function updateTimerDisplay() {
             timerTextEl.textContent = formatTime(timeLeft);
             let modeText = '', bodyClass = 'bg-slate-900', timerColorClass = 'text-sky-400', pillClass = 'bg-sky-400/10 text-sky-400';
-            
+           
             switch (currentMode) {
                 case 'study':
                     modeText = 'Study';
@@ -576,22 +561,21 @@
             const dots = cycleDotsContainerEl.children;
             for (let i = 0; i < dots.length; i++) {
                 const dot = dots[i];
-                dot.className = 'cycle-dot'; // Reset classes
+                dot.className = 'cycle-dot';
                 let borderColorClass = 'border-sky-400';
                  if(currentMode === 'shortBreak') borderColorClass = 'border-green-400';
                  else if(currentMode === 'longBreak') borderColorClass = 'border-purple-400';
 
                 if (i < pomodorosInCycle) {
-                    dot.classList.add('bg-sky-500'); // Completed
+                    dot.classList.add('bg-sky-500');
                 } else if (i === pomodorosInCycle && currentMode === 'study') {
-                    // Corrected: use a clean border instead of ring for active session
                     dot.classList.add('bg-transparent', 'border-2', borderColorClass);
                 } else {
-                    dot.classList.add('bg-slate-600'); // Pending
+                    dot.classList.add('bg-slate-600');
                 }
             }
         }
-        
+       
         function updateStatsDisplay() {
             dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted;
             dailyStudyTimeEl.textContent = formatHoursMinutes(appData.stats.daily.pureStudySeconds);
@@ -732,7 +716,6 @@
             });
         }
 
-        // --- Timer Logic ---
         function setTimer(mode) {
             appData.timerState.forcedBreakContextSession = null;
             currentMode = mode;
@@ -857,7 +840,6 @@
             saveTimerState();
         }
 
-        // --- Stats, Rewards, Achievements Logic & Event Listeners ---
         function resetDailyStats() {
             appData.stats.daily = { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false };
             appData.rewards.forEach(reward => { reward.earnedToday = false; reward.notificationShown = false; reward.seen = false; });
@@ -868,6 +850,9 @@
             updateAchievementTabNotificationBadge();
             pomodorosInCycle = 0;
             appData.timerState.forcedBreakContextSession = null;
+            if (currentMode !== 'study' || isRunning) {
+                setTimer('study');
+            }
         }
         addRewardButton.addEventListener('click', () => {
             const name = rewardNameInput.value.trim();
@@ -1038,7 +1023,6 @@
             });
         });
 
-        // --- Web Worker Setup ---
         let timerWorker;
         if (window.Worker) {
             try {
@@ -1065,8 +1049,28 @@
         } else {
             console.warn('Web Workers not supported. Timer will run on main thread.');
         }
+        
+        function startMidnightChecker() {
+            setInterval(() => {
+                const todayString = getTodayDateString();
+                if (appData.stats.daily.date !== todayString) {
+                    console.log('Midnight detected! Resetting daily stats automatically.');
+                    showToast("A New Day!", "Your daily statistics have been reset.", "info");
+                    
+                    if(isRunning) {
+                        pauseTimer();
+                    }
+                    
+                    resetDailyStats();
+                    saveData();
+                    
+                    updateStatsDisplay();
+                    renderRewards();
+                    renderAchievements();
+                }
+            }, 60000);
+        }
 
-        // --- Initialization ---
         function initializeApp() {
             loadData();
             const todayStrInitialize = getTodayDateString();
@@ -1127,6 +1131,8 @@
             renderAchievements();
             updateRewardTabNotificationBadge();
             updateAchievementTabNotificationBadge();
+
+            startMidnightChecker();
         }
         window.addEventListener('beforeunload', saveTimerState);
         document.addEventListener('DOMContentLoaded', initializeApp);
