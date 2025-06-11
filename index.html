@@ -148,12 +148,12 @@
             </button>
         </div>
 
-        <div class="flex justify-center space-x-4 mb-8">
-            <button id="startPauseButton" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
+        <div class="flex justify-center items-center space-x-4 mb-8">
+            <button id="startPauseButton" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">
                 <i class="fas fa-play mr-2"></i>Start
             </button>
-            <button id="resetButton" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                <i class="fas fa-undo mr-2"></i>Reset Current
+            <button id="resetButton" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg shadow-sm transition-colors text-sm">
+                <i class="fas fa-undo fa-sm mr-1"></i>Reset Current
             </button>
         </div>
        
@@ -338,7 +338,7 @@
             rewards: [],
             achievements: [],
             uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-            appVersion: "1.8.0"
+            appVersion: "1.8.1"
         };
         const defaultAchievements = [{"id":"days1","name":"Focused Beginner","description":"Complete your first day of study.","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling","seen":!1},{"id":"days7","name":"Weekly Commitment","description":"Study for 7 days.","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check","seen":!1},{"id":"days15","name":"Fortnightly Focus","description":"Study for 15 days.","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal","seen":!1},{"id":"days30","name":"Monthly Landmark","description":"Study for 30 days.","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award","seen":!1},{"id":"days50","name":"Shooting Star","description":"Study for 50 days.","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star","seen":!1},{"id":"days75","name":"Study Marathoner","description":"Study for 75 days.","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running","seen":!1},{"id":"days100","name":"Habit Master","description":"Study for 100 days.","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown","seen":!1},{"id":"days120","name":"Focus Legend","description":"Study for 120 days.","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader","seen":!1},{"id":"days150","name":"Study Sage","description":"Study for 150 days.","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap","seen":!1},{"id":"streak3","name":"3-Day Combo!","description":"Maintain a 3-day study streak.","type":"streak","threshold":3,"icon":"fas fa-fire","seen":!1},{"id":"streak7","name":"A Week Streak","description":"Maintain a 7-day study streak.","type":"streak","threshold":7,"icon":"fas fa-bolt","seen":!1},{"id":"streak14","name":"Habit Power-Up","description":"Maintain a 14-day study streak.","type":"streak","threshold":14,"icon":"fas fa-dumbbell","seen":!1},{"id":"streak30","name":"Simply Unstoppable","description":"Maintain a 30-day study streak.","type":"streak","threshold":30,"icon":"fas fa-calendar-alt","seen":!1},{"id":"streak50","name":"True Dedication","description":"Maintain a 50-day study streak.","type":"streak","threshold":50,"icon":"fas fa-shield-alt","seen":!1},{"id":"cycles1","name":"First Full Cycle","description":"Complete 1 Pomodoro cycle.","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered","seen":!1},{"id":"cycles10","name":"Ten Cycles of Focus","description":"Complete 10 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin","seen":!1},{"id":"cycles25","name":"Productivity Pro","description":"Complete 25 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs","seen":!1},{"id":"cycles50","name":"To The Moon","description":"Complete 50 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket","seen":!1},{"id":"cycles100","name":"Cycle Centurion","description":"Complete 100 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem","seen":!1},{"id":"hours1","name":"First Hour of Focus","description":"Accumulate 1 hour of pure study.","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start","seen":!1},{"id":"hours10","name":"Immersive Thinker","description":"Accumulate 10 hours of pure study.","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain","seen":!1},{"id":"hours50","name":"Knowledge Fountain","description":"Accumulate 50 hours of pure study.","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope","seen":!1},{"id":"hours100","name":"Pure Scholar","description":"Accumulate 100 hours of pure study.","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university","seen":!1},{"id":"sb_hours_1","name":"Quick Breather","description":"Accumulate 1 hour in short breaks.","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee","seen":!1},{"id":"sb_hours_5","name":"Relaxation Adept","description":"Accumulate 5 hours in short breaks.","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot","seen":!1},{"id":"sb_hours_15","name":"Short Break Champion","description":"Accumulate 15 hours in short breaks.","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch","seen":!1},{"id":"lb_hours_3","name":"Well Deserved Rest","description":"Accumulate 3 hours in long breaks.","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed","seen":!1},{"id":"lb_hours_10","name":"Recharge Master","description":"Accumulate 10 hours in long breaks.","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full","seen":!1},{"id":"lb_hours_25","name":"Leisure Expert","description":"Accumulate 25 hours in long breaks.","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach","seen":!1}];
 
@@ -946,6 +946,7 @@
 
                 if (skippedTime > 0) {
                     appData.stats.daily.totalTimeTodaySeconds += skippedTime;
+                    updateStatsDisplay();
                     checkAchievements();
                 }
 
