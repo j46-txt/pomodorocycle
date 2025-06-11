@@ -84,8 +84,8 @@
         .tab-button { position: relative; }
         .new-indicator { font-size: 0.65rem; padding: 0.1rem 0.3rem; border-radius: 0.25rem; line-height: 1; }
         .cycle-dot {
-            width: 0.75rem; /* 12px */
-            height: 0.75rem; /* 12px */
+            width: 0.75rem;
+            height: 0.75rem;
             border-radius: 9999px;
             transition: all 0.3s ease;
         }
@@ -338,9 +338,9 @@
             rewards: [],
             achievements: [],
             uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-            appVersion: "1.7.0"
+            appVersion: "1.8.0"
         };
-        const defaultAchievements = [{"id":"days1","name":"Focused Beginner","description":"Complete your first day of study.","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling","seen":!1},{"id":"days7","name":"Weekly Commitment","description":"Study for 7 days.","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check","seen":!1},{"id":"days15","name":"Fortnightly Focus","description":"Study for 15 days.","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal","seen":!1},{"id":"days30","name":"Monthly Landmark","description":"Study for 30 days.","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award","seen":!1},{"id":"days50","name":"Shooting Star","description":"Study for 50 days.","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star","seen":!1},{"id":"days75","name":"Study Marathoner","description":"Study for 75 days.","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running","seen":!1},{"id":"days100","name":"Habit Master","description":"Study for 100 days.","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown","seen":!1},{"id":"days120","name":"Focus Legend","description":"Study for 120 days.","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader","seen":!1},{"id":"days150","name":"Study Sage","description":"Study for 150 days.","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap","seen":!1},{"id":"streak3","name":"3-Day Combo!","description":"Maintain a 3-day study streak.","type":"streak","threshold":3,"icon":"fas fa-fire","seen":!1},{"id":"streak7","name":"A Week Streak","description":"Maintain a 7-day study streak.","type":"streak","threshold":7,"icon":"fas fa-bolt","seen":!1},{"id":"streak14","name":"Habit Power-Up","description":"Maintain a 14-day study streak.","type":"streak","threshold":14,"icon":"fas fa-dumbbell","seen":!1},{"id":"streak30","name":"Simply Unstoppable","description":"Maintain a 30-day study streak.","type":"streak","threshold":30,"icon":"fas fa-calendar-alt","seen":!1},{"id":"streak50","name":"True Dedication","description":"Maintain a 50-day study streak.","type":"streak","threshold":50,"icon":"fas fa-shield-alt","seen":!1},{"id":"cycles1","name":"First Full Cycle","description":"Complete 1 Pomodoro cycle.","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered","seen":!1},{"id":"cycles10","name":"Ten Cycles of Focus","description":"Complete 10 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin","seen":!1},{"id":"cycles25","name":"Productivity Pro","description":"Complete 25 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs","seen":!1},{"id":"cycles50","name":"To The Moon","description":"Complete 50 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket","seen":!1},{"id":"cycles100","name":"Cycle Centurion","description":"Complete 100 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem","seen":!1},{"id":"hours1","name":"First Hour of Focus","description":"Accumulate 1 hour of pure study.","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start","seen":!1},{"id":"hours10","name":"Immersive Thinker","description":"Accumulate 10 hours of pure study.","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain","seen":!1},{"id":"hours50","name":"Knowledge Fountain","description":"Accumulate 50 hours of pure study.","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope","seen":!1},{"id":"hours100","name":"Pure Scholar","description":"Accumulate 100 hours of pure study.","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university","seen":!1},{"id":"sb_minutes_30","name":"Quick Breather","description":"Accumulate 30 minutes in short breaks.","type":"totalShortBreakSeconds","threshold":1800,"icon":"fas fa-coffee","seen":!1},{"id":"sb_hours_1","name":"Relaxation Adept","description":"Accumulate 1 hour in short breaks.","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-mug-hot","seen":!1},{"id":"sb_hours_5","name":"Short Break Champion","description":"Accumulate 5 hours in short breaks.","type":"totalShortBreakSeconds","threshold":18e3,"icon":"fas fa-couch","seen":!1},{"id":"lb_hours_1","name":"Well Deserved Rest","description":"Accumulate 1 hour in long breaks.","type":"totalLongBreakSeconds","threshold":3600,"icon":"fas fa-bed","seen":!1},{"id":"lb_hours_3","name":"Recharge Master","description":"Accumulate 3 hours in long breaks.","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-battery-full","seen":!1},{"id":"lb_hours_10","name":"Leisure Expert","description":"Accumulate 10 hours in long breaks.","type":"totalLongBreakSeconds","threshold":36e3,"icon":"fas fa-umbrella-beach","seen":!1}];
+        const defaultAchievements = [{"id":"days1","name":"Focused Beginner","description":"Complete your first day of study.","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling","seen":!1},{"id":"days7","name":"Weekly Commitment","description":"Study for 7 days.","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check","seen":!1},{"id":"days15","name":"Fortnightly Focus","description":"Study for 15 days.","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal","seen":!1},{"id":"days30","name":"Monthly Landmark","description":"Study for 30 days.","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award","seen":!1},{"id":"days50","name":"Shooting Star","description":"Study for 50 days.","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star","seen":!1},{"id":"days75","name":"Study Marathoner","description":"Study for 75 days.","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running","seen":!1},{"id":"days100","name":"Habit Master","description":"Study for 100 days.","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown","seen":!1},{"id":"days120","name":"Focus Legend","description":"Study for 120 days.","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader","seen":!1},{"id":"days150","name":"Study Sage","description":"Study for 150 days.","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap","seen":!1},{"id":"streak3","name":"3-Day Combo!","description":"Maintain a 3-day study streak.","type":"streak","threshold":3,"icon":"fas fa-fire","seen":!1},{"id":"streak7","name":"A Week Streak","description":"Maintain a 7-day study streak.","type":"streak","threshold":7,"icon":"fas fa-bolt","seen":!1},{"id":"streak14","name":"Habit Power-Up","description":"Maintain a 14-day study streak.","type":"streak","threshold":14,"icon":"fas fa-dumbbell","seen":!1},{"id":"streak30","name":"Simply Unstoppable","description":"Maintain a 30-day study streak.","type":"streak","threshold":30,"icon":"fas fa-calendar-alt","seen":!1},{"id":"streak50","name":"True Dedication","description":"Maintain a 50-day study streak.","type":"streak","threshold":50,"icon":"fas fa-shield-alt","seen":!1},{"id":"cycles1","name":"First Full Cycle","description":"Complete 1 Pomodoro cycle.","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered","seen":!1},{"id":"cycles10","name":"Ten Cycles of Focus","description":"Complete 10 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin","seen":!1},{"id":"cycles25","name":"Productivity Pro","description":"Complete 25 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs","seen":!1},{"id":"cycles50","name":"To The Moon","description":"Complete 50 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket","seen":!1},{"id":"cycles100","name":"Cycle Centurion","description":"Complete 100 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem","seen":!1},{"id":"hours1","name":"First Hour of Focus","description":"Accumulate 1 hour of pure study.","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start","seen":!1},{"id":"hours10","name":"Immersive Thinker","description":"Accumulate 10 hours of pure study.","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain","seen":!1},{"id":"hours50","name":"Knowledge Fountain","description":"Accumulate 50 hours of pure study.","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope","seen":!1},{"id":"hours100","name":"Pure Scholar","description":"Accumulate 100 hours of pure study.","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university","seen":!1},{"id":"sb_hours_1","name":"Quick Breather","description":"Accumulate 1 hour in short breaks.","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee","seen":!1},{"id":"sb_hours_5","name":"Relaxation Adept","description":"Accumulate 5 hours in short breaks.","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot","seen":!1},{"id":"sb_hours_15","name":"Short Break Champion","description":"Accumulate 15 hours in short breaks.","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch","seen":!1},{"id":"lb_hours_3","name":"Well Deserved Rest","description":"Accumulate 3 hours in long breaks.","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed","seen":!1},{"id":"lb_hours_10","name":"Recharge Master","description":"Accumulate 10 hours in long breaks.","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full","seen":!1},{"id":"lb_hours_25","name":"Leisure Expert","description":"Accumulate 25 hours in long breaks.","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach","seen":!1}];
 
         let synth;
         if (typeof Tone !== 'undefined') {
@@ -843,16 +843,8 @@
         function resetDailyStats() {
             appData.stats.daily = { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false };
             appData.rewards.forEach(reward => { reward.earnedToday = false; reward.notificationShown = false; reward.seen = false; });
-            appData.achievements.forEach(ach => { ach.seen = ach.unlocked; });
             appData.uiState.newRewardsCount = 0;
-            appData.uiState.newAchievementsCount = 0;
             updateRewardTabNotificationBadge();
-            updateAchievementTabNotificationBadge();
-            pomodorosInCycle = 0;
-            appData.timerState.forcedBreakContextSession = null;
-            if (currentMode !== 'study' || isRunning) {
-                setTimer('study');
-            }
         }
         addRewardButton.addEventListener('click', () => {
             const name = rewardNameInput.value.trim();
@@ -941,14 +933,29 @@
         skipBreakButton.addEventListener('click', () => {
             if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
                 const skippedMode = currentMode;
+                let skippedTime = 0;
+                
+                if (skippedMode === 'shortBreak') {
+                    skippedTime = appData.settings.shortBreakTime * 60;
+                    appData.stats.general.totalShortBreakSeconds += skippedTime;
+                } else if (skippedMode === 'longBreak') {
+                    skippedTime = appData.settings.longBreakTime * 60;
+                    appData.stats.general.totalLongBreakSeconds += skippedTime;
+                    pomodorosInCycle = 0;
+                }
+
+                if (skippedTime > 0) {
+                    appData.stats.daily.totalTimeTodaySeconds += skippedTime;
+                    checkAchievements();
+                }
+
                 if (timerWorker) timerWorker.postMessage({ command: 'pause' });
                 isRunning = false;
-                let nextModeAfterSkip = 'study';
-                if (skippedMode === 'longBreak') pomodorosInCycle = 0;
+                
                 appData.timerState.forcedBreakContextSession = null;
                 appData.timerState.persistedPreviousPomodorosInCycle = null;
                 appData.timerState.lastTimerUsed = skippedMode;
-                setTimer(nextModeAfterSkip);
+                setTimer('study');
             }
         });
         settingsButton.addEventListener('click', () => settingsModal.classList.add('show'));
@@ -1056,10 +1063,6 @@
                 if (appData.stats.daily.date !== todayString) {
                     console.log('Midnight detected! Resetting daily stats automatically.');
                     showToast("A New Day!", "Your daily statistics have been reset.", "info");
-                    
-                    if(isRunning) {
-                        pauseTimer();
-                    }
                     
                     resetDailyStats();
                     saveData();
