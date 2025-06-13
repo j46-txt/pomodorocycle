@@ -107,60 +107,60 @@
 
     <div class="w-full max-w-3xl mx-auto bg-slate-800 shadow-2xl rounded-lg p-6 relative mt-4 mb-4"> 
         <div class="absolute top-6 left-6 z-10">
-             <button id="helpButton" title="Help / How to Use" class="p-2 rounded-full text-sky-400 hover:bg-slate-700 hover:text-sky-300 transition-colors focus:outline-none">
+             <button id="helpButton" data-translate-key="help_tooltip" title="Help / How to Use" class="p-2 rounded-full text-sky-400 hover:bg-slate-700 hover:text-sky-300 transition-colors focus:outline-none">
                  <i class="fas fa-question-circle text-xl"></i>
             </button>
         </div>
         <div class="absolute top-6 right-6 z-10">
-            <button id="settingsButton" title="Settings" class="p-2 rounded-full hover:bg-slate-700 transition-colors focus:outline-none">
+            <button id="settingsButton" data-translate-key="settings_tooltip" title="Settings" class="p-2 rounded-full hover:bg-slate-700 transition-colors focus:outline-none">
                 <i class="fas fa-cog text-xl text-sky-400 hover:text-sky-300"></i>
             </button>
         </div>
 
         <div id="timerDisplay" class="relative text-center mb-6 pt-8 md:pt-4 pb-4 rounded-lg bg-slate-700 shadow-inner">
             <div id="modeIndicator" class="h-8 flex items-center justify-center mb-2 text-slate-300 font-medium">
-                <span>Current Timer:&nbsp;</span>
-                <span id="modePill" class="py-1 px-3 rounded-full text-sm font-semibold transition-all duration-500">Study</span>
+                <span data-translate-key="current_timer_label">Current Timer:</span>&nbsp;
+                <span id="modePill" class="py-1 px-3 rounded-full text-sm font-semibold transition-all duration-500" data-translate-key="mode_study">Focus</span>
             </div>
-           
+            
             <p id="timerText" class="timer-text text-sky-400 transition-colors duration-500">25:00</p>
-           
+            
             <div class="flex justify-center items-center mt-4 h-8">
-                <div id="cycleDotsContainer" class="flex items-center justify-center space-x-2.5" title="Study Sessions in Current Cycle">
+                <div id="cycleDotsContainer" data-translate-key="cycle_tooltip" title="Focus Sessions in Current Cycle" class="flex items-center justify-center space-x-2.5">
                     <div class="cycle-dot"></div>
                     <div class="cycle-dot"></div>
                     <div class="cycle-dot"></div>
                     <div class="cycle-dot"></div>
                 </div>
-                <button id="resetCycleCountButton" title="Reset Cycle" class="ml-3 text-slate-500 hover:text-sky-400 transition-colors focus:outline-none focus:ring-0 text-[11px]">
+                <button id="resetCycleCountButton" data-translate-key="reset_cycle_tooltip" title="Reset Cycle" class="ml-3 text-slate-500 hover:text-sky-400 transition-colors focus:outline-none focus:ring-0 text-[11px]">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
-           
-            <button id="skipBreakButton" class="absolute bottom-3 right-3 hidden bg-slate-600 hover:bg-slate-700 text-slate-300 hover:text-white text-xs py-1.5 px-3 rounded-md shadow-md transition-colors">
-                <i class="fas fa-forward fa-xs mr-1"></i>Skip Break
+            
+            <button id="skipBreakButton" class="absolute bottom-3 right-3 hidden bg-slate-500 hover:bg-slate-600 text-slate-200 text-xs py-2 px-4 rounded-md shadow-md transition-colors">
+                <i class="fas fa-forward fa-xs mr-1"></i><span data-translate-key="skip_break_button">Skip Break</span>
             </button>
         </div>
 
         <div class="flex justify-center items-center space-x-4 mb-8">
             <button id="startPauseButton" class="bg-sky-500 hover:bg-sky-600 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-transform transform hover:scale-105">
-                <i class="fas fa-play mr-2"></i>Start
+                <i class="fas fa-play mr-2"></i><span data-translate-key="start_button">Start</span>
             </button>
             <button id="resetButton" class="bg-slate-600 hover:bg-slate-700 text-slate-300 hover:text-white py-2 px-4 rounded-lg shadow-md transition-colors text-xs">
-                <i class="fas fa-undo fa-sm mr-1"></i>Reset Current
+                <i class="fas fa-undo fa-sm mr-1"></i><span data-translate-key="reset_current_button">Reset Current</span>
             </button>
         </div>
-       
+        
         <div class="mb-6 border-b border-slate-700">
             <nav class="flex space-x-1 -mb-px">
                 <button data-tab="stats" class="tab-button active text-sky-400 border-sky-400 py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
-                    <i class="fas fa-chart-line mr-2"></i>Statistics
+                    <i class="fas fa-chart-line mr-2"></i><span data-translate-key="tab_stats">Statistics</span>
                 </button>
                 <button data-tab="rewards" class="tab-button text-slate-400 border-transparent py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
-                    <i class="fas fa-gift mr-2"></i>Daily Rewards <span id="rewardsTabBadge" class="tab-badge"></span>
+                    <i class="fas fa-gift mr-2"></i><span data-translate-key="tab_rewards">Daily Rewards</span> <span id="rewardsTabBadge" class="tab-badge"></span>
                 </button>
                 <button data-tab="achievements" class="tab-button text-slate-400 border-transparent py-3 px-4 font-medium text-center hover:text-sky-300 hover:border-sky-300 transition-colors">
-                    <i class="fas fa-trophy mr-2"></i>Achievements <span id="achievementsTabBadge" class="tab-badge"></span>
+                    <i class="fas fa-trophy mr-2"></i><span data-translate-key="tab_achievements">Achievements</span> <span id="achievementsTabBadge" class="tab-badge"></span>
                 </button>
             </nav>
         </div>
@@ -168,71 +168,81 @@
         <div id="tabContent"> 
             <div id="statsContent" class="tab-pane active p-4 bg-slate-700 rounded-b-lg">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-semibold text-sky-300">Your Statistics</h3>
-                    <p id="streakContainerHeader" class="text-base text-slate-300">Study Streak: <span id="streakCounterHeader" class="font-semibold">0</span> <span id="streakFireIconContainer"><i class="fas fa-fire"></i></span></p>
+                    <h3 class="text-xl font-semibold text-sky-300" data-translate-key="stats_title">Your Statistics</h3>
+                    <p id="streakContainerHeader" class="text-base text-slate-300"><span data-translate-key="stats_streak">Focus Streak</span>: <span id="streakCounterHeader" class="font-semibold">0</span> <span id="streakFireIconContainer"><i class="fas fa-fire"></i></span></p>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="bg-slate-600 p-4 rounded-lg shadow">
-                        <h4 class="font-bold text-sky-400">Daily:</h4>
-                        <p>Cycles Completed Today: <span id="dailyCycles">0</span></p>
-                        <p>Pure Study Time Today: <span id="dailyStudyTime">0h 0m</span></p>
-                        <p>Total Time Today: <span id="dailyTotalTime">0h 0m</span></p>
+                        <h4 class="font-bold text-sky-400" data-translate-key="stats_daily_title">Daily:</h4>
+                        <p><span data-translate-key="stats_daily_cycles">Cycles Completed Today</span>: <span id="dailyCycles">0</span></p>
+                        <p><span data-translate-key="stats_daily_study_time">Pure Focus Time Today</span>: <span id="dailyStudyTime">0h 0m</span></p>
+                        <p><span data-translate-key="stats_daily_total_time">Total Time Today</span>: <span id="dailyTotalTime">0h 0m</span></p>
                     </div>
                     <div class="bg-slate-600 p-4 rounded-lg shadow">
-                        <h4 class="font-bold text-sky-400">General:</h4>
-                        <p>Total Cycles Completed: <span id="totalCycles">0</span></p>
-                        <p>Total Pure Study Time: <span id="totalStudyTime">0h 0m</span></p>
-                        <p>Total Days Studied: <span id="totalDaysStudied">0</span></p>
+                        <h4 class="font-bold text-sky-400" data-translate-key="stats_general_title">General:</h4>
+                        <p><span data-translate-key="stats_general_cycles">Total Cycles Completed</span>: <span id="totalCycles">0</span></p>
+                        <p><span data-translate-key="stats_general_study_time">Total Pure Focus Time</span>: <span id="totalStudyTime">0h 0m</span></p>
+                        <p><span data-translate-key="stats_general_days">Total Focus Days</span>: <span id="totalDaysStudied">0</span></p>
                     </div>
                 </div>
             </div>
             <div id="rewardsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
-                <h3 class="text-xl font-semibold mb-4 text-sky-300">Manage Daily Rewards</h3>
+                <h3 class="text-xl font-semibold mb-4 text-sky-300" data-translate-key="rewards_title">Manage Daily Rewards</h3>
                 <div class="mb-4 p-3 bg-slate-600 rounded-lg md:flex md:items-center md:space-x-2 md:flex-wrap">
-                    <input type="text" id="rewardName" placeholder="Reward name" class="w-full md:flex-1 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
+                    <input type="text" id="rewardName" data-translate-key="rewards_name_placeholder" placeholder="Reward name" class="w-full md:flex-1 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
                     <select id="rewardType" class="w-full md:w-auto p-2 rounded bg-slate-500 text-white mb-2 md:mb-0">
-                        <option value="cycles">Completed Cycles</option>
-                        <option value="studyHours">Study Hours</option>
+                        <option value="cycles" data-translate-key="rewards_type_cycles">Completed Cycles</option>
+                        <option value="studyHours" data-translate-key="rewards_type_hours">Focus Hours</option>
                     </select>
-                    <input type="number" id="rewardThreshold" placeholder="Value" step="0.5" min="0" class="w-full md:w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
-                    <button id="addRewardButton" class="w-full md:w-auto mt-2 md:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded transition-colors">Add Reward</button>
+                    <input type="number" id="rewardThreshold" data-translate-key="rewards_value_placeholder" placeholder="Value" step="0.5" min="0" class="w-full md:w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
+                    <button id="addRewardButton" class="w-full md:w-auto mt-2 md:mt-0 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-3 rounded transition-colors" data-translate-key="rewards_add_button">Add Reward</button>
                 </div>
                 <div id="rewardsList" class="space-y-2 max-h-[176px] overflow-y-auto pr-2"></div>
             </div>
             <div id="achievementsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
-                <h3 class="text-xl font-semibold mb-4 text-sky-300">Your Achievements</h3>
+                <h3 class="text-xl font-semibold mb-4 text-sky-300" data-translate-key="achievements_title">Your Achievements</h3>
                 <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2"></div>
             </div>
         </div>
         <div class="mt-4 text-center">
             <p class="text-xs text-slate-500">
-                <i class="fas fa-info-circle mr-1"></i>Your progress is saved in your browser's local storage. Clearing browser data may delete your progress.
+                <i class="fas fa-info-circle mr-1"></i><span data-translate-key="storage_warning">Your progress is saved in your browser's local storage. Clearing browser data may delete your progress.</span>
             </p>
         </div>
     </div>
 
     <div class="donation-section">
-        <p>If you'd like to support this app, you can do so <a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank">here ☕</a></p>
+        <p data-translate-key="donation_text">If you'd like to support this app, you can do so <a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank">here ☕</a></p>
     </div>
 
     <div id="settingsModal" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center p-4 z-50">
         <div class="bg-slate-800 p-8 rounded-lg shadow-xl w-full max-w-md">
-            <h2 class="text-2xl font-bold mb-6 text-sky-400">Timer Settings</h2>
+            <h2 class="text-2xl font-bold mb-6 text-sky-400" data-translate-key="settings_title">Timer Settings</h2>
             <div class="space-y-4">
                 <div>
-                    <label for="studyTimeInput" class="block text-sm font-medium text-slate-300">Study Time (minutes):</label>
+                    <label for="studyTimeInput" class="block text-sm font-medium text-slate-300" data-translate-key="settings_study_time">Focus Time (minutes):</label>
                     <input type="number" id="studyTimeInput" min="1" class="mt-1 block w-full p-2 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
                 </div>
                 <div>
-                    <label for="shortBreakTimeInput" class="block text-sm font-medium text-slate-300">Short Break (minutes):</label>
+                    <label for="shortBreakTimeInput" class="block text-sm font-medium text-slate-300" data-translate-key="settings_short_break">Short Break (minutes):</label>
                     <input type="number" id="shortBreakTimeInput" min="1" class="mt-1 block w-full p-2 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
                 </div>
                 <div>
-                    <label for="longBreakTimeInput" class="block text-sm font-medium text-slate-300">Long Break (minutes):</label>
+                    <label for="longBreakTimeInput" class="block text-sm font-medium text-slate-300" data-translate-key="settings_long_break">Long Break (minutes):</label>
                     <input type="number" id="longBreakTimeInput" min="1" class="mt-1 block w-full p-2 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
                 </div>
+                 <div>
+                    <label for="languageSelect" class="block text-sm font-medium text-slate-300" data-translate-key="settings_language">Language:</label>
+                    <select id="languageSelect" class="mt-1 block w-full p-2 bg-slate-700 border border-slate-600 rounded-md shadow-sm focus:ring-sky-500 focus:border-sky-500">
+                        <option value="en">English</option>
+                        <option value="pt-BR">Português (Brasil)</option>
+                        <option value="es">Español</option>
+                        <option value="zh-CN">中文 (简体)</option>
+                        <option value="hi-IN">हिन्दी</option>
+                    </select>
+                </div>
                  <div class="flex items-center justify-between">
-                    <span class="text-sm font-medium text-slate-300">Enable Sounds:</span>
+                    <span class="text-sm font-medium text-slate-300" data-translate-key="settings_enable_sounds">Enable Sounds:</span>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="soundToggle" class="sr-only peer">
                         <div class="w-11 h-6 bg-slate-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-sky-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-sky-500"></div>
@@ -240,8 +250,8 @@
                 </div>
             </div>
             <div class="mt-8 flex justify-end space-x-3">
-                <button id="cancelSettingsButton" class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-600 hover:bg-slate-500 rounded-md transition-colors">Cancel</button>
-                <button id="saveSettingsButton" class="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-md transition-colors">Save Settings</button>
+                <button id="cancelSettingsButton" class="px-4 py-2 text-sm font-medium text-slate-300 bg-slate-600 hover:bg-slate-500 rounded-md transition-colors" data-translate-key="cancel_button">Cancel</button>
+                <button id="saveSettingsButton" class="px-4 py-2 text-sm font-medium text-white bg-sky-500 hover:bg-sky-600 rounded-md transition-colors" data-translate-key="save_button">Save Settings</button>
             </div>
         </div>
     </div>
@@ -268,6 +278,564 @@
         let workerTimeLeft; let workerIsRunning=!1; let workerTimerInterval; let workerCurrentMode; let workerSettings={}; function startWorkerTimer(){if(workerIsRunning)return;if(workerTimeLeft<=0){postMessage({type:"end",mode:workerCurrentMode});return}workerIsRunning=!0;workerTimerInterval=setInterval(()=>{if(!workerIsRunning){clearInterval(workerTimerInterval);return}workerTimeLeft--;postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode});if(workerTimeLeft<=0){clearInterval(workerTimerInterval);workerIsRunning=!1;postMessage({type:"end",mode:workerCurrentMode})}},1e3)}self.onmessage=function(e){const{command:o,mode:t,duration:s,settings:i}=e.data;switch(o){case"start":workerIsRunning||startWorkerTimer();break;case"pause":workerIsRunning=!1;clearInterval(workerTimerInterval);break;case"setMode":workerCurrentMode=t;workerTimeLeft=s;workerIsRunning=!1;clearInterval(workerTimerInterval);postMessage({type:"modeSet",timeLeft:workerTimeLeft,mode:workerCurrentMode});break;case"updateSettings":workerSettings=i;if(!workerIsRunning&&workerCurrentMode){let e;e="study"===workerCurrentMode?workerSettings.studyTime*60:"shortBreak"===workerCurrentMode?workerSettings.shortBreakTime*60:"longBreak"===workerCurrentMode?workerSettings.longBreakTime*60:null;e&&workerTimeLeft!==e&&(workerTimeLeft=e,postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode}))}}};
     </script>
     <script>
+        // --- BASE DATA (unchanged by language) ---
+        const baseAchievements = [{"id":"days1","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling"},{"id":"days7","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check"},{"id":"days15","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal"},{"id":"days30","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award"},{"id":"days50","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star"},{"id":"days75","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running"},{"id":"days100","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown"},{"id":"days120","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader"},{"id":"days150","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap"},{"id":"streak3","type":"streak","threshold":3,"icon":"fas fa-fire"},{"id":"streak7","type":"streak","threshold":7,"icon":"fas fa-bolt"},{"id":"streak14","type":"streak","threshold":14,"icon":"fas fa-dumbbell"},{"id":"streak30","type":"streak","threshold":30,"icon":"fas fa-calendar-alt"},{"id":"streak50","type":"streak","threshold":50,"icon":"fas fa-shield-alt"},{"id":"cycles1","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered"},{"id":"cycles10","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin"},{"id":"cycles25","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs"},{"id":"cycles50","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket"},{"id":"cycles100","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem"},{"id":"hours1","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start"},{"id":"hours10","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain"},{"id":"hours50","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope"},{"id":"hours100","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university"},{"id":"sb_hours_1","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee"},{"id":"sb_hours_5","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot"},{"id":"sb_hours_15","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch"},{"id":"lb_hours_3","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed"},{"id":"lb_hours_10","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full"},{"id":"lb_hours_25","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach"}];
+
+        // --- I18N (Internationalization) ---
+        const translations = {
+            'en': {
+                app_title: "PomodoroCycle Timer",
+                help_tooltip: "Help / How to Use",
+                settings_tooltip: "Settings",
+                current_timer_label: "Current Timer:",
+                mode_study: "Focus",
+                mode_short_break: "Short Break",
+                mode_long_break: "Long Break",
+                cycle_tooltip: "Focus Sessions in Current Cycle",
+                reset_cycle_tooltip: "Reset Cycle",
+                skip_break_button: "Skip Break",
+                start_button: "Start",
+                pause_button: "Pause",
+                resume_button: "Resume",
+                reset_current_button: "Reset Current",
+                tab_stats: "Statistics",
+                tab_rewards: "Daily Rewards",
+                tab_achievements: "Achievements",
+                stats_title: "Your Statistics",
+                stats_streak: "Focus Streak",
+                stats_daily_title: "Daily:",
+                stats_daily_cycles: "Cycles Completed Today",
+                stats_daily_study_time: "Pure Focus Time Today",
+                stats_daily_total_time: "Total Time Today",
+                stats_general_title: "General:",
+                stats_general_cycles: "Total Cycles Completed",
+                stats_general_study_time: "Total Pure Focus Time",
+                stats_general_days: "Total Focus Days",
+                rewards_title: "Manage Daily Rewards",
+                rewards_name_placeholder: "Reward name",
+                rewards_type_cycles: "Completed Cycles",
+                rewards_type_hours: "Focus Hours",
+                rewards_value_placeholder: "Value",
+                rewards_add_button: "Add Reward",
+                rewards_no_rewards: "No rewards configured.",
+                rewards_goal_label: "Goal",
+                rewards_progress_label: "Progress",
+                rewards_earned_today: "Reward Earned Today!",
+                achievements_title: "Your Achievements",
+                storage_warning: "Your progress is saved in your browser's local storage. Clearing browser data may delete your progress.",
+                donation_text: "If you'd like to support this app, you can do so {0}",
+                donation_link_text: "here ☕",
+                settings_title: "Timer Settings",
+                settings_study_time: "Focus Time (minutes):",
+                settings_short_break: "Short Break (minutes):",
+                settings_long_break: "Long Break (minutes):",
+                settings_language: "Language:",
+                settings_enable_sounds: "Enable Sounds:",
+                cancel_button: "Cancel",
+                save_button: "Save Settings",
+                confirm_button: "Confirm",
+                ok_button: "OK",
+                got_it_button: "Got it!",
+                new_badge: "NEW!",
+                unlocked_on_date: "Unlocked on: {0}",
+                progress_label: "Progress: {0} / {1}",
+                toast_error_title: "Error",
+                toast_rewards_error: "Please fill in all reward fields correctly. Value must be 0 or greater.",
+                toast_settings_saved_title: "Settings Saved",
+                toast_settings_saved_body: "Your new timer durations have been applied.",
+                toast_reward_earned_title: "Reward Earned!",
+                toast_reward_earned_body: 'You earned the reward: "{0}"!',
+                toast_achievement_unlocked_title: "Achievement Unlocked!",
+                toast_achievement_unlocked_body: 'You unlocked the achievement: "{0}"!',
+                toast_study_complete_title: "Focus Session Complete!",
+                toast_study_complete_body: "Time for a break. Good job!",
+                toast_break_over_title: "Break Over!",
+                toast_break_over_body: "Time to get back to focus!",
+                toast_long_break_over_title: "Long Break Over!",
+                toast_long_break_over_body: "Cycle complete! Ready for a new one?",
+                toast_cycle_complete_title: "Cycle Complete!",
+                toast_cycle_complete_body: "Congratulations! You've completed a full Pomodoro cycle.",
+                toast_new_day_title: "A New Day!",
+                toast_new_day_body: "Your daily statistics have been reset.",
+                alert_reset_cycle_title: "Confirm Reset",
+                alert_reset_cycle_body: "Are you sure you want to reset the current cycle? This will set the focus session to 1/4.",
+                alert_help_title: "How This Pomodoro Timer Works",
+                alert_help_body: `<p class="mb-3">The <strong>Pomodoro Technique</strong> is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p><p class="mb-1 font-semibold">This Timer's Cycle:</p><ul><li>1. Focus Session (e.g., 25 min)</li><li class="break-session" style="padding-left: 35px;">Short Break (e.g., 5 min)</li><li>2. Focus Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>3. Focus Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>4. Focus Session (completes 1 cycle)</li><li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li></ul><p class="mb-3">Focus sessions and breaks begin automatically. After the long break, however, you'll need to start the new cycle manually.</p><p class="mb-3">The focus streak only increases after completing the first focus session of the day.</p><p>Reset the cycle using the <i class='fas fa-sync-alt fa-xs'></i> button.</p>`,
+                achievements: {
+                    "days1": {"name":"Focused Beginner","description":"Complete your first day of focus."},
+                    "days7": {"name":"Weekly Commitment","description":"Focus for 7 days."},
+                    "days15": {"name":"Fortnightly Focus","description":"Focus for 15 days."},
+                    "days30": {"name":"Monthly Landmark","description":"Focus for 30 days."},
+                    "days50": {"name":"Shooting Star","description":"Focus for 50 days."},
+                    "days75": {"name":"Focus Marathoner","description":"Focus for 75 days."},
+                    "days100": {"name":"Habit Master","description":"Focus for 100 days."},
+                    "days120": {"name":"Focus Legend","description":"Focus for 120 days."},
+                    "days150": {"name":"Focus Sage","description":"Focus for 150 days."},
+                    "streak3": {"name":"3-Day Combo!","description":"Maintain a 3-day focus streak."},
+                    "streak7": {"name":"A Week Streak","description":"Maintain a 7-day focus streak."},
+                    "streak14": {"name":"Habit Power-Up","description":"Maintain a 14-day focus streak."},
+                    "streak30": {"name":"Simply Unstoppable","description":"Maintain a 30-day focus streak."},
+                    "streak50": {"name":"True Dedication","description":"Maintain a 50-day focus streak."},
+                    "cycles1": {"name":"First Full Cycle","description":"Complete 1 Pomodoro cycle."},
+                    "cycles10": {"name":"Ten Cycles of Focus","description":"Complete 10 Pomodoro cycles."},
+                    "cycles25": {"name":"Productivity Pro","description":"Complete 25 Pomodoro cycles."},
+                    "cycles50": {"name":"To The Moon","description":"Complete 50 Pomodoro cycles."},
+                    "cycles100": {"name":"Cycle Centurion","description":"Complete 100 Pomodoro cycles."},
+                    "hours1": {"name":"First Hour of Focus","description":"Accumulate 1 hour of pure focus."},
+                    "hours10": {"name":"Immersive Thinker","description":"Accumulate 10 hours of pure focus."},
+                    "hours50": {"name":"Knowledge Fountain","description":"Accumulate 50 hours of pure focus."},
+                    "hours100": {"name":"Focus Scholar","description":"Accumulate 100 hours of pure focus."},
+                    "sb_hours_1": {"name":"Quick Breather","description":"Accumulate 1 hour in short breaks."},
+                    "sb_hours_5": {"name":"Relaxation Adept","description":"Accumulate 5 hours in short breaks."},
+                    "sb_hours_15": {"name":"Short Break Champion","description":"Accumulate 15 hours in short breaks."},
+                    "lb_hours_3": {"name":"Well Deserved Rest","description":"Accumulate 3 hours in long breaks."},
+                    "lb_hours_10": {"name":"Recharge Master","description":"Accumulate 10 hours in long breaks."},
+                    "lb_hours_25": {"name":"Leisure Expert","description":"Accumulate 25 hours in long breaks."}
+                }
+            },
+            'pt-BR': {
+                app_title: "PomodoroCycle Timer",
+                help_tooltip: "Ajuda / Como Usar",
+                settings_tooltip: "Configurações",
+                current_timer_label: "Timer Atual:",
+                mode_study: "Foco",
+                mode_short_break: "Pausa Curta",
+                mode_long_break: "Pausa Longa",
+                cycle_tooltip: "Sessões de foco no ciclo atual",
+                reset_cycle_tooltip: "Reiniciar Ciclo",
+                skip_break_button: "Pular Pausa",
+                start_button: "Iniciar",
+                pause_button: "Pausar",
+                resume_button: "Retomar",
+                reset_current_button: "Resetar Atual",
+                tab_stats: "Estatísticas",
+                tab_rewards: "Recompensas Diárias",
+                tab_achievements: "Conquistas",
+                stats_title: "Suas Estatísticas",
+                stats_streak: "Sequência de Foco",
+                stats_daily_title: "Hoje:",
+                stats_daily_cycles: "Ciclos Completos Hoje",
+                stats_daily_study_time: "Tempo de Foco Puro Hoje",
+                stats_daily_total_time: "Tempo Total Hoje",
+                stats_general_title: "Geral:",
+                stats_general_cycles: "Total de Ciclos Completos",
+                stats_general_study_time: "Total de Tempo de Foco Puro",
+                stats_general_days: "Total de Dias de Foco",
+                rewards_title: "Gerenciar Recompensas",
+                rewards_name_placeholder: "Nome da recompensa",
+                rewards_type_cycles: "Ciclos Completos",
+                rewards_type_hours: "Horas de Foco",
+                rewards_value_placeholder: "Valor",
+                rewards_add_button: "Adicionar",
+                rewards_no_rewards: "Nenhuma recompensa configurada.",
+                rewards_goal_label: "Meta",
+                rewards_progress_label: "Progresso",
+                rewards_earned_today: "Recompensa Ganhada!",
+                achievements_title: "Suas Conquistas",
+                storage_warning: "Seu progresso é salvo no armazenamento local do navegador. Limpar os dados pode apagar seu progresso.",
+                donation_text: "Se quiser apoiar este app, você pode fazê-lo {0}",
+                donation_link_text: "aqui ☕",
+                settings_title: "Configurações do Timer",
+                settings_study_time: "Tempo de Foco (minutos):",
+                settings_short_break: "Pausa Curta (minutos):",
+                settings_long_break: "Pausa Longa (minutos):",
+                settings_language: "Idioma:",
+                settings_enable_sounds: "Habilitar Sons:",
+                cancel_button: "Cancelar",
+                save_button: "Salvar",
+                confirm_button: "Confirmar",
+                ok_button: "OK",
+                got_it_button: "Entendi!",
+                new_badge: "NOVO!",
+                unlocked_on_date: "Desbloqueado em: {0}",
+                progress_label: "Progresso: {0} / {1}",
+                toast_error_title: "Erro",
+                toast_rewards_error: "Preencha os campos corretamente. O valor deve ser 0 ou maior.",
+                toast_settings_saved_title: "Configurações Salvas",
+                toast_settings_saved_body: "As novas durações do timer foram aplicadas.",
+                toast_reward_earned_title: "Recompensa Ganhada!",
+                toast_reward_earned_body: 'Você ganhou a recompensa: "{0}"!',
+                toast_achievement_unlocked_title: "Conquista Desbloqueada!",
+                toast_achievement_unlocked_body: 'Você desbloqueou a conquista: "{0}"!',
+                toast_study_complete_title: "Sessão de Foco Completa!",
+                toast_study_complete_body: "Hora de uma pausa. Bom trabalho!",
+                toast_break_over_title: "Pausa Terminada!",
+                toast_break_over_body: "Hora de voltar ao foco!",
+                toast_long_break_over_title: "Pausa Longa Terminada!",
+                toast_long_break_over_body: "Ciclo completo! Pronto para um novo?",
+                toast_cycle_complete_title: "Ciclo Completo!",
+                toast_cycle_complete_body: "Parabéns! Você completou um ciclo Pomodoro.",
+                toast_new_day_title: "Um Novo Dia!",
+                toast_new_day_body: "Suas estatísticas diárias foram reiniciadas.",
+                alert_reset_cycle_title: "Confirmar Reinício",
+                alert_reset_cycle_body: "Tem certeza que quer reiniciar o ciclo atual? A sessão de foco voltará para 1/4.",
+                alert_help_title: "Como o Timer Pomodoro Funciona",
+                alert_help_body: `<p class="mb-3">A <strong>Técnica Pomodoro</strong> é um método de gerenciamento de tempo que usa um timer para dividir o trabalho em intervalos, tradicionalmente de 25 minutos, separados por pausas curtas.</p><p class="mb-1 font-semibold">O Ciclo Deste Timer:</p><ul><li>1. Sessão de Foco (ex: 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Curta (ex: 5 min)</li><li>2. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>3. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>4. Sessão de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Longa (ex: 15 min)</li></ul><p class="mb-3">As sessões de foco e pausas começam automaticamente. Após a pausa longa, no entanto, você precisará iniciar o novo ciclo manualmente.</p><p class="mb-3">A sequência de foco só aumenta após completar a primeira sessão de foco do dia.</p><p>Reinicie o ciclo usando o botão <i class='fas fa-sync-alt fa-xs'></i>.</p>`,
+                achievements: {
+                    "days1": {"name":"Iniciante Focado","description":"Complete seu primeiro dia de foco."},
+                    "days7": {"name":"Compromisso Semanal","description":"Foque por 7 dias."},
+                    "days15": {"name":"Foco Quinzenal","description":"Foque por 15 dias."},
+                    "days30": {"name":"Marco Mensal","description":"Foque por 30 dias."},
+                    "days50": {"name":"Estrela Cadente","description":"Foque por 50 dias."},
+                    "days75": {"name":"Maratonista do Foco","description":"Foque por 75 dias."},
+                    "days100": {"name":"Mestre do Hábito","description":"Foque por 100 dias."},
+                    "days120": {"name":"Lenda do Foco","description":"Foque por 120 dias."},
+                    "days150": {"name":"Sábio do Foco","description":"Foque por 150 dias."},
+                    "streak3": {"name":"Combo de 3 Dias!","description":"Mantenha 3 dias de foco seguidos."},
+                    "streak7": {"name":"Sequência Semanal","description":"Mantenha 7 dias de foco seguidos."},
+                    "streak14": {"name":"Hábito Turbinado","description":"Mantenha 14 dias de foco seguidos."},
+                    "streak30": {"name":"Simplesmente Imparável","description":"Mantenha 30 dias de foco seguidos."},
+                    "streak50": {"name":"Dedicação Pura","description":"Mantenha 50 dias de foco seguidos."},
+                    "cycles1": {"name":"Primeiro Ciclo","description":"Complete 1 ciclo Pomodoro."},
+                    "cycles10": {"name":"Dez Ciclos de Foco","description":"Complete 10 ciclos Pomodoro."},
+                    "cycles25": {"name":"Pro da Produtividade","description":"Complete 25 ciclos Pomodoro."},
+                    "cycles50": {"name":"Para a Lua","description":"Complete 50 ciclos Pomodoro."},
+                    "cycles100": {"name":"Centurião de Ciclos","description":"Complete 100 ciclos Pomodoro."},
+                    "hours1": {"name":"Primeira Hora de Foco","description":"Acumule 1 hora de foco puro."},
+                    "hours10": {"name":"Pensador Imersivo","description":"Acumule 10 horas de foco puro."},
+                    "hours50": {"name":"Fonte de Sabedoria","description":"Acumule 50 horas de foco puro."},
+                    "hours100": {"name":"Erudito Puro","description":"Acumule 100 horas de foco puro."},
+                    "sb_hours_1": {"name":"Respiro Rápido","description":"Acumule 1 hora em pausas curtas."},
+                    "sb_hours_5": {"name":"Mestre do Relax","description":"Acumule 5 horas em pausas curtas."},
+                    "sb_hours_15": {"name":"Campeão da Pausa","description":"Acumule 15 horas em pausas curtas."},
+                    "lb_hours_3": {"name":"Descanso Merecido","description":"Acumule 3 horas em pausas longas."},
+                    "lb_hours_10": {"name":"Mestre da Recarga","description":"Acumule 10 horas em pausas longas."},
+                    "lb_hours_25": {"name":"Expert do Lazer","description":"Acumule 25 horas em pausas longas."}
+                }
+            },
+            'es': {
+                app_title: "PomodoroCycle Timer",
+                help_tooltip: "Ayuda / Cómo Usar",
+                settings_tooltip: "Ajustes",
+                current_timer_label: "Temporizador:",
+                mode_study: "Foco",
+                mode_short_break: "Pausa Corta",
+                mode_long_break: "Pausa Larga",
+                cycle_tooltip: "Sesiones de foco en el ciclo actual",
+                reset_cycle_tooltip: "Reiniciar Ciclo",
+                skip_break_button: "Saltar Pausa",
+                start_button: "Empezar",
+                pause_button: "Pausar",
+                resume_button: "Reanudar",
+                reset_current_button: "Reiniciar Actual",
+                tab_stats: "Estadísticas",
+                tab_rewards: "Recompensas Diarias",
+                tab_achievements: "Logros",
+                stats_title: "Tus Estadísticas",
+                stats_streak: "Racha de Foco",
+                stats_daily_title: "Diario:",
+                stats_daily_cycles: "Ciclos Completados Hoy",
+                stats_daily_study_time: "Tiempo de Foco Puro Hoy",
+                stats_daily_total_time: "Tiempo Total Hoy",
+                stats_general_title: "General:",
+                stats_general_cycles: "Ciclos Totales Completados",
+                stats_general_study_time: "Tiempo Total de Foco Puro",
+                stats_general_days: "Total de Días de Foco",
+                rewards_title: "Gestionar Recompensas",
+                rewards_name_placeholder: "Nombre de la recompensa",
+                rewards_type_cycles: "Ciclos Completados",
+                rewards_type_hours: "Horas de Foco",
+                rewards_value_placeholder: "Valor",
+                rewards_add_button: "Añadir",
+                rewards_no_rewards: "No hay recompensas configuradas.",
+                rewards_goal_label: "Meta",
+                rewards_progress_label: "Progreso",
+                rewards_earned_today: "¡Recompensa Obtenida!",
+                achievements_title: "Tus Logros",
+                storage_warning: "Tu progreso se guarda en el almacenamiento local de tu navegador. Limpiar los datos puede borrar tu progreso.",
+                donation_text: "Si quieres apoyar esta app, puedes hacerlo {0}",
+                donation_link_text: "aquí ☕",
+                settings_title: "Ajustes del Temporizador",
+                settings_study_time: "Tiempo de Foco (minutos):",
+                settings_short_break: "Pausa Corta (minutos):",
+                settings_long_break: "Pausa Larga (minutos):",
+                settings_language: "Idioma:",
+                settings_enable_sounds: "Habilitar Sonidos:",
+                cancel_button: "Cancelar",
+                save_button: "Guardar",
+                confirm_button: "Confirmar",
+                ok_button: "OK",
+                got_it_button: "¡Entendido!",
+                new_badge: "¡NUEVO!",
+                unlocked_on_date: "Desbloqueado: {0}",
+                progress_label: "Progreso: {0} / {1}",
+                toast_error_title: "Error",
+                toast_rewards_error: "Por favor, rellena los campos correctamente. El valor debe ser 0 o mayor.",
+                toast_settings_saved_title: "Ajustes Guardados",
+                toast_settings_saved_body: "Se han aplicado las nuevas duraciones del temporizador.",
+                toast_reward_earned_title: "¡Recompensa Ganada!",
+                toast_reward_earned_body: '¡Has ganado la recompensa: "{0}"!',
+                toast_achievement_unlocked_title: "¡Logro Desbloqueado!",
+                toast_achievement_unlocked_body: '¡Has desbloqueado el logro: "{0}"!',
+                toast_study_complete_title: "¡Sesión de Foco Completa!",
+                toast_study_complete_body: "Es hora de un descanso. ¡Buen trabajo!",
+                toast_break_over_title: "¡Pausa Terminada!",
+                toast_break_over_body: "¡Es hora de volver a concentrarse!",
+                toast_long_break_over_title: "¡Pausa Larga Terminada!",
+                toast_long_break_over_body: "¡Ciclo completo! ¿Listo para uno nuevo?",
+                toast_cycle_complete_title: "¡Ciclo Completo!",
+                toast_cycle_complete_body: "¡Felicidades! Has completado un ciclo Pomodoro.",
+                toast_new_day_title: "¡Un Nuevo Día!",
+                toast_new_day_body: "Tus estadísticas diarias se han reiniciado.",
+                alert_reset_cycle_title: "Confirmar Reinicio",
+                alert_reset_cycle_body: "¿Seguro que quieres reiniciar el ciclo actual? La sesión de foco volverá a 1/4.",
+                alert_help_title: "Cómo Funciona el Temporizador Pomodoro",
+                alert_help_body: `<p class="mb-3">La <strong>Técnica Pomodoro</strong> es un método de gestión del tiempo que utiliza un temporizador para dividir el trabajo en intervalos, tradicionalmente de 25 minutos, separados por pausas cortas.</p><p class="mb-1 font-semibold">El Ciclo de Este Temporizador:</p><ul><li>1. Sesión de Foco (ej. 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Corta (ej. 5 min)</li><li>2. Sesión de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Corta</li><li>3. Sesión de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Corta</li><li>4. Sesión de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Larga (ej. 15 min)</li></ul><p class="mb-3">Las sesiones de foco y las pausas comienzan automáticamente. Sin embargo, después de la pausa larga, deberás iniciar el nuevo ciclo manualmente.</p><p class="mb-3">La racha de foco solo aumenta después de completar la primera sesión de foco del día.</p><p>Reinicia el ciclo usando el botón <i class='fas fa-sync-alt fa-xs'></i>.</p>`,
+                achievements: {
+                    "days1": {"name":"Principiante Centrado","description":"Completa tu primer día de foco."},
+                    "days7": {"name":"Compromiso Semanal","description":"Enfócate durante 7 días."},
+                    "days15": {"name":"Enfoque Quincenal","description":"Enfócate durante 15 días."},
+                    "days30": {"name":"Hito Mensual","description":"Enfócate durante 30 días."},
+                    "days50": {"name":"Estrella Fugaz","description":"Enfócate durante 50 días."},
+                    "days75": {"name":"Maratonista del Foco","description":"Enfócate durante 75 días."},
+                    "days100": {"name":"Maestro del Hábito","description":"Enfócate durante 100 días."},
+                    "days120": {"name":"Leyenda del Enfoque","description":"Enfócate durante 120 días."},
+                    "days150": {"name":"Sabio del Foco","description":"Enfócate durante 150 días."},
+                    "streak3": {"name":"¡Combo de 3 Días!","description":"Mantén una racha de foco de 3 días."},
+                    "streak7": {"name":"Racha de una Semana","description":"Mantén una racha de foco de 7 días."},
+                    "streak14": {"name":"Hábito Potenciado","description":"Mantén una racha de foco de 14 días."},
+                    "streak30": {"name":"Simplemente Imparable","description":"Mantén una racha de foco de 30 días."},
+                    "streak50": {"name":"Dedicación Verdadera","description":"Mantén una racha de foco de 50 días."},
+                    "cycles1": {"name":"Primer Ciclo Completo","description":"Completa 1 ciclo Pomodoro."},
+                    "cycles10": {"name":"Diez Ciclos de Foco","description":"Completa 10 ciclos Pomodoro."},
+                    "cycles25": {"name":"Pro de Productividad","description":"Completa 25 ciclos Pomodoro."},
+                    "cycles50": {"name":"Hacia la Luna","description":"Completa 50 ciclos Pomodoro."},
+                    "cycles100": {"name":"Centurión de Ciclos","description":"Completa 100 ciclos Pomodoro."},
+                    "hours1": {"name":"Primera Hora de Foco","description":"Acumula 1 hora de foco puro."},
+                    "hours10": {"name":"Pensador Inmersivo","description":"Acumula 10 horas de foco puro."},
+                    "hours50": {"name":"Fuente de Saber","description":"Acumula 50 horas de foco puro."},
+                    "hours100": {"name":"Erudito del Foco","description":"Acumula 100 horas de foco puro."},
+                    "sb_hours_1": {"name":"Respiro Rápido","description":"Acumula 1 hora en pausas cortas."},
+                    "sb_hours_5": {"name":"Experto en Relajo","description":"Acumula 5 horas en pausas cortas."},
+                    "sb_hours_15": {"name":"Campeón del Descanso","description":"Acumula 15 horas en pausas cortas."},
+                    "lb_hours_3": {"name":"Descanso Merecido","description":"Acumula 3 horas en pausas largas."},
+                    "lb_hours_10": {"name":"Maestro de Recarga","description":"Acumula 10 horas en pausas largas."},
+                    "lb_hours_25": {"name":"Experto del Ocio","description":"Acumula 25 horas en pausas largas."}
+                }
+            },
+            'zh-CN': {
+                app_title: "番茄周期计时器",
+                help_tooltip: "帮助 / 如何使用",
+                settings_tooltip: "设置",
+                current_timer_label: "当前计时:",
+                mode_study: "专注",
+                mode_short_break: "短暂休息",
+                mode_long_break: "长时间休息",
+                cycle_tooltip: "当前周期的专注次数",
+                reset_cycle_tooltip: "重置周期",
+                skip_break_button: "跳过休息",
+                start_button: "开始",
+                pause_button: "暂停",
+                resume_button: "继续",
+                reset_current_button: "重置当前",
+                tab_stats: "统计",
+                tab_rewards: "每日奖励",
+                tab_achievements: "成就",
+                stats_title: "您的统计数据",
+                stats_streak: "专注连胜",
+                stats_daily_title: "每日:",
+                stats_daily_cycles: "今日完成周期",
+                stats_daily_study_time: "今日纯专注时间",
+                stats_daily_total_time: "今日总时间",
+                stats_general_title: "总计:",
+                stats_general_cycles: "总完成周期",
+                stats_general_study_time: "总纯专注时间",
+                stats_general_days: "总专注天数",
+                rewards_title: "管理每日奖励",
+                rewards_name_placeholder: "奖励名称",
+                rewards_type_cycles: "完成的周期",
+                rewards_type_hours: "专注小时",
+                rewards_value_placeholder: "数值",
+                rewards_add_button: "添加奖励",
+                rewards_no_rewards: "未配置奖励。",
+                rewards_goal_label: "目标",
+                rewards_progress_label: "进度",
+                rewards_earned_today: "今日已获得奖励！",
+                achievements_title: "您的成就",
+                storage_warning: "您的进度保存在浏览器本地存储中。清除浏览器数据可能会删除您的进度。",
+                donation_text: "如果您想支持这个应用，可以{0}",
+                donation_link_text: "在这里 ☕",
+                settings_title: "计时器设置",
+                settings_study_time: "专注时间 (分钟):",
+                settings_short_break: "短暂休息 (分钟):",
+                settings_long_break: "长时间休息 (分钟):",
+                settings_language: "语言:",
+                settings_enable_sounds: "启用声音:",
+                cancel_button: "取消",
+                save_button: "保存设置",
+                confirm_button: "确认",
+                ok_button: "好的",
+                got_it_button: "知道了!",
+                new_badge: "新！",
+                unlocked_on_date: "解锁于: {0}",
+                progress_label: "进度: {0} / {1}",
+                toast_error_title: "错误",
+                toast_rewards_error: "请正确填写所有奖励字段。数值必须大于或等于0。",
+                toast_settings_saved_title: "设置已保存",
+                toast_settings_saved_body: "新的计时器时长已应用。",
+                toast_reward_earned_title: "获得奖励！",
+                toast_reward_earned_body: '您获得了奖励：“{0}”！',
+                toast_achievement_unlocked_title: "成就已解锁！",
+                toast_achievement_unlocked_body: '您解锁了成就：“{0}”！',
+                toast_study_complete_title: "专注时段完成！",
+                toast_study_complete_body: "该休息了。做得好！",
+                toast_break_over_title: "休息结束！",
+                toast_break_over_body: "该回去专注了！",
+                toast_long_break_over_title: "长时间休息结束！",
+                toast_long_break_over_body: "周期完成！准备好开始新的周期了吗？",
+                toast_cycle_complete_title: "周期完成！",
+                toast_cycle_complete_body: "恭喜！您完成了一个完整的番茄周期。",
+                toast_new_day_title: "新的一天！",
+                toast_new_day_body: "您的每日统计数据已重置。",
+                alert_reset_cycle_title: "确认重置",
+                alert_reset_cycle_body: "您确定要重置当前周期吗？这将把专注时段设置为1/4。",
+                alert_help_title: "番茄工作法计时器如何工作",
+                alert_help_body: `<p class="mb-3"><strong>番茄工作法</strong>是一种时间管理方法，它使用计时器将工作分解为多个时间间隔，传统上为25分钟，中间穿插短暂休息。</p><p class="mb-1 font-semibold">此计时器的周期：</p><ul><li>1. 专注时段 (例如 25 分钟)</li><li class="break-session" style="padding-left: 35px;">短暂休息 (例如 5 分钟)</li><li>2. 专注时段</li><li class="break-session" style="padding-left: 35px;">短暂休息</li><li>3. 专注时段</li><li class="break-session" style="padding-left: 35px;">短暂休息</li><li>4. 专注时段 (完成1个周期)</li><li class="break-session" style="padding-left: 35px;">长时间休息 (例如 15 分钟)</li></ul><p class="mb-3">专注和休息时段会自动开始。但在长时间休息后，您需要手动开始新的周期。</p><p class="mb-3">只有在完成当天的第一次专注后，专注连胜才会增加。</p><p>使用 <i class='fas fa-sync-alt fa-xs'></i> 按钮重置周期。</p>`,
+                achievements: {
+                    "days1": {"name":"专注初学者","description":"完成第一天的专注。"},
+                    "days7": {"name":"每周承诺","description":"专注7天。"},
+                    "days15": {"name":"两周专注","description":"专注15天。"},
+                    "days30": {"name":"月度里程碑","description":"专注30天。"},
+                    "days50": {"name":"流星","description":"专注50天。"},
+                    "days75": {"name":"专注马拉松","description":"专注75天。"},
+                    "days100": {"name":"习惯大师","description":"专注100天。"},
+                    "days120": {"name":"专注传奇","description":"专注120天。"},
+                    "days150": {"name":"专注圣人","description":"专注150天。"},
+                    "streak3": {"name":"3天连击！","description":"保持3天的专注连胜。"},
+                    "streak7": {"name":"一周连胜","description":"保持7天的专注连胜。"},
+                    "streak14": {"name":"习惯强化","description":"保持14天的专注连胜。"},
+                    "streak30": {"name":"势不可挡","description":"保持30天的专注连胜。"},
+                    "streak50": {"name":"真正投入","description":"保持50天的专注连胜。"},
+                    "cycles1": {"name":"首个完整周期","description":"完成1个番茄周期。"},
+                    "cycles10": {"name":"十轮专注","description":"完成10个番茄周期。"},
+                    "cycles25": {"name":"效率专家","description":"完成25个番茄周期。"},
+                    "cycles50": {"name":"飞向月球","description":"完成50个番茄周期。"},
+                    "cycles100": {"name":"周期百夫长","description":"完成100个番茄周期。"},
+                    "hours1": {"name":"专注一小时","description":"累计1小时的纯专注。"},
+                    "hours10": {"name":"沉浸思考者","description":"累计10小时的纯专注。"},
+                    "hours50": {"name":"知识源泉","description":"累计50小时的纯专注。"},
+                    "hours100": {"name":"专注学者","description":"累计100小时的纯专注。"},
+                    "sb_hours_1": {"name":"快速喘息","description":"累计1小时的短暂休息。"},
+                    "sb_hours_5": {"name":"放松达人","description":"累计5小时的短暂休息。"},
+                    "sb_hours_15": {"name":"短休冠军","description":"累计15小时的短暂休息。"},
+                    "lb_hours_3": {"name":"应得的休息","description":"累计3小时的长时间休息。"},
+                    "lb_hours_10": {"name":"充电大师","description":"累计10小时的长时间休息。"},
+                    "lb_hours_25": {"name":"休闲专家","description":"累计25小时的长时间休息。"}
+                }
+            },
+            'hi-IN': {
+                app_title: "पोमोडोरो साइकिल टाइमर",
+                help_tooltip: "सहायता / कैसे उपयोग करें",
+                settings_tooltip: "सेटिंग्स",
+                current_timer_label: "वर्तमान टाइमर:",
+                mode_study: "फोकस",
+                mode_short_break: "छोटा ब्रेक",
+                mode_long_break: "लंबा ब्रेक",
+                cycle_tooltip: "वर्तमान चक्र में फोकस सत्र",
+                reset_cycle_tooltip: "चक्र रीसेट करें",
+                skip_break_button: "ब्रेक छोड़ें",
+                start_button: "शुरू करें",
+                pause_button: "रोकें",
+                resume_button: "फिर से शुरू करें",
+                reset_current_button: "वर्तमान रीसेट करें",
+                tab_stats: "आँकड़े",
+                tab_rewards: "दैनिक पुरस्कार",
+                tab_achievements: "उपलब्धियां",
+                stats_title: "आपके आँकड़े",
+                stats_streak: "फोकस स्ट्रीक",
+                stats_daily_title: "दैनिक:",
+                stats_daily_cycles: "आज पूरे हुए चक्र",
+                stats_daily_study_time: "आज का शुद्ध फोकस समय",
+                stats_daily_total_time: "आज का कुल समय",
+                stats_general_title: "सामान्य:",
+                stats_general_cycles: "कुल पूरे हुए चक्र",
+                stats_general_study_time: "कुल शुद्ध फोकस समय",
+                stats_general_days: "कुल फोकस के दिन",
+                rewards_title: "दैनिक पुरस्कार प्रबंधित करें",
+                rewards_name_placeholder: "पुरस्कार का नाम",
+                rewards_type_cycles: "पूरे हुए चक्र",
+                rewards_type_hours: "फोकस के घंटे",
+                rewards_value_placeholder: "मान",
+                rewards_add_button: "पुरस्कार जोड़ें",
+                rewards_no_rewards: "कोई पुरस्कार कॉन्फ़िगर नहीं किया गया है।",
+                rewards_goal_label: "लक्ष्य",
+                rewards_progress_label: "प्रगति",
+                rewards_earned_today: "आज पुरस्कार अर्जित किया!",
+                achievements_title: "आपकी उपलब्धियां",
+                storage_warning: "आपकी प्रगति आपके ब्राउज़र के स्थानीय भंडारण में सहेजी जाती है। ब्राउज़र डेटा साफ़ करने से आपकी प्रगति हट सकती है।",
+                donation_text: "यदि आप इस ऐप का समर्थन करना चाहते हैं, तो आप {0} कर सकते हैं",
+                donation_link_text: "यहां ☕",
+                settings_title: "टाइमर सेटिंग्स",
+                settings_study_time: "फोकस समय (मिनट):",
+                settings_short_break: "छोटा ब्रेक (मिनट):",
+                settings_long_break: "लंबा ब्रेक (मिनट):",
+                settings_language: "भाषा:",
+                settings_enable_sounds: "ध्वनि सक्षम करें:",
+                cancel_button: "रद्द करें",
+                save_button: "सेटिंग्स सहेजें",
+                confirm_button: "पुष्टि करें",
+                ok_button: "ठीक है",
+                got_it_button: "समझ गया!",
+                new_badge: "नया!",
+                unlocked_on_date: "अनलॉक हुआ: {0}",
+                progress_label: "प्रगति: {0} / {1}",
+                toast_error_title: "त्रुटि",
+                toast_rewards_error: "कृपया सभी पुरस्कार फ़ील्ड सही ढंग से भरें। मान 0 या अधिक होना चाहिए।",
+                toast_settings_saved_title: "सेटिंग्स सहेजी गईं",
+                toast_settings_saved_body: "आपकी नई टाइमर अवधि लागू कर दी गई है।",
+                toast_reward_earned_title: "पुरस्कार अर्जित!",
+                toast_reward_earned_body: 'आपने पुरस्कार अर्जित किया: "{0}"!',
+                toast_achievement_unlocked_title: "उपलब्धि अनलॉक!",
+                toast_achievement_unlocked_body: 'आपने उपलब्धि अनलॉक की: "{0}"!',
+                toast_study_complete_title: "फोकस सत्र पूरा!",
+                toast_study_complete_body: "ब्रेक का समय। अच्छा काम!",
+                toast_break_over_title: "ब्रेक खत्म!",
+                toast_break_over_body: "फोकस पर वापस जाने का समय!",
+                toast_long_break_over_title: "लंबा ब्रेक खत्म!",
+                toast_long_break_over_body: "चक्र पूरा! क्या आप नए के लिए तैयार हैं?",
+                toast_cycle_complete_title: "चक्र पूरा!",
+                toast_cycle_complete_body: "बधाई हो! आपने एक पूरा पोमोडोरो चक्र पूरा कर लिया है।",
+                toast_new_day_title: "एक नया दिन!",
+                toast_new_day_body: "आपके दैनिक आँकड़े रीसेट कर दिए गए हैं।",
+                alert_reset_cycle_title: "रीसेट की पुष्टि करें",
+                alert_reset_cycle_body: "क्या आप वाकई वर्तमान चक्र को रीसेट करना चाहते हैं? यह फोकस सत्र को 1/4 पर सेट कर देगा।",
+                alert_help_title: "यह पोमोडोरो टाइमर कैसे काम करता है",
+                alert_help_body: `<p class="mb-3"><strong>पोमोडोरो तकनीक</strong> एक समय प्रबंधन पद्धति है जो काम को अंतराल में तोड़ने के लिए एक टाइमर का उपयोग करती है, पारंपरिक रूप से 25 मिनट की लंबाई में, छोटे ब्रेक द्वारा अलग किया जाता है।</p><p class="mb-1 font-semibold">इस टाइमर का चक्र:</p><ul><li>1. फोकस सत्र (उदा. 25 मिनट)</li><li class="break-session" style="padding-left: 35px;">छोटा ब्रेक (उदा. 5 मिनट)</li><li>2. फोकस सत्र</li><li class="break-session" style="padding-left: 35px;">छोटा ब्रेक</li><li>3. फोकस सत्र</li><li class="break-session" style="padding-left: 35px;">छोटा ब्रेक</li><li>4. फोकस सत्र (1 चक्र पूरा करता है)</li><li class="break-session" style="padding-left: 35px;">लंबा ब्रेक (उदा. 15 मिनट)</li></ul><p class="mb-3">फोकस सत्र और ब्रेक स्वचालित रूप से शुरू होते हैं। लंबे ब्रेक के बाद, हालांकि, आपको मैन्युअल रूप से नया चक्र शुरू करना होगा।</p><p class="mb-3">फोकस स्ट्रीक केवल दिन का पहला फोकस सत्र पूरा करने के बाद बढ़ता है।</p><p><i class='fas fa-sync-alt fa-xs'></i> बटन का उपयोग करके चक्र को रीसेट करें।</p>`,
+                achievements: {
+                    "days1": {"name":"केंद्रित शुरुआत","description":"अपना पहला फोकस दिवस पूरा करें।"},
+                    "days7": {"name":"साप्ताहिक प्रतिबद्धता","description":"7 दिनों तक ध्यान केंद्रित करें।"},
+                    "days15": {"name":"पाक्षिक फोकस","description":"15 दिनों तक ध्यान केंद्रित करें।"},
+                    "days30": {"name":"मासिक मील का पत्थर","description":"30 दिनों तक ध्यान केंद्रित करें।"},
+                    "days50": {"name":"टूटता तारा","description":"50 दिनों तक ध्यान केंद्रित करें।"},
+                    "days75": {"name":"फोकस मैराथनर","description":"75 दिनों तक ध्यान केंद्रित करें।"},
+                    "days100": {"name":"आदत का मास्टर","description":"100 दिनों तक ध्यान केंद्रित करें।"},
+                    "days120": {"name":"फोकस लेजेंड","description":"120 दिनों तक ध्यान केंद्रित करें।"},
+                    "days150": {"name":"फोकस ऋषि","description":"150 दिनों तक ध्यान केंद्रित करें।"},
+                    "streak3": {"name":"3-दिवसीय कॉम्बो!","description":"3-दिवसीय फोकस स्ट्रीक बनाए रखें।"},
+                    "streak7": {"name":"एक सप्ताह की स्ट्रीक","description":"7-दिवसीय फोकस स्ट्रीक बनाए रखें।"},
+                    "streak14": {"name":"आदत पावर-अप","description":"14-दिवसीय फोकस स्ट्रीक बनाए रखें।"},
+                    "streak30": {"name":"बस अजेय","description":"30-दिवसीय फोकस स्ट्रीक बनाए रखें।"},
+                    "streak50": {"name":"सच्ची लगन","description":"50-दिवसीय फोकस स्ट्रीक बनाए रखें।"},
+                    "cycles1": {"name":"पहला पूरा चक्र","description":"1 पोमोडोरो चक्र पूरा करें।"},
+                    "cycles10": {"name":"फोकस के दस चक्र","description":"10 पोमोडोरो चक्र पूरे करें।"},
+                    "cycles25": {"name":"उत्पादकता प्रो","description":"25 पोमोडोरो चक्र पूरे करें।"},
+                    "cycles50": {"name":"चाँद तक","description":"50 पोमोडोरो चक्र पूरे करें।"},
+                    "cycles100": {"name":"साइकिल सेंचुरियन","description":"100 पोमोडोरो चक्र पूरे करें।"},
+                    "hours1": {"name":"फोकस का पहला घंटा","description":"1 घंटे का शुद्ध फोकस जमा करें।"},
+                    "hours10": {"name":"गहन विचारक","description":"10 घंटे का शुद्ध फोकस जमा करें।"},
+                    "hours50": {"name":"ज्ञान का फव्वारा","description":"50 घंटे का शुद्ध फोकस जमा करें।"},
+                    "hours100": {"name":"शुद्ध विद्वान","description":"100 घंटे का शुद्ध फोकस जमा करें।"},
+                    "sb_hours_1": {"name":"त्वरित सांस","description":"छोटे ब्रेक में 1 घंटा जमा करें।"},
+                    "sb_hours_5": {"name":"विश्राम निपुण","description":"छोटे ब्रेक में 5 घंटे जमा करें।"},
+                    "sb_hours_15": {"name":"शॉर्ट ब्रेक चैंपियन","description":"छोटे ब्रेक में 15 घंटे जमा करें।"},
+                    "lb_hours_3": {"name":"सुपात्र आराम","description":"लंबे ब्रेक में 3 घंटे जमा करें।"},
+                    "lb_hours_10": {"name":"रिचार्ज मास्टर","description":"लंबे ब्रेक में 10 घंटे जमा करें।"},
+                    "lb_hours_25": {"name":"अवकाश विशेषज्ञ","description":"लंबे ब्रेक में 25 घंटे जमा करें।"}
+                }
+            }
+        };
+
+        // --- DOM Elements ---
         const timerTextEl = document.getElementById('timerText');
         const modePillEl = document.getElementById('modePill');
         const cycleDotsContainerEl = document.getElementById('cycleDotsContainer');
@@ -283,6 +851,7 @@
         const studyTimeInput = document.getElementById('studyTimeInput');
         const shortBreakTimeInput = document.getElementById('shortBreakTimeInput');
         const longBreakTimeInput = document.getElementById('longBreakTimeInput');
+        const languageSelect = document.getElementById('languageSelect');
         const soundToggle = document.getElementById('soundToggle');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
@@ -314,6 +883,7 @@
         const rewardsTabBadgeEl = document.getElementById('rewardsTabBadge');
         const achievementsTabBadgeEl = document.getElementById('achievementsTabBadge');
 
+        // --- App State ---
         let timeLeft;
         let currentMode = 'study';
         let isRunning = false;
@@ -323,19 +893,19 @@
         const MIN_SOUND_INTERVAL = 0.05, SOUND_BASE_DELAY = 0.05;
         let justSeenRewardIds = [], justSeenAchievementIds = [];
         let appData = {
-            settings: { studyTime: 25, shortBreakTime: 5, longBreakTime: 15, soundEnabled: true },
+            settings: { studyTime: 25, shortBreakTime: 5, longBreakTime: 15, soundEnabled: true, language: 'en' },
             timerState: { lastTimerUsed: null, persistedCurrentMode: "study", persistedTimeLeft: null, persistedIsRunning: false, persistedPomodorosInCycle: 0, persistedPreviousPomodorosInCycle: null },
             stats: {
                 daily: { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false },
                 general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null, totalShortBreakSeconds: 0, totalLongBreakSeconds: 0 }
             },
             rewards: [],
-            achievements: [],
+            achievements: [], // This will be populated by merging base, translations, and saved data
             uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-            appVersion: "1.8.1"
+            appVersion: "1.9.2" // Version updated for style fixes
         };
-        const defaultAchievements = [{"id":"days1","name":"Focused Beginner","description":"Complete your first day of study.","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling","seen":!1},{"id":"days7","name":"Weekly Commitment","description":"Study for 7 days.","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check","seen":!1},{"id":"days15","name":"Fortnightly Focus","description":"Study for 15 days.","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal","seen":!1},{"id":"days30","name":"Monthly Landmark","description":"Study for 30 days.","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award","seen":!1},{"id":"days50","name":"Shooting Star","description":"Study for 50 days.","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star","seen":!1},{"id":"days75","name":"Study Marathoner","description":"Study for 75 days.","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running","seen":!1},{"id":"days100","name":"Habit Master","description":"Study for 100 days.","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown","seen":!1},{"id":"days120","name":"Focus Legend","description":"Study for 120 days.","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader","seen":!1},{"id":"days150","name":"Study Sage","description":"Study for 150 days.","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap","seen":!1},{"id":"streak3","name":"3-Day Combo!","description":"Maintain a 3-day study streak.","type":"streak","threshold":3,"icon":"fas fa-fire","seen":!1},{"id":"streak7","name":"A Week Streak","description":"Maintain a 7-day study streak.","type":"streak","threshold":7,"icon":"fas fa-bolt","seen":!1},{"id":"streak14","name":"Habit Power-Up","description":"Maintain a 14-day study streak.","type":"streak","threshold":14,"icon":"fas fa-dumbbell","seen":!1},{"id":"streak30","name":"Simply Unstoppable","description":"Maintain a 30-day study streak.","type":"streak","threshold":30,"icon":"fas fa-calendar-alt","seen":!1},{"id":"streak50","name":"True Dedication","description":"Maintain a 50-day study streak.","type":"streak","threshold":50,"icon":"fas fa-shield-alt","seen":!1},{"id":"cycles1","name":"First Full Cycle","description":"Complete 1 Pomodoro cycle.","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered","seen":!1},{"id":"cycles10","name":"Ten Cycles of Focus","description":"Complete 10 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin","seen":!1},{"id":"cycles25","name":"Productivity Pro","description":"Complete 25 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs","seen":!1},{"id":"cycles50","name":"To The Moon","description":"Complete 50 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket","seen":!1},{"id":"cycles100","name":"Cycle Centurion","description":"Complete 100 Pomodoro cycles.","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem","seen":!1},{"id":"hours1","name":"First Hour of Focus","description":"Accumulate 1 hour of pure study.","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start","seen":!1},{"id":"hours10","name":"Immersive Thinker","description":"Accumulate 10 hours of pure study.","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain","seen":!1},{"id":"hours50","name":"Knowledge Fountain","description":"Accumulate 50 hours of pure study.","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope","seen":!1},{"id":"hours100","name":"Pure Scholar","description":"Accumulate 100 hours of pure study.","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university","seen":!1},{"id":"sb_hours_1","name":"Quick Breather","description":"Accumulate 1 hour in short breaks.","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee","seen":!1},{"id":"sb_hours_5","name":"Relaxation Adept","description":"Accumulate 5 hours in short breaks.","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot","seen":!1},{"id":"sb_hours_15","name":"Short Break Champion","description":"Accumulate 15 hours in short breaks.","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch","seen":!1},{"id":"lb_hours_3","name":"Well Deserved Rest","description":"Accumulate 3 hours in long breaks.","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed","seen":!1},{"id":"lb_hours_10","name":"Recharge Master","description":"Accumulate 10 hours in long breaks.","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full","seen":!1},{"id":"lb_hours_25","name":"Leisure Expert","description":"Accumulate 25 hours in long breaks.","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach","seen":!1}];
-
+        
+        // --- Core Functions ---
         let synth;
         if (typeof Tone !== 'undefined') {
             synth = new Tone.Synth().toDestination();
@@ -364,7 +934,7 @@
                 console.error(`Error playing sound (type: ${type}):`, error);
             }
         }
-       
+        
         function getTodayDateString() {
             const today = new Date();
             return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -385,7 +955,48 @@
                 return v.toString(16);
             });
         }
+        
+        // --- Translation Functions ---
+        function getText(key, ...args) {
+            const lang = appData.settings.language || 'en';
+            let text = translations[lang]?.[key] || translations['en'][key];
+            if (!text) return key;
 
+            if (args.length > 0) {
+                args.forEach((arg, index) => {
+                    text = text.replace(`{${index}}`, arg);
+                });
+            }
+            return text;
+        }
+
+        function applyTranslations() {
+            const lang = appData.settings.language || 'en';
+            document.documentElement.lang = lang; 
+            document.title = getText('app_title');
+
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                const translation = getText(key);
+
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    if (el.placeholder) el.placeholder = translation;
+                } else if (el.title) {
+                    el.title = translation;
+                } else {
+                    const targetEl = el.querySelector('span') || el;
+                    targetEl.innerHTML = translation;
+                }
+            });
+            const donationEl = document.querySelector('[data-translate-key="donation_text"]');
+            if(donationEl) {
+                 const linkHtml = `<a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank">${getText('donation_link_text')}</a>`;
+                 donationEl.innerHTML = getText('donation_text', linkHtml);
+            }
+        }
+
+
+        // --- Data Persistence ---
         const STORAGE_KEY = 'pomodoroGamifiedAppData';
         function saveTimerState() {
             appData.timerState.persistedCurrentMode = currentMode;
@@ -394,54 +1005,61 @@
             appData.timerState.persistedPomodorosInCycle = pomodorosInCycle;
             saveData();
         }
+
+        function buildAchievements(lang, savedAchievements = []) {
+             const achievementTexts = translations[lang]?.achievements || translations['en'].achievements;
+             return baseAchievements.map(baseAch => {
+                const userAchData = savedAchievements.find(ua => ua.id === baseAch.id) || {};
+                const translatedText = achievementTexts[baseAch.id];
+                return {
+                    ...baseAch,
+                    name: translatedText.name,
+                    description: translatedText.description,
+                    unlocked: userAchData.unlocked || false,
+                    unlockedDate: userAchData.unlockedDate || null,
+                    seen: userAchData.seen || (userAchData.unlocked || false)
+                };
+            });
+        }
+        
         function loadData() {
             const storedData = localStorage.getItem(STORAGE_KEY);
             const defaultTimerState = { lastTimerUsed: null, persistedCurrentMode: 'study', persistedTimeLeft: appData.settings.studyTime * 60, persistedIsRunning: false, persistedPomodorosInCycle: 0, persistedPreviousPomodorosInCycle: null, forcedBreakContextSession: null };
             const defaultUiState = { newRewardsCount: 0, newAchievementsCount: 0 };
+            
             if (storedData) {
                 const parsedData = JSON.parse(storedData);
+                
+                if (parsedData.settings) {
+                    appData.settings = { ...appData.settings, ...parsedData.settings };
+                }
+                
                 if (parsedData.appVersion !== appData.appVersion) {
                     console.log(`Data version mismatch. Current: ${appData.appVersion}, Stored: ${parsedData.appVersion}. Merging data.`);
-                    if (!parsedData.stats?.general?.totalShortBreakSeconds) {
-                        if (!parsedData.stats) parsedData.stats = {};
-                        if (!parsedData.stats.general) parsedData.stats.general = {};
-                        parsedData.stats.general.totalShortBreakSeconds = 0;
-                    }
-                    if (!parsedData.stats?.general?.totalLongBreakSeconds) {
-                        if (!parsedData.stats) parsedData.stats = {};
-                        if (!parsedData.stats.general) parsedData.stats.general = {};
-                        parsedData.stats.general.totalLongBreakSeconds = 0;
-                    }
-                    if (!parsedData.stats?.daily?.totalTimeTodaySeconds) {
-                        if (!parsedData.stats) parsedData.stats = {};
-                        if (!parsedData.stats.daily) parsedData.stats.daily = {};
-                        parsedData.stats.daily.totalTimeTodaySeconds = 0;
-                    }
                 }
-                const mergedAchievements = defaultAchievements.map(defaultAch => {
-                    const userAch = parsedData.achievements?.find(ua => ua.id === defaultAch.id);
-                    return { ...defaultAch, unlocked: userAch?.unlocked || false, unlockedDate: userAch?.unlockedDate || null, seen: userAch?.seen || (userAch?.unlocked || false) };
-                });
+                const lang = appData.settings.language || 'en';
+                const mergedAchievements = buildAchievements(lang, parsedData.achievements);
+
                 const userRewards = (parsedData.rewards || []).map(reward => ({ ...reward, seen: reward.seen || (reward.earnedToday || false) }));
                 const loadedTimerState = { ...defaultTimerState, ...(parsedData.timerState || {}) };
                 const loadedUiState = { ...defaultUiState, ...(parsedData.uiState || {}) };
                 const loadedPomodorosInCycle = loadedTimerState.persistedPomodorosInCycle !== undefined ? parseInt(loadedTimerState.persistedPomodorosInCycle, 10) : 0;
+                
                 appData = { ...appData, ...parsedData, achievements: mergedAchievements, rewards: userRewards, timerState: loadedTimerState, uiState: loadedUiState };
                 pomodorosInCycle = isNaN(loadedPomodorosInCycle) ? 0 : loadedPomodorosInCycle;
+
                 if (appData.stats.general.totalShortBreakSeconds === undefined) { appData.stats.general.totalShortBreakSeconds = 0; }
                 if (appData.stats.general.totalLongBreakSeconds === undefined) { appData.stats.general.totalLongBreakSeconds = 0; }
                 if (appData.stats.daily.totalTimeTodaySeconds === undefined) { appData.stats.daily.totalTimeTodaySeconds = 0; }
+
                 if (appData.stats.daily.date !== getTodayDateString()) {
                     resetDailyStats();
                     appData.uiState.newRewardsCount = 0;
                     appData.rewards.forEach(r => r.seen = false);
                 }
             } else {
-                appData.achievements = defaultAchievements.map(ach => ({ ...ach, unlocked: false, unlockedDate: null, seen: false }));
+                appData.achievements = buildAchievements(appData.settings.language);
                 pomodorosInCycle = 0;
-                appData.stats.general.totalShortBreakSeconds = 0;
-                appData.stats.general.totalLongBreakSeconds = 0;
-                appData.stats.daily.totalTimeTodaySeconds = 0;
                 appData.timerState = { ...defaultTimerState };
                 appData.timerState.persistedTimeLeft = appData.settings.studyTime * 60;
                 appData.uiState = { ...defaultUiState };
@@ -450,14 +1068,25 @@
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
             soundToggle.checked = appData.settings.soundEnabled;
+            languageSelect.value = appData.settings.language;
+
             updateRewardTabNotificationBadge();
             updateAchievementTabNotificationBadge();
         }
         function saveData() {
             appData.pomodorosInCycle = pomodorosInCycle;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            // Before saving, strip translated text from achievements to only save progress
+            const achievementsToSave = appData.achievements.map(ach => ({
+                id: ach.id,
+                unlocked: ach.unlocked,
+                unlockedDate: ach.unlockedDate,
+                seen: ach.seen
+            }));
+            const dataToSave = { ...appData, achievements: achievementsToSave };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
         }
 
+        // --- UI Update Functions ---
         let toastTimeout;
         function showToast(title, body, type = 'info', duration = 4000) {
             clearTimeout(toastTimeout);
@@ -518,36 +1147,36 @@
 
         function updateTimerDisplay() {
             timerTextEl.textContent = formatTime(timeLeft);
-            let modeText = '', bodyClass = 'bg-slate-900', timerColorClass = 'text-sky-400', pillClass = 'bg-sky-400/10 text-sky-400';
-           
+            let modeKey = '', bodyClass = 'bg-slate-900', timerColorClass = 'text-sky-400', pillClass = 'bg-sky-400/10 text-sky-400';
+            
             switch (currentMode) {
                 case 'study':
-                    modeText = 'Study';
+                    modeKey = 'mode_study';
                     bodyClass = 'bg-slate-900';
                     timerColorClass = 'text-sky-400';
                     pillClass = 'bg-sky-400/10 text-sky-400';
                     skipBreakButton.classList.add('hidden'); 
                     break;
                 case 'shortBreak':
-                    modeText = 'Short Break';
+                    modeKey = 'mode_short_break';
                     bodyClass = 'bg-green-900';
                     timerColorClass = 'text-green-400';
                     pillClass = 'bg-green-400/10 text-green-400';
                     skipBreakButton.classList.remove('hidden'); 
                     break;
                 case 'longBreak':
-                    modeText = 'Long Break';
+                    modeKey = 'mode_long_break';
                     bodyClass = 'bg-purple-900';
                     timerColorClass = 'text-purple-400';
                     pillClass = 'bg-purple-400/10 text-purple-400';
                     skipBreakButton.classList.remove('hidden'); 
                     break;
             }
-            modePillEl.textContent = modeText;
+            modePillEl.textContent = getText(modeKey);
             modePillEl.className = `py-1 px-3 rounded-full text-sm font-semibold transition-all duration-500 ${pillClass}`;
             timerTextEl.className = `timer-text transition-colors duration-500 ${timerColorClass}`;
             document.body.className = document.body.className.replace(/bg-(slate|green|purple)-(900)/g, '') + ` ${bodyClass}`;
-            document.title = `${formatTime(timeLeft)} - ${modeText}`; 
+            document.title = `${formatTime(timeLeft)} - ${getText(modeKey)}`; 
             updateCycleInfo();
         }
 
@@ -569,7 +1198,7 @@
                 }
             }
         }
-       
+        
         function updateStatsDisplay() {
             dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted;
             dailyStudyTimeEl.textContent = formatHoursMinutes(appData.stats.daily.pureStudySeconds);
@@ -599,27 +1228,32 @@
         function renderRewards() {
             rewardsListEl.innerHTML = "";
             if (appData.rewards.length === 0) {
-                rewardsListEl.innerHTML = '<p class="text-slate-400 italic">No rewards configured.</p>';
+                rewardsListEl.innerHTML = `<p class="text-slate-400 italic">${getText('rewards_no_rewards')}</p>`;
                 return;
             }
             appData.rewards.forEach(reward => {
                 const isNew = justSeenRewardIds.includes(reward.id);
-                const newIndicatorHTML = isNew ? '<span class="ml-2 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
+                const newIndicatorHTML = isNew ? `<span class="ml-2 text-xs font-bold text-yellow-300 animate-pulse new-indicator">${getText('new_badge')}</span>` : '';
                 const rewardEl = document.createElement('div');
                 rewardEl.className = `p-2 rounded-lg flex justify-between items-center transition-all ${reward.earnedToday ? 'bg-green-600 shadow-lg' : 'bg-slate-500'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
+                
                 let progressText = '';
                 let progressPercent = 0;
-                const rewardTypeDisplay = reward.type === 'cycles' ? 'Cycles' : 'Hours';
+                const rewardTypeDisplay = reward.type === 'cycles' ? getText('rewards_type_cycles') : getText('rewards_type_hours');
                 const rewardUnitDisplay = reward.type === 'cycles' ? 'cycles' : 'hours';
+                
                 if (reward.type === 'cycles') {
-                    progressText = `${appData.stats.daily.cyclesCompleted}/${reward.threshold} cycles`;
+                    progressText = `${appData.stats.daily.cyclesCompleted}/${reward.threshold} ${rewardUnitDisplay}`;
                     progressPercent = Math.min(100, (appData.stats.daily.cyclesCompleted / reward.threshold) * 100);
                 } else {
                     const currentHours = appData.stats.daily.pureStudySeconds / 3600;
-                    progressText = `${currentHours.toFixed(1)}/${reward.threshold} hours`;
+                    progressText = `${currentHours.toFixed(1)}/${reward.threshold} ${rewardUnitDisplay}`;
                     progressPercent = Math.min(100, (currentHours / reward.threshold) * 100);
                 }
-                rewardEl.innerHTML = `<div class="flex-grow overflow-hidden"><div class="flex items-baseline"><p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'} truncate mr-1">${reward.name} (${rewardTypeDisplay})</p>${newIndicatorHTML}</div><p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">Goal: ${reward.threshold} ${rewardUnitDisplay} | Progress: ${progressText}</p><div class="mt-1 h-4 flex items-center">${!reward.earnedToday ? `<div class="progress-bar-container w-full"><div class="progress-bar" style="width: ${progressPercent}%;"></div></div>` : '<p class="text-xs text-green-100 font-bold"><i class="fas fa-check-circle mr-1"></i>Reward Earned Today!</p>'}</div></div><button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors flex-shrink-0 ml-2"><i class="fas fa-trash-alt"></i></button>`;
+                const goalText = getText('rewards_goal_label');
+                const progressLabel = getText('rewards_progress_label');
+
+                rewardEl.innerHTML = `<div class="flex-grow overflow-hidden"><div class="flex items-baseline"><p class="font-semibold ${reward.earnedToday ? 'text-white' : 'text-sky-300'} truncate mr-1">${reward.name}</p>${newIndicatorHTML}</div><p class="text-xs ${reward.earnedToday ? 'text-green-200' : 'text-slate-300'}">${goalText}: ${reward.threshold} ${rewardUnitDisplay} | ${progressLabel}: ${progressText}</p><div class="mt-1 h-4 flex items-center">${!reward.earnedToday ? `<div class="progress-bar-container w-full"><div class="progress-bar" style="width: ${progressPercent}%;"></div></div>` : `<p class="text-xs text-green-100 font-bold"><i class="fas fa-check-circle mr-1"></i>${getText('rewards_earned_today')}</p>`}</div></div><button data-id="${reward.id}" class="delete-reward-button text-red-300 hover:text-red-500 p-2 rounded-full transition-colors flex-shrink-0 ml-2"><i class="fas fa-trash-alt"></i></button>`;
                 rewardsListEl.appendChild(rewardEl);
             });
             document.querySelectorAll('.delete-reward-button').forEach(button => {
@@ -669,19 +1303,21 @@
                 if (!aIsUnlocked && bIsUnlocked && !bIsNewlyUnlocked) return -1;
                 if (aIsUnlocked && !aIsNewlyUnlocked && !bIsUnlocked) return 1;
                 if (aIsUnlocked && !aIsNewlyUnlocked && bIsUnlocked && !bIsNewlyUnlocked) {
-                    return new Date(a.unlockedDate) - new Date(b.unlockedDate);
+                    return new Date(b.unlockedDate) - new Date(a.unlockedDate);
                 }
                 return 0;
             });
             appData.achievements.forEach(ach => {
                 const isNew = justSeenAchievementIds.includes(ach.id);
-                const newIndicatorHTML = isNew ? '<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">NEW!</span>' : '';
+                const newIndicatorHTML = isNew ? `<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">${getText('new_badge')}</span>` : '';
                 const achEl = document.createElement('div');
                 achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
+                
                 let mainContentHTML = `<div class="flex items-start mb-1"><i class="${ach.icon || 'fas fa-question-circle'} text-xl ${ach.unlocked ? 'text-yellow-300' : 'text-slate-400'} mr-2 mt-1"></i><div class="flex-grow overflow-hidden"><div class="flex items-baseline"><h4 class="font-semibold text-sm ${ach.unlocked ? 'text-white' : 'text-sky-300'} truncate mr-1">${ach.name}</h4>${newIndicatorHTML}</div><p class="text-xs ${ach.unlocked ? 'text-sky-100' : 'text-slate-300'} leading-tight">${ach.description}</p></div></div>`;
                 let progressSectionHTML = '<div class="mt-auto">';
                 if (ach.unlocked) {
-                    progressSectionHTML += `<div class="progress-bar-container"><div class="progress-bar bg-green-500" style="width: 100%;"></div></div><p class="text-xs text-yellow-200 font-semibold mt-1"><i class="fas fa-check-circle mr-1"></i>Unlocked on: ${new Date(ach.unlockedDate).toLocaleDateString()}</p>`;
+                    const unlockedDate = new Date(ach.unlockedDate).toLocaleDateString(appData.settings.language.replace('_', '-'));
+                    progressSectionHTML += `<div class="progress-bar-container"><div class="progress-bar bg-green-500" style="width: 100%;"></div></div><p class="text-xs text-yellow-200 font-semibold mt-1"><i class="fas fa-check-circle mr-1"></i>${getText('unlocked_on_date', unlockedDate)}</p>`;
                 } else {
                     let currentValue = 0;
                     switch (ach.type) {
@@ -702,19 +1338,22 @@
                         displayCurrentValue = currentValue.toFixed(0); displayThreshold = ach.threshold;
                     }
                     const progressPercent = ach.threshold > 0 ? Math.min(100, (currentValue / ach.threshold) * 100) : 0;
-                    progressSectionHTML += `<div class="progress-bar-container"><div class="progress-bar bg-sky-400" style="width: ${progressPercent.toFixed(2)}%;"></div></div><p class="text-xs text-slate-400 mt-1">Progress: ${displayCurrentValue} / ${displayThreshold}</p>`;
+                    progressSectionHTML += `<div class="progress-bar-container"><div class="progress-bar bg-sky-400" style="width: ${progressPercent.toFixed(2)}%;"></div></div><p class="text-xs text-slate-400 mt-1">${getText('progress_label', displayCurrentValue, displayThreshold)}</p>`;
                 }
                 progressSectionHTML += '</div>';
                 achEl.innerHTML = mainContentHTML + progressSectionHTML;
                 achievementsListEl.appendChild(achEl);
             });
         }
-
+        
+        // --- Timer Logic ---
         function setTimer(mode) {
             appData.timerState.forcedBreakContextSession = null;
             currentMode = mode;
             isRunning = false;
-            startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+            startPauseButton.querySelector('span').textContent = getText('start_button');
+            startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+
             if (timerWorker) timerWorker.postMessage({ command: 'pause' });
             switch (mode) {
                 case 'study': timeLeft = appData.settings.studyTime * 60; break;
@@ -731,19 +1370,22 @@
                 setTimer(currentMode);
                 if (timeLeft <= 0) {
                     console.error(`startTimer: Cannot start timer for ${currentMode}, timeLeft is still ${timeLeft} after reset. Check settings.`);
-                    startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                    startPauseButton.querySelector('span').textContent = getText('start_button');
+                    startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
                     isRunning = false;
                     return;
                 }
             }
             isRunning = true;
-            startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+            startPauseButton.querySelector('span').textContent = getText('pause_button');
+            startPauseButton.querySelector('i').className = 'fas fa-pause mr-2';
             if (timerWorker) timerWorker.postMessage({ command: 'start' });
             saveTimerState();
         }
         function pauseTimer() {
             isRunning = false;
-            startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
+            startPauseButton.querySelector('span').textContent = getText('resume_button');
+            startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
             if (timerWorker) timerWorker.postMessage({ command: 'pause' });
             saveTimerState();
         }
@@ -751,15 +1393,15 @@
             isRunning = false;
             const endedMode = currentMode;
             appData.timerState.lastTimerUsed = endedMode;
-            let notificationTitleForEndedMode = "", notificationBodyForEndedMode = "", soundNoteForEndedMode = 'C4';
+            let notificationTitleKey = "", notificationBodyKey = "", soundNoteForEndedMode = 'C4';
             let nextModeToTransitionTo = null, showCycleCompleteNotification = false, completedTime = 0, shouldAutoStart = true;
             if (endedMode === 'study') {
                 completedTime = appData.settings.studyTime * 60;
                 appData.stats.daily.pureStudySeconds += completedTime;
                 appData.stats.general.totalPureStudySeconds += completedTime;
                 pomodorosInCycle++;
-                notificationTitleForEndedMode = "Study Session Complete!";
-                notificationBodyForEndedMode = "Time for a break. Good job!";
+                notificationTitleKey = "toast_study_complete_title";
+                notificationBodyKey = "toast_study_complete_body";
                 soundNoteForEndedMode = 'C5';
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
                     appData.stats.daily.firstStudySessionCompletedToday = true;
@@ -784,15 +1426,15 @@
             } else if (endedMode === 'shortBreak') {
                 completedTime = appData.settings.shortBreakTime * 60;
                 appData.stats.general.totalShortBreakSeconds += completedTime;
-                notificationTitleForEndedMode = "Break Over!";
-                notificationBodyForEndedMode = "Time to get back to focus!";
+                notificationTitleKey = "toast_break_over_title";
+                notificationBodyKey = "toast_break_over_body";
                 soundNoteForEndedMode = 'E4';
                 nextModeToTransitionTo = 'study';
             } else if (endedMode === 'longBreak') {
                 completedTime = appData.settings.longBreakTime * 60;
                 appData.stats.general.totalLongBreakSeconds += completedTime;
-                notificationTitleForEndedMode = "Long Break Over!";
-                notificationBodyForEndedMode = "Cycle complete! Ready for a new one?";
+                notificationTitleKey = "toast_long_break_over_title";
+                notificationBodyKey = "toast_long_break_over_body";
                 soundNoteForEndedMode = 'E4';
                 pomodorosInCycle = 0;
                 nextModeToTransitionTo = 'study';
@@ -806,15 +1448,16 @@
             checkAchievements();
             saveData();
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
-            showToast(notificationTitleForEndedMode, notificationBodyForEndedMode, 'info');
+            showToast(getText(notificationTitleKey), getText(notificationBodyKey), 'info');
             if (showCycleCompleteNotification) {
-                showToast("Cycle Complete!", "Congratulations! You've completed a full Pomodoro cycle.", 'success', 5000);
+                showToast(getText("toast_cycle_complete_title"), getText("toast_cycle_complete_body"), 'success', 5000);
             }
             if (nextModeToTransitionTo) {
                 setTimer(nextModeToTransitionTo);
                 if (shouldAutoStart) startTimer();
             } else {
-                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                startPauseButton.querySelector('span').textContent = getText('start_button');
+                startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
             }
         }
         function resetCurrentTimer() {
@@ -829,31 +1472,20 @@
             }
             timeLeft = newTimeLeft;
             if (timerWorker) timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
-            startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+            startPauseButton.querySelector('span').textContent = getText('start_button');
+            startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
             updateTimerDisplay();
             saveTimerState();
         }
 
+        // --- Stats and Rewards/Achievements Logic ---
         function resetDailyStats() {
             appData.stats.daily = { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false };
             appData.rewards.forEach(reward => { reward.earnedToday = false; reward.notificationShown = false; reward.seen = false; });
             appData.uiState.newRewardsCount = 0;
             updateRewardTabNotificationBadge();
         }
-        addRewardButton.addEventListener('click', () => {
-            const name = rewardNameInput.value.trim();
-            const type = rewardTypeSelect.value;
-            const threshold = parseFloat(rewardThresholdInput.value);
-            if (!name || isNaN(threshold) || threshold < 0) {
-                showToast("Error", "Please fill in all reward fields correctly. Value must be 0 or greater.", "error");
-                return;
-            }
-            appData.rewards.push({ id: generateUUID(), name, type, threshold, earnedToday: false, notificationShown: false, seen: false });
-            rewardNameInput.value = '';
-            rewardThresholdInput.value = '';
-            saveData();
-            renderRewards();
-        });
+        
         function checkRewards() {
             let newRewardEarnedThisCheck = false;
             appData.rewards.forEach(reward => {
@@ -864,7 +1496,7 @@
                     reward.seen = false;
                     newRewardEarnedThisCheck = true;
                     if (!reward.notificationShown) {
-                        showToast("Reward Earned!", `You earned the reward: "${reward.name}"!`, 'success');
+                        showToast(getText("toast_reward_earned_title"), getText("toast_reward_earned_body", reward.name), 'success');
                         playSound('G5', '2n', 'reward');
                         reward.notificationShown = true;
                     }
@@ -879,7 +1511,7 @@
         function checkAchievements() {
             let newAchievementUnlockedThisCheck = false;
             appData.achievements.forEach(ach => {
-                if (ach.unlocked && ach.notificationShown && ach.seen) return;
+                if (ach.unlocked) return;
                 let currentValue;
                 switch (ach.type) {
                     case 'totalDaysStudied': currentValue = appData.stats.general.totalDaysStudied; break;
@@ -896,7 +1528,7 @@
                     ach.seen = false;
                     newAchievementUnlockedThisCheck = true;
                     if (!ach.notificationShown) {
-                        showToast("Achievement Unlocked!", `You unlocked the achievement: "${ach.name}"!`, 'success');
+                        showToast(getText("toast_achievement_unlocked_title"), getText("toast_achievement_unlocked_body", ach.name), 'success');
                         playSound('A5', '1n', 'achievement');
                         ach.notificationShown = true;
                     }
@@ -908,22 +1540,54 @@
                 saveData();
             }
         }
+
+        // --- Event Listeners ---
         startPauseButton.addEventListener('click', () => { isRunning ? pauseTimer() : startTimer(); });
         resetButton.addEventListener('click', resetCurrentTimer);
+        
+        addRewardButton.addEventListener('click', () => {
+            const name = rewardNameInput.value.trim();
+            const type = rewardTypeSelect.value;
+            const threshold = parseFloat(rewardThresholdInput.value);
+            if (!name || isNaN(threshold) || threshold < 0) {
+                showToast(getText("toast_error_title"), getText("toast_rewards_error"), "error");
+                return;
+            }
+            appData.rewards.push({ id: generateUUID(), name, type, threshold, earnedToday: false, notificationShown: false, seen: false });
+            rewardNameInput.value = '';
+            rewardThresholdInput.value = '';
+            saveData();
+            renderRewards();
+        });
+
         resetCycleCountButtonEl.addEventListener('click', () => {
-            showCustomAlert("Confirm Reset", "Are you sure you want to reset the current cycle? This will set the study session to 1/4.", "fas fa-exclamation-triangle text-yellow-400", "Confirm", "Cancel", () => {
-                if (isRunning) pauseTimer();
-                pomodorosInCycle = 0;
-                appData.timerState.forcedBreakContextSession = null;
-                setTimer('study');
-                saveData();
-                console.log("Study cycle count reset to 1/4 and timer set to Study mode (paused).");
-            }, () => { console.log("Study cycle reset cancelled."); });
+            showCustomAlert(
+                getText("alert_reset_cycle_title"), 
+                getText("alert_reset_cycle_body"), 
+                "fas fa-exclamation-triangle text-yellow-400", 
+                getText("confirm_button"), 
+                getText("cancel_button"), 
+                () => {
+                    if (isRunning) pauseTimer();
+                    pomodorosInCycle = 0;
+                    appData.timerState.forcedBreakContextSession = null;
+                    setTimer('study');
+                    saveData();
+                    console.log("Focus cycle count reset to 1/4 and timer set to Focus mode (paused).");
+                }, 
+                () => { console.log("Focus cycle reset cancelled."); }
+            );
         });
+        
         helpButton.addEventListener('click', () => {
-            const helpText = `<p class="mb-3">The <strong>Pomodoro Technique</strong> is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p><p class="mb-1 font-semibold">This Timer's Cycle:</p><ul><li>1. Study Session (e.g., 25 min)</li><li class="break-session" style="padding-left: 35px;">Short Break (e.g., 5 min)</li><li>2. Study Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>3. Study Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>4. Study Session (completes 1 cycle)</li><li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li></ul><p class="mb-3">Study sessions and breaks begin automatically. After the long break, however, you'll need to start the new cycle manually.</p><p class="mb-3">The study streak only increases after completing the first study session of the day.</p><p>Reset the cycle using the <i class='fas fa-sync-alt fa-xs'></i> button.</p>`;
-            showCustomAlert("How This Pomodoro Timer Works", helpText, "fas fa-question-circle text-sky-400", "Got it!");
+            showCustomAlert(
+                getText("alert_help_title"), 
+                getText("alert_help_body"), 
+                "fas fa-question-circle text-sky-400", 
+                getText("got_it_button")
+            );
         });
+
         skipBreakButton.addEventListener('click', () => {
             if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
                 const skippedMode = currentMode;
@@ -953,31 +1617,48 @@
                 setTimer('study');
             }
         });
+
         settingsButton.addEventListener('click', () => settingsModal.classList.add('show'));
+        
         cancelSettingsButton.addEventListener('click', () => {
             studyTimeInput.value = appData.settings.studyTime;
             shortBreakTimeInput.value = appData.settings.shortBreakTime;
             longBreakTimeInput.value = appData.settings.longBreakTime;
             soundToggle.checked = appData.settings.soundEnabled;
+            languageSelect.value = appData.settings.language;
             settingsModal.classList.remove('show');
         });
+
         saveSettingsButton.addEventListener('click', () => {
             settingsModal.classList.remove('show');
             const newStudyTime = parseInt(studyTimeInput.value), newShortBreakTime = parseInt(shortBreakTimeInput.value), newLongBreakTime = parseInt(longBreakTimeInput.value);
+            const newLanguage = languageSelect.value;
             const oldStudyTime = appData.settings.studyTime, oldShortBreakTime = appData.settings.shortBreakTime, oldLongBreakTime = appData.settings.longBreakTime;
+            
             let settingsChanged = false;
             if (!isNaN(newStudyTime) && newStudyTime >= 1 && appData.settings.studyTime !== newStudyTime) { appData.settings.studyTime = newStudyTime; settingsChanged = true; }
             if (!isNaN(newShortBreakTime) && newShortBreakTime >= 1 && appData.settings.shortBreakTime !== newShortBreakTime) { appData.settings.shortBreakTime = newShortBreakTime; settingsChanged = true; }
             if (!isNaN(newLongBreakTime) && newLongBreakTime >= 1 && appData.settings.longBreakTime !== newLongBreakTime) { appData.settings.longBreakTime = newLongBreakTime; settingsChanged = true; }
             if (appData.settings.soundEnabled !== soundToggle.checked) { appData.settings.soundEnabled = soundToggle.checked; settingsChanged = true; }
+            
+            if (appData.settings.language !== newLanguage) {
+                appData.settings.language = newLanguage;
+                appData.achievements = buildAchievements(newLanguage, appData.achievements);
+                settingsChanged = true; 
+            }
+            
             if (settingsChanged) {
+                applyTranslations();
+                renderAllDynamicContent();
                 saveData();
+
                 if (timerWorker) timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 if (!isRunning) {
                     let durationChangedForCurrentMode = false;
                     if (currentMode === 'study' && oldStudyTime !== appData.settings.studyTime) durationChangedForCurrentMode = true;
                     if (currentMode === 'shortBreak' && oldShortBreakTime !== appData.settings.shortBreakTime) durationChangedForCurrentMode = true;
                     if (currentMode === 'longBreak' && oldLongBreakTime !== appData.settings.longBreakTime) durationChangedForCurrentMode = true;
+                    
                     let fullDurationForCurrentModeBeforeChange;
                     switch(currentMode) {
                         case 'study': fullDurationForCurrentModeBeforeChange = oldStudyTime * 60; break;
@@ -993,9 +1674,10 @@
                 } else {
                     saveTimerState();
                 }
-                showToast("Settings Saved", "Your new timer durations have been applied.", "success");
+                showToast(getText("toast_settings_saved_title"), getText("toast_settings_saved_body"), "success");
             }
         });
+
         tabButtons.forEach(button => {
             button.addEventListener('click', () => {
                 justSeenRewardIds = []; justSeenAchievementIds = [];
@@ -1007,8 +1689,11 @@
                 button.classList.add('active', 'text-sky-400', 'border-sky-400');
                 button.classList.remove('text-slate-400', 'border-transparent');
                 tabPanes.forEach(pane => {
-                    pane.style.display = pane.id === `${targetTab}Content` ? 'block' : 'none';
+                    pane.style.display = 'none';
                 });
+                const targetPane = document.getElementById(`${targetTab}Content`);
+                if(targetPane) targetPane.style.display = 'block';
+
                 if (targetTab === 'rewards') {
                     appData.rewards.forEach(r => { if (r.earnedToday && !r.seen) justSeenRewardIds.push(r.id); if (r.earnedToday) r.seen = true; });
                     appData.uiState.newRewardsCount = 0;
@@ -1019,12 +1704,11 @@
                     updateAchievementTabNotificationBadge();
                 }
                 saveData();
-                renderRewards();
-                renderAchievements();
-                updateStatsDisplay();
+                renderAllDynamicContent();
             });
         });
 
+        // --- App Initialization ---
         let timerWorker;
         if (window.Worker) {
             try {
@@ -1057,7 +1741,7 @@
                 const todayString = getTodayDateString();
                 if (appData.stats.daily.date !== todayString) {
                     console.log('Midnight detected! Resetting daily stats automatically.');
-                    showToast("A New Day!", "Your daily statistics have been reset.", "info");
+                    showToast(getText("toast_new_day_title"), getText("toast_new_day_body"), "info");
                     
                     resetDailyStats();
                     saveData();
@@ -1068,9 +1752,17 @@
                 }
             }, 60000);
         }
+        
+        function renderAllDynamicContent() {
+             updateTimerDisplay();
+             updateStatsDisplay();
+             renderRewards();
+             renderAchievements();
+        }
 
         function initializeApp() {
             loadData();
+            
             const todayStrInitialize = getTodayDateString();
             if (appData.stats.general.lastStudyDate && appData.stats.general.lastStudyDate !== todayStrInitialize) {
                 const lastStudy = new Date(appData.stats.general.lastStudyDate), today = new Date(todayStrInitialize), yesterday = new Date(today);
@@ -1103,11 +1795,14 @@
             timeLeft = initialTimeLeft;
             isRunning = false;
             pomodorosInCycle = initialPomodorosInCycle;
+            
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 timerWorker.postMessage({ command: 'setMode', mode: currentMode, duration: timeLeft });
             }
-            updateTimerDisplay();
+
+            applyTranslations(); 
+            
             let fullDurationForMode;
             switch(currentMode) {
                 case 'study': fullDurationForMode = appData.settings.studyTime * 60; break;
@@ -1117,16 +1812,18 @@
             }
             if (appData.timerState.persistedIsRunning && timeLeft > 0) {
                 isRunning = true;
-                startPauseButton.innerHTML = '<i class="fas fa-pause mr-2"></i>Pause';
+                startPauseButton.querySelector('span').textContent = getText('pause_button');
+                startPauseButton.querySelector('i').className = 'fas fa-pause mr-2';
                 if (timerWorker) timerWorker.postMessage({ command: 'start' });
             } else if (timeLeft < fullDurationForMode && timeLeft > 0) {
-                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Resume';
+                startPauseButton.querySelector('span').textContent = getText('resume_button');
+                startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
             } else {
-                startPauseButton.innerHTML = '<i class="fas fa-play mr-2"></i>Start';
+                startPauseButton.querySelector('span').textContent = getText('start_button');
+                startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
             }
-            updateStatsDisplay();
-            renderRewards();
-            renderAchievements();
+            
+            renderAllDynamicContent();
             updateRewardTabNotificationBadge();
             updateAchievementTabNotificationBadge();
 
