@@ -111,6 +111,7 @@
             <p class="text-slate-400 mb-6">Choose your preferred language to continue.</p>
             <div id="languageButtonsContainer" class="flex flex-col space-y-3">
             </div>
+            <p class="text-xs text-slate-500 mt-6"><i class="fas fa-info-circle fa-fw mr-1.5 opacity-70"></i>You can change this choice later in the settings.</p>
         </div>
     </div>
 
@@ -221,7 +222,7 @@
             </div>
         </div>
 
-        <div class="donation-section">
+        <div class="donation-section mx-auto">
             <p data-translate-key="donation_text">If you'd like to support this app, you can do so <a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank">here ☕</a></p>
         </div>
     </div>
@@ -614,12 +615,12 @@
                     "hours10": {"name":"Pensador Inmersivo","description":"Acumula 10 horas de foco puro."},
                     "hours50": {"name":"Fuente de Saber","description":"Acumula 50 horas de foco puro."},
                     "hours100": {"name":"Erudito del Foco","description":"Acumula 100 horas de foco puro."},
-                    "sb_hours_1": {"name":"Respiro Rápido","description":"Acumula 1 hora en pausas cortas."},
-                    "sb_hours_5": {"name":"Experto en Relajo","description":"Acumula 5 horas en pausas cortas."},
-                    "sb_hours_15": {"name":"Campeón del Descanso","description":"Acumula 15 horas en pausas cortas."},
-                    "lb_hours_3": {"name":"Descanso Merecido","description":"Acumula 3 horas en pausas largas."},
-                    "lb_hours_10": {"name":"Maestro de Recarga","description":"Acumula 10 horas en pausas largas."},
-                    "lb_hours_25": {"name":"Experto del Ocio","description":"Acumula 25 horas en pausas largas."}
+                    "sb_hours_1": {"name":"Respiro Rápido","description":"Acumula 1 hora em pausas cortas."},
+                    "sb_hours_5": {"name":"Experto en Relajo","description":"Acumula 5 horas em pausas cortas."},
+                    "sb_hours_15": {"name":"Campeón del Descanso","description":"Acumula 15 horas em pausas cortas."},
+                    "lb_hours_3": {"name":"Descanso Merecido","description":"Acumula 3 horas em pausas largas."},
+                    "lb_hours_10": {"name":"Maestro de Recarga","description":"Acumula 10 horas em pausas largas."},
+                    "lb_hours_25": {"name":"Experto del Ocio","description":"Acumula 25 horas em pausas largas."}
                 }
             },
             'zh-CN': {
@@ -1761,7 +1762,7 @@
         }
 
         function initializeApp() {
-            appContainer.classList.remove('hidden');
+            appContainer.style.display = 'block';
             loadData();
             
             const todayStrInitialize = getTodayDateString();
