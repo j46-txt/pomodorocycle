@@ -1006,7 +1006,7 @@
                 rewards: [],
                 achievements: [],
                 uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-                appVersion: "1.9.5"
+                appVersion: "1.9.6-debug"
             };
         }
 
@@ -1145,23 +1145,29 @@
         }
 
         function loadData() {
+            console.log("--- LOAD DATA STARTED ---");
             const storedData = localStorage.getItem(STORAGE_KEY);
+            console.log("Raw data from localStorage:", storedData);
             const defaultData = getDefaultAppData();
             
             if (storedData) {
                 try {
                     const parsedData = JSON.parse(storedData);
+                    console.log("Successfully parsed stored data:", parsedData);
                     appData = mergeDeep(defaultData, parsedData);
                     
                     const lang = appData.settings.language || 'en';
                     appData.achievements = buildAchievements(lang, parsedData.achievements || []);
+                    console.log("Data merge successful. Final appData:", appData);
 
                 } catch (e) {
-                    console.error("Failed to parse stored data, using defaults.", e);
+                    console.error("!!! CRITICAL: Failed to parse stored data. This is likely the cause of the issue. !!!", e);
+                    console.log("Falling back to default data.");
                     appData = getDefaultAppData();
                     appData.achievements = buildAchievements(appData.settings.language);
                 }
             } else {
+                 console.log("No stored data found. Using default data.");
                  appData = defaultData;
                  appData.achievements = buildAchievements(appData.settings.language);
             }
@@ -1845,8 +1851,10 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const importedFileContent = e.target.result; // Capture file content
+                    const importedFileContent = e.target.result;
+                    console.log("File read successfully. Content:", importedFileContent);
                     const importedData = JSON.parse(importedFileContent);
+                    console.log("File content parsed successfully:", importedData);
                     
                     if (!importedData.settings || !importedData.stats || !importedData.achievements) {
                          throw new Error("Invalid backup file structure.");
@@ -1859,12 +1867,16 @@
                         getText("confirm_button"),
                         getText("cancel_button"),
                         () => { // on Confirm
-                            // Use the captured file content from the outer scope
+                            console.log("--- IMPORT PROCESS STARTED ---");
+                            console.log("Attempting to store content in localStorage.");
                             localStorage.setItem(STORAGE_KEY, importedFileContent);
+                            console.log("Content stored. The page would normally reload now.");
+                            showToast("Fase 1 da Importação Completa", "Dados armazenados. Por favor, recarregue a página (F5) para ver as mudanças.", "info", 10000);
                             settingsModal.classList.remove('show');
-                            location.reload();
+                            // location.reload(); // Temporarily disabled for debugging
                         },
                         () => { // on Cancel
+                           console.log("Import cancelled by user.");
                            event.target.value = '';
                         }
                     );
