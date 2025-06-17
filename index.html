@@ -989,18 +989,28 @@
         let lastSoundScheduledTime = 0;
         const MIN_SOUND_INTERVAL = 0.05, SOUND_BASE_DELAY = 0.05;
         let justSeenRewardIds = [], justSeenAchievementIds = [];
-        let appData = {
-            settings: { studyTime: 25, shortBreakTime: 5, longBreakTime: 15, soundEnabled: true, language: 'en' },
-            timerState: { lastTimerUsed: null, persistedCurrentMode: "study", persistedTimeLeft: null, persistedIsRunning: false, persistedPomodorosInCycle: 0, persistedPreviousPomodorosInCycle: null },
-            stats: {
-                daily: { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false },
-                general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null, totalShortBreakSeconds: 0, totalLongBreakSeconds: 0 }
-            },
-            rewards: [],
-            achievements: [],
-            uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-            appVersion: "1.9.3"
-        };
+        
+        function getTodayDateString() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+        
+        function getDefaultAppData() {
+            return {
+                settings: { studyTime: 25, shortBreakTime: 5, longBreakTime: 15, soundEnabled: true, language: 'en' },
+                timerState: { lastTimerUsed: null, persistedCurrentMode: "study", persistedTimeLeft: null, persistedIsRunning: false, persistedPomodorosInCycle: 0, persistedPreviousPomodorosInCycle: null },
+                stats: {
+                    daily: { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false },
+                    general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null, totalShortBreakSeconds: 0, totalLongBreakSeconds: 0 }
+                },
+                rewards: [],
+                achievements: [],
+                uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
+                appVersion: "1.9.4"
+            };
+        }
+
+        let appData = getDefaultAppData();
        
         let synth;
         if (typeof Tone !== 'undefined') {
@@ -1031,10 +1041,6 @@
             }
         }
        
-        function getTodayDateString() {
-            const today = new Date();
-            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-        }
         function formatTime(seconds) {
             const mins = Math.floor(seconds / 60);
             const secs = seconds % 60;
@@ -1140,25 +1146,23 @@
 
         function loadData() {
             const storedData = localStorage.getItem(STORAGE_KEY);
-            const defaultAppData = JSON.parse(JSON.stringify(appData));
+            const defaultData = getDefaultAppData();
             
             if (storedData) {
                 try {
                     const parsedData = JSON.parse(storedData);
+                    appData = mergeDeep(defaultData, parsedData);
                     
-                    // Use deep merge to safely update appData with stored data,
-                    // preserving new properties from the default structure if the app was updated.
-                    appData = mergeDeep(defaultAppData, parsedData);
-
-                    // Re-build achievements with potentially new language after loading settings
                     const lang = appData.settings.language || 'en';
-                    appData.achievements = buildAchievements(lang, parsedData.achievements);
+                    appData.achievements = buildAchievements(lang, parsedData.achievements || []);
 
                 } catch (e) {
                     console.error("Failed to parse stored data, using defaults.", e);
+                    appData = getDefaultAppData();
                     appData.achievements = buildAchievements(appData.settings.language);
                 }
             } else {
+                 appData = defaultData;
                  appData.achievements = buildAchievements(appData.settings.language);
             }
 
@@ -1177,6 +1181,7 @@
             updateRewardTabNotificationBadge();
             updateAchievementTabNotificationBadge();
         }
+
         function saveData() {
             appData.pomodorosInCycle = pomodorosInCycle;
             const achievementsToSave = appData.achievements.map(ach => ({
@@ -1810,6 +1815,7 @@
         // Data Management Logic
         exportDataButton.addEventListener('click', () => {
             try {
+                // Use the live appData object which is always up-to-date
                 const dataStr = JSON.stringify(appData, null, 2);
                 const blob = new Blob([dataStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
@@ -1832,13 +1838,15 @@
 
         importFileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
-            if (!file) return;
+            if (!file) {
+                event.target.value = '';
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    // Basic validation
                     if (!importedData.settings || !importedData.stats || !importedData.achievements) {
                          throw new Error("Invalid backup file structure.");
                     }
@@ -1850,24 +1858,24 @@
                         getText("confirm_button"),
                         getText("cancel_button"),
                         () => { // on Confirm
-                            const freshDefaultData = JSON.parse(JSON.stringify(appData));
-                            const mergedData = mergeDeep(freshDefaultData, importedData);
-                            localStorage.setItem(STORAGE_KEY, JSON.stringify(mergedData));
-                            showToast(getText("toast_import_success_title"), getText("toast_import_success_body"), "success", 3000);
-                            setTimeout(() => {
-                                location.reload();
-                            }, 1000);
+                            localStorage.setItem(STORAGE_KEY, e.target.result);
+                            settingsModal.classList.remove('show');
+                            location.reload();
                         },
                         () => { // on Cancel
-                            importFileInput.value = ''; // Reset file input
+                           event.target.value = '';
                         }
                     );
-
                 } catch (error) {
                     console.error("Error importing data:", error);
                     showToast(getText('toast_import_error_title'), getText('toast_import_error_body'), 'error');
-                    importFileInput.value = ''; // Reset file input
+                    event.target.value = '';
                 }
+            };
+            reader.onerror = () => {
+                console.error("FileReader error.");
+                showToast(getText('toast_import_error_title'), 'Could not read the selected file.', 'error');
+                event.target.value = '';
             };
             reader.readAsText(file);
         });
