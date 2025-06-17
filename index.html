@@ -178,9 +178,11 @@
 
             <div id="tabContent"> 
                 <div id="statsContent" class="tab-pane active p-4 bg-slate-700 rounded-b-lg">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg sm:text-xl font-semibold text-sky-300" data-translate-key="stats_title">Your Statistics</h3>
-                        <p id="streakContainerHeader" class="text-sm sm:text-base text-slate-300"><span data-translate-key="stats_streak">Daily Streak</span>: <span id="streakCounterHeader" class="font-semibold">0</span> <span id="streakFireIconContainer"><i class="fas fa-fire"></i></span></p>
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+                        <h3 class="text-lg sm:text-xl font-semibold text-sky-300 mb-1 sm:mb-0" data-translate-key="stats_title">Your Statistics</h3>
+                        <p id="streakContainerHeader" class="text-sm sm:text-base text-slate-300">
+                            <span data-translate-key="stats_streak">Daily Streak</span>: <span id="streakCounterHeader" class="font-semibold">0</span> <span id="streakFireIconContainer"><i class="fas fa-fire"></i></span>
+                        </p>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-slate-600 p-4 rounded-lg shadow">
@@ -198,7 +200,7 @@
                     </div>
                 </div>
                 <div id="rewardsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-sky-300" data-translate-key="rewards_title">Manage Daily Rewards</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold mb-4 text-sky-300" data-translate-key="rewards_title">Manage Daily Rewards</h3>
                     <div class="mb-4 p-3 bg-slate-600 rounded-lg md:flex md:items-center md:space-x-2 md:flex-wrap">
                         <input type="text" id="rewardName" data-translate-key="rewards_name_placeholder" placeholder="Reward name" class="w-full md:flex-1 p-2 rounded bg-slate-500 text-white placeholder-slate-300 mb-2 md:mb-0">
                         <select id="rewardType" class="w-full md:w-auto p-2 rounded bg-slate-500 text-white mb-2 md:mb-0">
@@ -211,7 +213,7 @@
                     <div id="rewardsList" class="space-y-2 max-h-[176px] overflow-y-auto pr-2"></div>
                 </div>
                 <div id="achievementsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
-                    <h3 class="text-xl font-semibold mb-4 text-sky-300" data-translate-key="achievements_title">Your Achievements</h3>
+                    <h3 class="text-lg sm:text-xl font-semibold mb-4 text-sky-300" data-translate-key="achievements_title">Your Achievements</h3>
                     <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2"></div>
                 </div>
             </div>
@@ -799,9 +801,9 @@
                     "sb_hours_1": {"name":"快速喘息","description":"累计1小时的短暂休息。"},
                     "sb_hours_5": {"name":"放松达人","description":"累计5小时的短暂休息。"},
                     "sb_hours_15": {"name":"短休冠军","description":"累计15小时的短暂休息。"},
-                    "lb_hours_3": {"name":"应得的休息","description":"累计3小时的长时间休息。"},
-                    "lb_hours_10": {"name":"充电大师","description":"累计10小时的长时间休息。"},
-                    "lb_hours_25": {"name":"休闲专家","description":"累计25小时的长时间休息。"}
+                    "lb_hours_3": {"name":"应得的休息","description":"累计3小时的长时间休息."},
+                    "lb_hours_10": {"name":"充电大师","description":"累计10小时的长时间休息."},
+                    "lb_hours_25": {"name":"休闲专家","description":"累计25小时的长时间休息."}
                 }
             },
             'hi-IN': {
