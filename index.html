@@ -1006,7 +1006,7 @@
                 rewards: [],
                 achievements: [],
                 uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-                appVersion: "1.9.4"
+                appVersion: "1.9.5"
             };
         }
 
@@ -1815,7 +1815,6 @@
         // Data Management Logic
         exportDataButton.addEventListener('click', () => {
             try {
-                // Use the live appData object which is always up-to-date
                 const dataStr = JSON.stringify(appData, null, 2);
                 const blob = new Blob([dataStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
@@ -1846,7 +1845,9 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
-                    const importedData = JSON.parse(e.target.result);
+                    const importedFileContent = e.target.result; // Capture file content
+                    const importedData = JSON.parse(importedFileContent);
+                    
                     if (!importedData.settings || !importedData.stats || !importedData.achievements) {
                          throw new Error("Invalid backup file structure.");
                     }
@@ -1858,7 +1859,8 @@
                         getText("confirm_button"),
                         getText("cancel_button"),
                         () => { // on Confirm
-                            localStorage.setItem(STORAGE_KEY, e.target.result);
+                            // Use the captured file content from the outer scope
+                            localStorage.setItem(STORAGE_KEY, importedFileContent);
                             settingsModal.classList.remove('show');
                             location.reload();
                         },
