@@ -989,6 +989,7 @@
         let lastSoundScheduledTime = 0;
         const MIN_SOUND_INTERVAL = 0.05, SOUND_BASE_DELAY = 0.05;
         let justSeenRewardIds = [], justSeenAchievementIds = [];
+        let blockUnloadSave = false;
         
         function getTodayDateString() {
             const today = new Date();
@@ -1006,7 +1007,7 @@
                 rewards: [],
                 achievements: [],
                 uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-                appVersion: "1.9.6-debug"
+                appVersion: "1.9.7"
             };
         }
 
@@ -1145,29 +1146,23 @@
         }
 
         function loadData() {
-            console.log("--- LOAD DATA STARTED ---");
             const storedData = localStorage.getItem(STORAGE_KEY);
-            console.log("Raw data from localStorage:", storedData);
             const defaultData = getDefaultAppData();
             
             if (storedData) {
                 try {
                     const parsedData = JSON.parse(storedData);
-                    console.log("Successfully parsed stored data:", parsedData);
                     appData = mergeDeep(defaultData, parsedData);
                     
                     const lang = appData.settings.language || 'en';
                     appData.achievements = buildAchievements(lang, parsedData.achievements || []);
-                    console.log("Data merge successful. Final appData:", appData);
 
                 } catch (e) {
-                    console.error("!!! CRITICAL: Failed to parse stored data. This is likely the cause of the issue. !!!", e);
-                    console.log("Falling back to default data.");
+                    console.error("Failed to parse stored data, using defaults.", e);
                     appData = getDefaultAppData();
                     appData.achievements = buildAchievements(appData.settings.language);
                 }
             } else {
-                 console.log("No stored data found. Using default data.");
                  appData = defaultData;
                  appData.achievements = buildAchievements(appData.settings.language);
             }
@@ -1683,9 +1678,8 @@
                     appData.timerState.forcedBreakContextSession = null;
                     setTimer('study');
                     saveData();
-                    console.log("Focus cycle count reset to 1/4 and timer set to Focus mode (paused).");
                 }, 
-                () => { console.log("Focus cycle reset cancelled."); }
+                () => {}
             );
         });
        
@@ -1852,9 +1846,7 @@
             reader.onload = (e) => {
                 try {
                     const importedFileContent = e.target.result;
-                    console.log("File read successfully. Content:", importedFileContent);
                     const importedData = JSON.parse(importedFileContent);
-                    console.log("File content parsed successfully:", importedData);
                     
                     if (!importedData.settings || !importedData.stats || !importedData.achievements) {
                          throw new Error("Invalid backup file structure.");
@@ -1867,16 +1859,12 @@
                         getText("confirm_button"),
                         getText("cancel_button"),
                         () => { // on Confirm
-                            console.log("--- IMPORT PROCESS STARTED ---");
-                            console.log("Attempting to store content in localStorage.");
                             localStorage.setItem(STORAGE_KEY, importedFileContent);
-                            console.log("Content stored. The page would normally reload now.");
-                            showToast("Fase 1 da Importação Completa", "Dados armazenados. Por favor, recarregue a página (F5) para ver as mudanças.", "info", 10000);
+                            blockUnloadSave = true; 
                             settingsModal.classList.remove('show');
-                            // location.reload(); // Temporarily disabled for debugging
+                            location.reload();
                         },
                         () => { // on Cancel
-                           console.log("Import cancelled by user.");
                            event.target.value = '';
                         }
                     );
@@ -1925,12 +1913,9 @@
             setInterval(() => {
                 const todayString = getTodayDateString();
                 if (appData.stats.daily.date !== todayString) {
-                    console.log('Midnight detected! Resetting daily stats automatically.');
                     showToast(getText("toast_new_day_title"), getText("toast_new_day_body"), "info");
-                   
                     resetDailyStats();
                     saveData();
-                   
                     updateStatsDisplay();
                     renderRewards();
                     renderAchievements();
@@ -1957,7 +1942,6 @@
                 yesterday.setHours(0, 0, 0, 0);
                 if (lastStudy.getTime() < yesterday.getTime()) {
                     appData.stats.general.streak = 0;
-                    console.log("Streak reset to 0 due to inactivity upon app load.");
                 }
             }
             if (appData.stats.daily.date !== getTodayDateString()) {
@@ -2046,7 +2030,12 @@
             languageModal.classList.add('show');
         }
 
-        window.addEventListener('beforeunload', saveTimerState);
+        window.addEventListener('beforeunload', () => {
+            if (!blockUnloadSave) {
+                saveTimerState();
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
             if (!localStorage.getItem(STORAGE_KEY)) {
                 handleFirstVisit();
