@@ -999,12 +999,12 @@
             return {
                 settings: { studyTime: 25, shortBreakTime: 5, longBreakTime: 15, soundEnabled: true, language: 'en' },
                 timerState: {
-                    // Live state
+                    
                     currentMode: "study",
                     timeLeft: 25 * 60,
                     isRunning: false,
                     pomodorosInCycle: 0,
-                    // Persisted state for cross-session restoration
+                    
                     lastTimerUsed: null
                 },
                 stats: {
@@ -1014,7 +1014,7 @@
                 rewards: [],
                 achievements: [],
                 uiState: { newRewardsCount: 0, newAchievementsCount: 0 },
-                appVersion: "2.0.0" // Version updated
+                appVersion: "2.0.0"
             };
         }
 
@@ -1158,7 +1158,7 @@
             stats.general.totalShortBreakSeconds = parseFloat(stats.general.totalShortBreakSeconds) || 0;
             stats.general.totalLongBreakSeconds = parseFloat(stats.general.totalLongBreakSeconds) || 0;
             
-            // Sanitize timer state values as well
+            
             data.timerState.pomodorosInCycle = parseInt(data.timerState.pomodorosInCycle) || 0;
             data.timerState.timeLeft = parseFloat(data.timerState.timeLeft) || (data.settings.studyTime * 60);
 
@@ -1515,7 +1515,7 @@
                 }
             }
             appData.timerState.isRunning = true;
-            currentTimerInitialDuration = appData.timerState.timeLeft; // Store the duration when the timer starts
+            currentTimerInitialDuration = appData.timerState.timeLeft; 
             startPauseButton.querySelector('span').textContent = getText('pause_button');
             startPauseButton.querySelector('i').className = 'fas fa-pause mr-2';
             if (timerWorker) timerWorker.postMessage({ command: 'start' });
@@ -1905,13 +1905,13 @@
                         "fas fa-exclamation-triangle text-yellow-400",
                         getText("confirm_button"),
                         getText("cancel_button"),
-                        () => { // on Confirm
+                        () => { 
                             localStorage.setItem(STORAGE_KEY, importedFileContent);
                             blockUnloadSave = true; 
                             settingsModal.classList.remove('show');
                             location.reload();
                         },
-                        () => { // on Cancel
+                        () => { 
                            event.target.value = '';
                         }
                     );
@@ -1980,6 +1980,25 @@
         function initializeApp() {
             appContainer.style.display = 'block';
             loadData();
+
+            if (appData.timerState.hasOwnProperty('persistedPomodorosInCycle')) {
+                appData.timerState.pomodorosInCycle = appData.timerState.persistedPomodorosInCycle;
+                delete appData.timerState.persistedPomodorosInCycle;
+            }
+            if (appData.timerState.hasOwnProperty('persistedCurrentMode')) {
+                appData.timerState.currentMode = appData.timerState.persistedCurrentMode;
+                delete appData.timerState.persistedCurrentMode;
+            }
+             if (appData.timerState.hasOwnProperty('persistedTimeLeft')) {
+                appData.timerState.timeLeft = appData.timerState.persistedTimeLeft;
+                delete appData.timerState.persistedTimeLeft;
+            }
+            if (appData.timerState.hasOwnProperty('persistedIsRunning')) {
+                if(appData.timerState.persistedIsRunning) {
+                     appData.timerState.isRunning = true;
+                }
+                delete appData.timerState.persistedIsRunning;
+            }
            
             const todayStrInitialize = getTodayDateString();
             if (appData.stats.general.lastStudyDate && appData.stats.general.lastStudyDate !== todayStrInitialize) {
@@ -2000,14 +2019,12 @@
                 saveData();
             }
 
-            // Load persisted state into live state
-            // This handles loading the state from a previous session
             const persistedState = { ...appData.timerState };
             appData.timerState.currentMode = persistedState.currentMode || 'study';
             appData.timerState.timeLeft = persistedState.timeLeft;
             appData.timerState.pomodorosInCycle = persistedState.pomodorosInCycle || 0;
             const wasRunning = persistedState.isRunning || false;
-            appData.timerState.isRunning = false; // Always start in a paused state visually
+            appData.timerState.isRunning = false;
             
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
