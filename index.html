@@ -1649,7 +1649,12 @@
             }
         }
 
-        startPauseButton.addEventListener('click', () => { isRunning ? pauseTimer() : startTimer(); });
+        startPauseButton.addEventListener('click', () => {
+            if (synth && Tone.context.state !== 'running') {
+                Tone.context.resume().catch(e => console.error("AudioContext resume failed", e));
+            }
+            isRunning ? pauseTimer() : startTimer();
+        });
         resetButton.addEventListener('click', resetCurrentTimer);
         
         addRewardButton.addEventListener('click', () => {
