@@ -28,7 +28,7 @@
             border-bottom-width: 4px;
         }
         .tab-pane-fixed-height {
-            height: 14rem; /* 224px / h-56 - Reduced height after removing titles */
+            height: 14rem; /* 224px */
         }
         .achievement-item {
              height: 7rem; 
@@ -46,36 +46,35 @@
             flex-grow: 1;
             overflow-y: auto;
             scrollbar-width: thin;
-            scrollbar-color: #888 #f1f1f1;
+            scrollbar-color: #888 #374151;
         }
+        #achievementsList::-webkit-scrollbar { width: 8px; }
+        #achievementsList::-webkit-scrollbar-track { background: #374151; border-radius: 10px; }
+        #achievementsList::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
+        #achievementsList::-webkit-scrollbar-thumb:hover { background: #555; }
+        
         .modal { display: none; }
         .modal.show { display: flex; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #555; }
+        
         .progress-bar-container {
             width: 100%;
             height: 24px;
-            background-color: #374151;
+            background-color: #4b5563; /* gray-600 */
             border-radius: 12px;
             overflow: hidden;
             position: relative;
         }
         .progress-bar {
             height: 100%;
-            background-color: #34d399; 
+            background-color: #3b82f6; /* bg-blue-500 */
             border-radius: 12px; 
             transition: width 0.5s ease-in-out;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #1a202c;
-            font-size: 0.75rem;
-            font-weight: 600;
         }
         .progress-bar.completed {
-             background-color: #10B981;
+             background-color: #10B981; /* bg-green-500 */
         }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
@@ -1610,7 +1609,6 @@
         function getPluralText(baseKey, count) {
             const lang = appData.settings.language || 'en';
             // Simple pluralization: 1 is singular, otherwise plural.
-            // For more complex languages like Russian, a more advanced i18n library would be needed.
             const key = count === 1 ? `${baseKey}_singular` : `${baseKey}_plural`;
             // Fallback to plural if singular doesn't exist
             return getText(key, count) || getText(`${baseKey}_plural`, count);
@@ -1643,7 +1641,7 @@
             }
         }
 
-        const STORAGE_KEY = 'pomodoroGamifiedAppData_v2.4';
+        const STORAGE_KEY = 'pomodoroGamifiedAppData_v2.5';
 
         function buildAchievements(lang, savedAchievements = []) {
              const achievementTexts = translations[lang]?.achievements || translations['en'].achievements;
@@ -1885,13 +1883,11 @@
 
             let html = `<div class="flex flex-col items-center justify-center h-full w-full">`;
             
-            // Always show streak
             html += `<div class="w-full text-center text-sm text-slate-300 mb-4">
                         <span data-translate-key="stats_streak_label">${getText('stats_streak_label')}</span>: 
                         <span class="font-bold ${streakColorClass}">${streak} <i class="fas fa-fire fa-xs"></i></span>
                      </div>`;
 
-            // Main goal area
             html += `<div class="flex-grow w-full flex flex-col items-center justify-center bg-slate-700/50 rounded-lg p-4">`;
 
             if (!goal) {
@@ -1913,13 +1909,13 @@
 
                 if (goal.type === 'sessions') {
                     currentVal = appData.stats.daily.sessionsCompleted;
-                    unitText = getPluralText('goal_unit_sessions', targetVal);
+                    unitText = getPluralText('goal_unit_sessions', goal.threshold);
                 } else if (goal.type === 'cycles') {
                     currentVal = appData.stats.daily.cyclesCompleted;
-                    unitText = getPluralText('goal_unit_cycles', targetVal);
+                    unitText = getPluralText('goal_unit_cycles', goal.threshold);
                 } else { // hours
                     currentVal = (appData.stats.daily.pureStudySeconds / 3600);
-                    unitText = getPluralText('goal_unit_hours', targetVal);
+                    unitText = getPluralText('goal_unit_hours', goal.threshold);
                 }
                 
                 targetVal = goal.threshold;
@@ -1945,13 +1941,11 @@
                                    ${getText('goal_change_goal_button')}
                                 </button>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
             }
             html += `</div></div>`;
             dailyGoalContentEl.innerHTML = html;
 
-            // Add event listeners
             const setGoalButton = document.getElementById('setGoalButton');
             if (setGoalButton) {
                 setGoalButton.addEventListener('click', () => {
@@ -2180,15 +2174,18 @@
                 }
             }
             
-            updateStatsDisplay();
+            // Centralized data updates and checks
+            saveData();
             checkDailyGoal();
             checkAchievements();
-            saveData();
             
-            // UI updates after data processing
+            // Centralized UI updates
+            updateTimerDisplay();
+            updateStatsDisplay();
             const activeTab = document.querySelector('.tab-button.active').dataset.tab;
             if (activeTab === 'dailyGoal') renderDailyGoal();
             if (activeTab === 'achievements') renderAchievements();
+
 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
             showToast(getText(notificationTitleKey), getText(notificationBodyKey), 'info');
@@ -2228,7 +2225,9 @@
 
         function resetDailyStats() {
             const goal = appData.stats.daily.dailyGoal;
-            appData.stats.daily = { date: getTodayDateString(), cyclesCompleted: 0, sessionsCompleted: 0, pureStudySeconds: 0, totalTimeSeconds: 0, firstStudySessionCompletedToday: false, dailyGoal: goal };
+            appData.stats.daily = getDefaultAppData().stats.daily;
+            appData.stats.daily.date = getTodayDateString();
+            appData.stats.daily.dailyGoal = goal; // Keep the goal for the next day
              if(appData.stats.daily.dailyGoal) {
                 appData.stats.daily.dailyGoal.completed = false;
             }
@@ -2251,7 +2250,9 @@
                 goal.completed = true;
                 playSound('G5', '2n', 'goal');
                 showToast(getText('goal_toast_title'), getText('goal_toast_body'), 'success');
-                renderDailyGoal();
+                if (document.getElementById('dailyGoalContent').classList.contains('active')) {
+                   renderDailyGoal();
+                }
                 saveData();
             }
         }
@@ -2409,7 +2410,9 @@
             
             if (settingsChanged) {
                 applyTranslations();
-                renderAllDynamicContent();
+                updateStatsDisplay();
+                renderDailyGoal();
+                renderAchievements();
                 saveData();
 
                 if (timerWorker) timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
