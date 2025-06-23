@@ -27,8 +27,8 @@
         .tab-button.active {
             border-bottom-width: 4px;
         }
-        .tab-pane {
-             height: 16rem; /* 256px / h-64 */
+        .tab-pane-fixed-height {
+            height: 16rem; /* 256px / h-64 */
         }
         .achievement-item {
              height: 7rem; 
@@ -45,6 +45,9 @@
         #achievementsList {
             flex-grow: 1;
             overflow-y: auto;
+            /* Scrollbar styling for the list */
+            scrollbar-width: thin;
+            scrollbar-color: #888 #f1f1f1;
         }
         .modal { display: none; }
         .modal.show { display: flex; }
@@ -68,7 +71,7 @@
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
         .help-content li.break-session { color: #a0aec0; }
-        #customAlertMessage.help-content { text-align: justify; hyphens: auto; }
+        #customAlertMessage.help-content { text-align: justify; }
         #toastNotification {
             position: fixed; top: 20px; right: 20px; padding: 1rem; border-radius: 0.5rem;
             color: white; font-size: 0.875rem; z-index: 1000; opacity: 0;
@@ -194,13 +197,14 @@
             </div>
 
             <div id="tabContent"> 
-                <div id="statsContent" class="tab-pane active p-4 bg-slate-700 rounded-b-lg overflow-y-auto">
+                <div id="statsContent" class="tab-pane active p-4 bg-slate-700 rounded-b-lg">
                     <h3 class="text-lg sm:text-xl font-semibold text-sky-300 mb-4" data-translate-key="stats_title">Your Statistics</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-slate-600 p-4 rounded-lg shadow">
                             <h4 class="font-bold text-sky-400" data-translate-key="stats_daily_title">Daily:</h4>
-                            <p><span data-translate-key="stats_daily_sessions">Focus Sessions Today</span>: <span id="dailySessions">0</span></p>
+                            <p><span data-translate-key="stats_daily_cycles">Cycles Completed Today</span>: <span id="dailyCycles">0</span></p>
                             <p><span data-translate-key="stats_daily_study_time">Focus Time Today</span>: <span id="dailyStudyTime">0h 0m</span></p>
+                            <p><span data-translate-key="stats_daily_total_time">Total Time Today</span>: <span id="dailyTotalTime">0h 0m</span></p>
                         </div>
                         <div class="bg-slate-600 p-4 rounded-lg shadow">
                             <h4 class="font-bold text-sky-400" data-translate-key="stats_general_title">General:</h4>
@@ -210,11 +214,11 @@
                         </div>
                     </div>
                 </div>
-                <div id="dailyGoalContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
+                <div id="dailyGoalContent" class="tab-pane tab-pane-fixed-height hidden p-4 bg-slate-700 rounded-b-lg">
                     </div>
-                <div id="achievementsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
+                <div id="achievementsContent" class="tab-pane tab-pane-fixed-height hidden p-4 bg-slate-700 rounded-b-lg">
                     <h3 class="text-lg sm:text-xl font-semibold mb-4 text-sky-300" data-translate-key="achievements_title">Your Achievements</h3>
-                    <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+                    <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pr-2"></div>
                 </div>
             </div>
             <div class="mt-4 text-center">
@@ -334,8 +338,9 @@
                 stats_title: "Your Statistics",
                 stats_streak_label: "Daily Streak",
                 stats_daily_title: "Daily:",
-                stats_daily_sessions: "Focus Sessions Today",
+                stats_daily_cycles: "Cycles Completed Today",
                 stats_daily_study_time: "Focus Time Today",
+                stats_daily_total_time: "Total Time Today",
                 stats_general_title: "General:",
                 stats_general_cycles: "Total Cycles Completed",
                 stats_general_study_time: "Total Focus Time",
@@ -460,8 +465,9 @@
                 stats_title: "Suas Estatísticas",
                 stats_streak_label: "Sequência Diária",
                 stats_daily_title: "Hoje:",
-                stats_daily_sessions: "Sessões de Foco Hoje",
+                stats_daily_cycles: "Ciclos Completos Hoje",
                 stats_daily_study_time: "Tempo de Foco Hoje",
+                stats_daily_total_time: "Tempo Total Hoje",
                 stats_general_title: "Geral:",
                 stats_general_cycles: "Total de Ciclos Completos",
                 stats_general_study_time: "Total de Tempo de Foco",
@@ -586,8 +592,9 @@
                 stats_title: "Tus Estadísticas",
                 stats_streak_label: "Racha Diaria",
                 stats_daily_title: "Diario:",
-                stats_daily_sessions: "Sesiones de Foco Hoy",
+                stats_daily_cycles: "Ciclos Completados Hoy",
                 stats_daily_study_time: "Tiempo de Foco Hoy",
+                stats_daily_total_time: "Tiempo Total Hoy",
                 stats_general_title: "General:",
                 stats_general_cycles: "Ciclos Totales Completados",
                 stats_general_study_time: "Tiempo Total de Foco",
@@ -712,8 +719,9 @@
                 stats_title: "您的统计数据",
                 stats_streak_label: "每日连胜",
                 stats_daily_title: "每日:",
-                stats_daily_sessions: "今日专注次数",
+                stats_daily_cycles: "今日完成周期",
                 stats_daily_study_time: "今日专注时间",
+                stats_daily_total_time: "今日总时间",
                 stats_general_title: "总计:",
                 stats_general_cycles: "总完成周期",
                 stats_general_study_time: "总专注时间",
@@ -838,8 +846,9 @@
                 stats_title: "आपके आँकड़े",
                 stats_streak_label: "दैनिक स्ट्रीक",
                 stats_daily_title: "दैनिक:",
-                stats_daily_sessions: "आज के फोकस सत्र",
+                stats_daily_cycles: "आज पूरे हुए चक्र",
                 stats_daily_study_time: "आज का फोकस समय",
+                stats_daily_total_time: "आज का कुल समय",
                 stats_general_title: "सामान्य:",
                 stats_general_cycles: "कुल पूरे हुए चक्र",
                 stats_general_study_time: "कुल फोकस समय",
@@ -964,8 +973,9 @@
                 stats_title: "Vos Statistiques",
                 stats_streak_label: "Série Quotidienne",
                 stats_daily_title: "Aujourd'hui:",
-                stats_daily_sessions: "Sessions de focus",
+                stats_daily_cycles: "Cycles terminés aujourd'hui",
                 stats_daily_study_time: "Temps de concentration",
+                stats_daily_total_time: "Temps total aujourd'hui",
                 stats_general_title: "Général:",
                 stats_general_cycles: "Total de cycles terminés",
                 stats_general_study_time: "Temps de concentration total",
@@ -1090,8 +1100,9 @@
                 stats_title: "Ihre Statistiken",
                 stats_streak_label: "Tägliche Serie",
                 stats_daily_title: "Täglich:",
-                stats_daily_sessions: "Fokus-Sitzungen heute",
+                stats_daily_cycles: "Zyklen heute abgeschlossen",
                 stats_daily_study_time: "Fokuszeit heute",
+                stats_daily_total_time: "Gesamtzeit heute",
                 stats_general_title: "Allgemein:",
                 stats_general_cycles: "Zyklen insgesamt",
                 stats_general_study_time: "Fokuszeit insgesamt",
@@ -1216,8 +1227,9 @@
                 stats_title: "あなたの統計",
                 stats_streak_label: "連続日数",
                 stats_daily_title: "今日:",
-                stats_daily_sessions: "今日の集中セッション",
+                stats_daily_cycles: "今日の完了サイクル",
                 stats_daily_study_time: "今日の集中時間",
+                stats_daily_total_time: "今日の合計時間",
                 stats_general_title: "総合:",
                 stats_general_cycles: "合計完了サイクル",
                 stats_general_study_time: "合計集中時間",
@@ -1342,8 +1354,9 @@
                 stats_title: "Ваша статистика",
                 stats_streak_label: "Ежедн. серия",
                 stats_daily_title: "За день:",
-                stats_daily_sessions: "Сессии фокуса сегодня",
+                stats_daily_cycles: "Циклов завершено сегодня",
                 stats_daily_study_time: "Время фокуса сегодня",
+                stats_daily_total_time: "Общее время сегодня",
                 stats_general_title: "Общее:",
                 stats_general_cycles: "Всего циклов завершено",
                 stats_general_study_time: "Общее время фокуса",
@@ -1471,8 +1484,9 @@
         const importFileInput = document.getElementById('importFileInput');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
-        const dailySessionsEl = document.getElementById('dailySessions'); 
+        const dailyCyclesEl = document.getElementById('dailyCycles');
         const dailyStudyTimeEl = document.getElementById('dailyStudyTime');
+        const dailyTotalTimeEl = document.getElementById('dailyTotalTime');
         const totalDaysStudiedEl = document.getElementById('totalDaysStudied');
         const totalCyclesEl = document.getElementById('totalCycles');
         const totalStudyTimeEl = document.getElementById('totalStudyTime');
@@ -1517,12 +1531,12 @@
                     lastTimerUsed: null
                 },
                 stats: {
-                    daily: { date: getTodayDateString(), sessionsCompleted: 0, pureStudySeconds: 0, dailyGoal: null },
+                    daily: { date: getTodayDateString(), cyclesCompleted: 0, sessionsCompleted: 0, pureStudySeconds: 0, totalTimeSeconds: 0, firstStudySessionCompletedToday: false, dailyGoal: null },
                     general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null, totalShortBreakSeconds: 0, totalLongBreakSeconds: 0 }
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0 },
-                appVersion: "2.3.0"
+                appVersion: "2.4.0"
             };
         }
 
@@ -1608,7 +1622,7 @@
             }
         }
 
-        const STORAGE_KEY = 'pomodoroGamifiedAppData_v2.3';
+        const STORAGE_KEY = 'pomodoroGamifiedAppData_v2.4';
 
         function buildAchievements(lang, savedAchievements = []) {
              const achievementTexts = translations[lang]?.achievements || translations['en'].achievements;
@@ -1649,8 +1663,10 @@
         
         function sanitizeLoadedData(data) {
             const stats = data.stats;
+            stats.daily.cyclesCompleted = parseInt(stats.daily.cyclesCompleted) || 0;
             stats.daily.sessionsCompleted = parseInt(stats.daily.sessionsCompleted) || 0;
             stats.daily.pureStudySeconds = parseFloat(stats.daily.pureStudySeconds) || 0;
+            stats.daily.totalTimeSeconds = parseFloat(stats.daily.totalTimeSeconds) || 0;
 
             stats.general.totalDaysStudied = parseInt(stats.general.totalDaysStudied) || 0;
             stats.general.totalCyclesCompleted = parseInt(stats.general.totalCyclesCompleted) || 0;
@@ -1823,8 +1839,9 @@
         }
         
         function updateStatsDisplay() {
-            dailySessionsEl.textContent = appData.stats.daily.sessionsCompleted;
+            dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted;
             dailyStudyTimeEl.textContent = formatHoursMinutes(appData.stats.daily.pureStudySeconds);
+            dailyTotalTimeEl.textContent = formatHoursMinutes(appData.stats.daily.totalTimeSeconds);
             totalDaysStudiedEl.textContent = appData.stats.general.totalDaysStudied;
             totalCyclesEl.textContent = appData.stats.general.totalCyclesCompleted;
             totalStudyTimeEl.textContent = formatHoursMinutes(appData.stats.general.totalPureStudySeconds);
@@ -1841,11 +1858,11 @@
             else if (streak >= 7) streakColorClass = 'text-red-500';
             else if (streak >= 1) streakColorClass = 'text-orange-400';
 
-            let html = `<div class="flex items-stretch justify-between h-full gap-4">`;
+            let html = `<div class="flex flex-col md:flex-row items-center justify-center h-full gap-4">`;
 
             if (!goal) {
                  html += `
-                    <div class="w-full flex flex-col items-center justify-center bg-slate-700/50 rounded-lg p-4">
+                    <div class="w-full flex flex-col items-center justify-center h-full">
                         <h4 class="font-bold text-sky-400 mb-4" data-translate-key="goal_title">${getText('goal_title')}</h4>
                         <div class="flex flex-col sm:flex-row items-center gap-2">
                             <select id="goalTypeSelect" class="p-2 rounded bg-slate-500 text-white w-full sm:w-auto">
@@ -1858,14 +1875,14 @@
                         <button id="setGoalButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded transition-colors" data-translate-key="goal_set_goal_button">${getText('goal_set_goal_button')}</button>
                     </div>`;
             } else {
-                 let progress = 0;
+                let progress = 0;
                 let currentVal, targetVal, unitText;
 
                 if (goal.type === 'sessions') {
                     currentVal = appData.stats.daily.sessionsCompleted;
                     unitText = getText('goal_unit_sessions');
                 } else if (goal.type === 'cycles') {
-                    currentVal = Math.floor(appData.stats.daily.sessionsCompleted / POMODOROS_PER_CYCLE);
+                    currentVal = appData.stats.daily.cyclesCompleted;
                     unitText = getText('goal_unit_cycles');
                 } else { // hours
                     currentVal = (appData.stats.daily.pureStudySeconds / 3600);
@@ -1885,34 +1902,31 @@
                 let displayVal = (goal.type === 'hours') ? currentVal.toFixed(1) : Math.floor(currentVal);
                 
                 html += `
-                    <div class="flex flex-col items-center justify-center p-2 text-center w-1/4">
-                        <p class="text-sm text-slate-300 mb-1" data-translate-key="stats_streak_label">${getText('stats_streak_label')}</p>
-                        <p class="text-4xl font-bold ${streakColorClass} flex items-center">
-                            ${streak} <i class="fas fa-fire ml-1 text-3xl"></i>
-                        </p>
-                    </div>
-
-                    <div class="flex-grow bg-slate-700/50 rounded-lg p-4 h-full flex items-center justify-center relative">
-                        <button id="changeGoalButton" title="${getText('goal_change_goal_button')}" class="absolute top-2 right-2 text-slate-400 hover:text-white transition-colors h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-600">
+                    <div class="flex flex-col items-center justify-center flex-grow h-full relative w-full">
+                        <button id="changeGoalButton" title="${getText('goal_change_goal_button')}" class="absolute top-0 right-0 text-slate-400 hover:text-white transition-colors h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-600">
                             <i class="fas fa-pencil-alt fa-sm"></i>
                         </button>
-
-                        <div class="flex flex-col items-center">
-                            <div class="relative w-32 h-32">
-                                <svg class="w-full h-full" viewBox="0 0 110 110">
-                                    <circle class="text-slate-500" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="55" cy="55" />
-                                    <circle class="goal-progress-circle ${circleColorClass}" stroke-width="10" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="50" cx="55" cy="55" />
-                                </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    ${isCompleted ? `
-                                        <i class="fas fa-check-circle text-5xl ${circleColorClass}"></i>
-                                    ` : `
-                                        <span class="text-4xl font-bold ${textColorClass}">${displayVal}</span>
-                                    `}
-                                </div>
+                        <div class="relative w-32 h-32">
+                            <svg class="w-full h-full" viewBox="0 0 110 110">
+                                <circle class="text-slate-500" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="55" cy="55" />
+                                <circle class="goal-progress-circle ${circleColorClass}" stroke-width="10" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="50" cx="55" cy="55" />
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                ${isCompleted ? `
+                                    <i class="fas fa-check-circle text-5xl ${circleColorClass}"></i>
+                                ` : `
+                                    <span class="text-4xl font-bold ${textColorClass}">${displayVal}</span>
+                                `}
                             </div>
-                            <p class="mt-2 text-lg font-semibold ${textColorClass}">${isCompleted ? getText('goal_completed_message') : `${targetVal} ${unitText}`}</p>
                         </div>
+                        <p class="mt-2 text-lg font-semibold ${textColorClass}">${isCompleted ? getText('goal_completed_message') : `${targetVal} ${unitText}`}</p>
+                    </div>
+
+                    <div class="flex-shrink-0 flex flex-col items-center justify-center bg-slate-700/50 rounded-lg p-4 w-full mt-4 md:w-auto md:mt-0">
+                        <h4 class="text-base text-slate-300 mb-1" data-translate-key="stats_streak_label">${getText('stats_streak_label')}</h4>
+                        <p class="text-4xl font-bold ${streakColorClass} flex items-center">
+                            ${streak} <i class="fas fa-fire ml-2 text-3xl"></i>
+                        </p>
                     </div>`;
             }
             html += `</div>`;
@@ -1948,6 +1962,7 @@
         }
         
         function renderAchievements() {
+            if (!achievementsListEl) return;
             achievementsListEl.innerHTML = "";
             appData.achievements.sort((a, b) => {
                 const aIsNewlyUnlocked = justSeenAchievementIds.includes(a.id), bIsNewlyUnlocked = justSeenAchievementIds.includes(b.id);
@@ -1959,7 +1974,7 @@
                     switch (a.type) {
                         case 'totalDaysStudied': currentValueA = appData.stats.general.totalDaysStudied; break;
                         case 'totalCyclesCompleted': currentValueA = appData.stats.general.totalCyclesCompleted; break;
-                        case 'totalPureStudyHours': currentValueA = appData.stats.general.totalPureStudySeconds / 3600; break;
+                        case 'totalPureStudyHours': currentValueA = appData.stats.general.totalPureStudyHours / 3600; break;
                         case 'streak': currentValueA = appData.stats.general.streak; break;
                         case 'totalShortBreakSeconds': currentValueA = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValueA = appData.stats.general.totalLongBreakSeconds; break;
@@ -1971,7 +1986,7 @@
                     switch (b.type) {
                         case 'totalDaysStudied': currentValueB = appData.stats.general.totalDaysStudied; break;
                         case 'totalCyclesCompleted': currentValueB = appData.stats.general.totalCyclesCompleted; break;
-                        case 'totalPureStudyHours': currentValueB = appData.stats.general.totalPureStudySeconds / 3600; break;
+                        case 'totalPureStudyHours': currentValueB = appData.stats.general.totalPureStudyHours / 3600; break;
                         case 'streak': currentValueB = appData.stats.general.streak; break;
                         case 'totalShortBreakSeconds': currentValueB = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValueB = appData.stats.general.totalLongBreakSeconds; break;
@@ -2119,6 +2134,7 @@
 
                 if (appData.timerState.pomodorosInCycle >= POMODOROS_PER_CYCLE) {
                     nextModeToTransitionTo = 'longBreak';
+                    appData.stats.daily.cyclesCompleted++;
                     appData.stats.general.totalCyclesCompleted++;
                     showCycleCompleteNotification = true;
                 } else {
@@ -2139,6 +2155,8 @@
                 nextModeToTransitionTo = 'study';
                 shouldAutoStart = false;
             }
+            
+            appData.stats.daily.totalTimeSeconds += completedDurationInSeconds;
             
             updateStatsDisplay();
             checkDailyGoal();
@@ -2183,7 +2201,11 @@
         }
 
         function resetDailyStats() {
-            appData.stats.daily = { date: getTodayDateString(), sessionsCompleted: 0, pureStudySeconds: 0, dailyGoal: null, firstStudySessionCompletedToday: false };
+            const goal = appData.stats.daily.dailyGoal;
+            appData.stats.daily = { date: getTodayDateString(), cyclesCompleted: 0, sessionsCompleted: 0, pureStudySeconds: 0, totalTimeSeconds: 0, firstStudySessionCompletedToday: false, dailyGoal: goal };
+             if(appData.stats.daily.dailyGoal) {
+                appData.stats.daily.dailyGoal.completed = false;
+            }
         }
         
         function checkDailyGoal() {
@@ -2194,7 +2216,7 @@
             if (goal.type === 'sessions') {
                 currentVal = appData.stats.daily.sessionsCompleted;
             } else if (goal.type === 'cycles') {
-                currentVal = Math.floor(appData.stats.daily.sessionsCompleted / POMODOROS_PER_CYCLE);
+                currentVal = appData.stats.daily.cyclesCompleted;
             } else { // hours
                 currentVal = appData.stats.daily.pureStudySeconds / 3600;
             }
@@ -2297,6 +2319,7 @@
                 }
 
                 if (skippedTime > 0) {
+                    appData.stats.daily.totalTimeSeconds += skippedTime;
                     checkAchievements();
                 }
 
@@ -2400,6 +2423,8 @@
                     renderAchievements();
                 } else if (targetTab === 'dailyGoal') {
                     renderDailyGoal();
+                } else if (targetTab === 'stats') {
+                    updateStatsDisplay();
                 }
             });
         });
