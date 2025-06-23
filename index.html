@@ -45,7 +45,6 @@
         #achievementsList {
             flex-grow: 1;
             overflow-y: auto;
-            /* Scrollbar styling for the list */
             scrollbar-width: thin;
             scrollbar-color: #888 #f1f1f1;
         }
@@ -57,16 +56,23 @@
         ::-webkit-scrollbar-thumb:hover { background: #555; }
         .progress-bar-container {
             width: 100%;
-            height: 6px; 
-            background-color: #e0e0e0; 
-            border-radius: 3px; 
+            height: 20px;
+            background-color: #374151; /* bg-slate-700 */
+            border-radius: 10px;
             overflow: hidden;
+            position: relative;
         }
         .progress-bar {
             height: 100%;
-            background-color: #4caf50; 
-            border-radius: 3px; 
-            transition: width 0.3s ease-in-out;
+            background-color: #34d399; /* bg-green-400 */
+            border-radius: 10px; 
+            transition: width 0.5s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .progress-bar.completed {
+             background-color: #34d399; /* bg-green-500 */
         }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
@@ -115,11 +121,6 @@
         }
         .donation-section a:hover {
             color: #FFDD00;
-        }
-        .goal-progress-circle {
-            transition: stroke-dashoffset 0.5s ease-out;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
         }
     </style>
 </head>
@@ -349,12 +350,15 @@
                 goal_no_goal_set: "No goal set for today.",
                 goal_set_goal_button: "Set Goal",
                 goal_change_goal_button: "Change Goal",
-                goal_type_sessions: "Sessions",
-                goal_type_cycles: "Cycles",
-                goal_type_hours: "Hours",
-                goal_unit_sessions: "Sessions",
-                goal_unit_cycles: "Cycles",
-                goal_unit_hours: "Hours",
+                goal_type_sessions: "Focus Sessions",
+                goal_type_cycles: "Completed Cycles",
+                goal_type_hours: "Study Hours",
+                goal_unit_sessions_singular: "Session",
+                goal_unit_sessions_plural: "Sessions",
+                goal_unit_cycles_singular: "Cycle",
+                goal_unit_cycles_plural: "Cycles",
+                goal_unit_hours_singular: "Hour",
+                goal_unit_hours_plural: "Hours",
                 goal_value_placeholder: "Value",
                 goal_completed_message: "Goal Achieved!",
                 goal_toast_title: "Daily Goal Achieved!",
@@ -476,12 +480,15 @@
                 goal_no_goal_set: "Nenhuma meta definida para hoje.",
                 goal_set_goal_button: "Definir Meta",
                 goal_change_goal_button: "Alterar Meta",
-                goal_type_sessions: "Sessões",
-                goal_type_cycles: "Ciclos",
-                goal_type_hours: "Horas",
-                goal_unit_sessions: "Sessões",
-                goal_unit_cycles: "Ciclos",
-                goal_unit_hours: "Horas",
+                goal_type_sessions: "Sessões de foco",
+                goal_type_cycles: "Ciclos completos",
+                goal_type_hours: "Horas de estudo",
+                goal_unit_sessions_singular: "Sessão",
+                goal_unit_sessions_plural: "Sessões",
+                goal_unit_cycles_singular: "Ciclo",
+                goal_unit_cycles_plural: "Ciclos",
+                goal_unit_hours_singular: "Hora",
+                goal_unit_hours_plural: "Horas",
                 goal_value_placeholder: "Valor",
                 goal_completed_message: "Meta Atingida!",
                 goal_toast_title: "Meta Diária Atingida!",
@@ -603,12 +610,15 @@
                 goal_no_goal_set: "No hay meta para hoy.",
                 goal_set_goal_button: "Fijar Meta",
                 goal_change_goal_button: "Cambiar Meta",
-                goal_type_sessions: "Sesiones",
-                goal_type_cycles: "Ciclos",
-                goal_type_hours: "Horas",
-                goal_unit_sessions: "Sesiones",
-                goal_unit_cycles: "Ciclos",
-                goal_unit_hours: "Horas",
+                goal_type_sessions: "Sesiones de foco",
+                goal_type_cycles: "Ciclos completos",
+                goal_type_hours: "Horas de estudio",
+                goal_unit_sessions_singular: "Sesión",
+                goal_unit_sessions_plural: "Sesiones",
+                goal_unit_cycles_singular: "Ciclo",
+                goal_unit_cycles_plural: "Ciclos",
+                goal_unit_hours_singular: "Hora",
+                goal_unit_hours_plural: "Horas",
                 goal_value_placeholder: "Valor",
                 goal_completed_message: "¡Meta Lograda!",
                 goal_toast_title: "¡Meta Diaria Lograda!",
@@ -731,11 +741,14 @@
                 goal_set_goal_button: "设定目标",
                 goal_change_goal_button: "更改目标",
                 goal_type_sessions: "专注次数",
-                goal_type_cycles: "专注周期",
+                goal_type_cycles: "完成的周期",
                 goal_type_hours: "专注小时",
-                goal_unit_sessions: "次数",
-                goal_unit_cycles: "周期",
-                goal_unit_hours: "小时",
+                goal_unit_sessions_singular: "次",
+                goal_unit_sessions_plural: "次",
+                goal_unit_cycles_singular: "周期",
+                goal_unit_cycles_plural: "周期",
+                goal_unit_hours_singular: "小时",
+                goal_unit_hours_plural: "小时",
                 goal_value_placeholder: "数值",
                 goal_completed_message: "目标已达成！",
                 goal_toast_title: "已达成每日目标！",
@@ -857,12 +870,15 @@
                 goal_no_goal_set: "आज के लिए कोई लक्ष्य निर्धारित नहीं है।",
                 goal_set_goal_button: "लक्ष्य निर्धारित करें",
                 goal_change_goal_button: "लक्ष्य बदलें",
-                goal_type_sessions: "सत्र",
-                goal_type_cycles: "चक्र",
-                goal_type_hours: "घंटे",
-                goal_unit_sessions: "सत्र",
-                goal_unit_cycles: "चक्र",
-                goal_unit_hours: "घंटे",
+                goal_type_sessions: "फोकस सत्र",
+                goal_type_cycles: "पूरे हुए चक्र",
+                goal_type_hours: "अध्ययन के घंटे",
+                goal_unit_sessions_singular: "सत्र",
+                goal_unit_sessions_plural: "सत्र",
+                goal_unit_cycles_singular: "चक्र",
+                goal_unit_cycles_plural: "चक्र",
+                goal_unit_hours_singular: "घंटा",
+                goal_unit_hours_plural: "घंटे",
                 goal_value_placeholder: "मान",
                 goal_completed_message: "लक्ष्य प्राप्त!",
                 goal_toast_title: "दैनिक लक्ष्य प्राप्त!",
@@ -984,12 +1000,15 @@
                 goal_no_goal_set: "Aucun objectif fixé pour aujourd'hui.",
                 goal_set_goal_button: "Fixer l'objectif",
                 goal_change_goal_button: "Changer d'objectif",
-                goal_type_sessions: "Sessions",
-                goal_type_cycles: "Cycles",
-                goal_type_hours: "Heures",
-                goal_unit_sessions: "Sessions",
-                goal_unit_cycles: "Cycles",
-                goal_unit_hours: "Heures",
+                goal_type_sessions: "Sessions de focus",
+                goal_type_cycles: "Cycles complétés",
+                goal_type_hours: "Heures d'étude",
+                goal_unit_sessions_singular: "Session",
+                goal_unit_sessions_plural: "Sessions",
+                goal_unit_cycles_singular: "Cycle",
+                goal_unit_cycles_plural: "Cycles",
+                goal_unit_hours_singular: "Heure",
+                goal_unit_hours_plural: "Heures",
                 goal_value_placeholder: "Valeur",
                 goal_completed_message: "Objectif Atteint !",
                 goal_toast_title: "Objectif quotidien atteint !",
@@ -1111,12 +1130,15 @@
                 goal_no_goal_set: "Kein Ziel für heute gesetzt.",
                 goal_set_goal_button: "Ziel festlegen",
                 goal_change_goal_button: "Ziel ändern",
-                goal_type_sessions: "Sitzungen",
-                goal_type_cycles: "Zyklen",
-                goal_type_hours: "Stunden",
-                goal_unit_sessions: "Sitzungen",
-                goal_unit_cycles: "Zyklen",
-                goal_unit_hours: "Stunden",
+                goal_type_sessions: "Fokus-Sitzungen",
+                goal_type_cycles: "Abgeschlossene Zyklen",
+                goal_type_hours: "Studien-Stunden",
+                goal_unit_sessions_singular: "Sitzung",
+                goal_unit_sessions_plural: "Sitzungen",
+                goal_unit_cycles_singular: "Zyklus",
+                goal_unit_cycles_plural: "Zyklen",
+                goal_unit_hours_singular: "Stunde",
+                goal_unit_hours_plural: "Stunden",
                 goal_value_placeholder: "Wert",
                 goal_completed_message: "Ziel erreicht!",
                 goal_toast_title: "Tagesziel erreicht!",
@@ -1238,12 +1260,15 @@
                 goal_no_goal_set: "今日の目標が設定されていません。",
                 goal_set_goal_button: "目標を設定",
                 goal_change_goal_button: "目標を変更",
-                goal_type_sessions: "セッション",
-                goal_type_cycles: "サイクル",
-                goal_type_hours: "時間",
-                goal_unit_sessions: "セッション",
-                goal_unit_cycles: "サイクル",
-                goal_unit_hours: "時間",
+                goal_type_sessions: "集中セッション",
+                goal_type_cycles: "完了したサイクル",
+                goal_type_hours: "勉強時間",
+                goal_unit_sessions_singular: "セッション",
+                goal_unit_sessions_plural: "セッション",
+                goal_unit_cycles_singular: "サイクル",
+                goal_unit_cycles_plural: "サイクル",
+                goal_unit_hours_singular: "時間",
+                goal_unit_hours_plural: "時間",
                 goal_value_placeholder: "値",
                 goal_completed_message: "目標達成！",
                 goal_toast_title: "今日の目標を達成！",
@@ -1365,12 +1390,15 @@
                 goal_no_goal_set: "Цель на сегодня не установлена.",
                 goal_set_goal_button: "Установить цель",
                 goal_change_goal_button: "Изменить цель",
-                goal_type_sessions: "Сессии",
-                goal_type_cycles: "Циклы",
-                goal_type_hours: "Часы",
-                goal_unit_sessions: "Сессий",
-                goal_unit_cycles: "Циклов",
-                goal_unit_hours: "Часов",
+                goal_type_sessions: "Сессии фокуса",
+                goal_type_cycles: "Завершенные циклы",
+                goal_type_hours: "Часы учебы",
+                goal_unit_sessions_singular: "Сессия",
+                goal_unit_sessions_plural: "Сессий",
+                goal_unit_cycles_singular: "Цикл",
+                goal_unit_cycles_plural: "Циклов",
+                goal_unit_hours_singular: "Час",
+                goal_unit_hours_plural: "Часов",
                 goal_value_placeholder: "Значение",
                 goal_completed_message: "Цель достигнута!",
                 goal_toast_title: "Ежедневная цель достигнута!",
@@ -1415,10 +1443,6 @@
                 toast_cycle_complete_body: "Поздравляем! Вы завершили полный цикл Pomodoro.",
                 toast_new_day_title: "Новый день!",
                 toast_new_day_body: "Ваша ежедневная статистика была сброшена.",
-                toast_import_success_title: "Импорт успешен",
-                toast_import_success_body: "Ваш прогресс восстановлен. Страница будет перезагружена.",
-                toast_import_error_title: "Ошибка импорта",
-                toast_import_error_body: "Выбранный файл не является допустимым или поврежден.",
                 alert_reset_cycle_title: "Подтвердите сброс",
                 alert_reset_cycle_body: "Вы уверены, что хотите сбросить текущий цикл?",
                 alert_help_title: "Как работает этот таймер Pomodoro",
@@ -1582,17 +1606,12 @@
             return `${hours}h ${minutes}m`;
         }
         
-        function getText(key, ...args) {
+        function getPluralText(baseKey, count) {
             const lang = appData.settings.language || 'en';
-            let text = translations[lang]?.[key] || translations['en'][key];
-            if (!text) return key;
-
-            if (args.length > 0) {
-                args.forEach((arg, index) => {
-                    text = text.replace(`{${index}}`, arg);
-                });
-            }
-            return text;
+            // Specific pluralization rules for certain languages can be added here
+            // For most languages in this app, count === 1 is singular.
+            const key = count === 1 ? `${baseKey}_singular` : `${baseKey}_plural`;
+            return getText(key);
         }
 
         function applyTranslations() {
@@ -1858,12 +1877,15 @@
             else if (streak >= 7) streakColorClass = 'text-red-500';
             else if (streak >= 1) streakColorClass = 'text-orange-400';
 
-            let html = `<div class="flex flex-col md:flex-row items-center justify-center h-full gap-4">`;
+            let html = `<div class="flex flex-col items-center justify-center h-full w-full">`;
+            
+            // Always show streak
+            html += `<p class="w-full text-center text-sm text-slate-400 mb-2">${getText('stats_streak_label')}: <span class="font-bold ${streakColorClass}">${streak} <i class="fas fa-fire fa-xs"></i></span></p>`;
 
             if (!goal) {
                  html += `
-                    <div class="w-full flex flex-col items-center justify-center h-full">
-                        <h4 class="font-bold text-sky-400 mb-4" data-translate-key="goal_title">${getText('goal_title')}</h4>
+                    <div class="flex-grow w-full flex flex-col items-center justify-center bg-slate-700/50 rounded-lg p-4">
+                        <h4 class="font-semibold text-sky-300 mb-3" data-translate-key="goal_title">${getText('goal_title')}</h4>
                         <div class="flex flex-col sm:flex-row items-center gap-2">
                             <select id="goalTypeSelect" class="p-2 rounded bg-slate-500 text-white w-full sm:w-auto">
                                 <option value="sessions" data-translate-key="goal_type_sessions">${getText('goal_type_sessions')}</option>
@@ -1872,7 +1894,7 @@
                             </select>
                             <input type="number" id="goalValueInput" data-translate-key="goal_value_placeholder" placeholder="${getText('goal_value_placeholder')}" step="1" min="1" class="w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300">
                         </div>
-                        <button id="setGoalButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded transition-colors" data-translate-key="goal_set_goal_button">${getText('goal_set_goal_button')}</button>
+                        <button id="setGoalButton" class="mt-3 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-4 rounded transition-colors" data-translate-key="goal_set_goal_button">${getText('goal_set_goal_button')}</button>
                     </div>`;
             } else {
                 let progress = 0;
@@ -1880,13 +1902,13 @@
 
                 if (goal.type === 'sessions') {
                     currentVal = appData.stats.daily.sessionsCompleted;
-                    unitText = getText('goal_unit_sessions');
+                    unitText = getPluralText('goal_unit_sessions', targetVal);
                 } else if (goal.type === 'cycles') {
                     currentVal = appData.stats.daily.cyclesCompleted;
-                    unitText = getText('goal_unit_cycles');
+                    unitText = getPluralText('goal_unit_cycles', targetVal);
                 } else { // hours
                     currentVal = (appData.stats.daily.pureStudySeconds / 3600);
-                    unitText = getText('goal_unit_hours');
+                    unitText = getPluralText('goal_unit_hours', targetVal);
                 }
                 
                 targetVal = goal.threshold;
@@ -1894,39 +1916,25 @@
                 progress = Math.min(progress, 100);
                 
                 const isCompleted = goal.completed;
-                const circleColorClass = isCompleted ? 'text-green-400' : 'text-sky-400';
-                const textColorClass = isCompleted ? 'text-green-300' : 'text-white';
-                const circumference = 2 * Math.PI * 50; // r=50
-                const offset = circumference - (progress / 100) * circumference;
-                
+                const progressColorClass = isCompleted ? 'bg-green-500' : 'bg-sky-500';
                 let displayVal = (goal.type === 'hours') ? currentVal.toFixed(1) : Math.floor(currentVal);
                 
                 html += `
-                    <div class="flex flex-col items-center justify-center flex-grow h-full relative w-full">
-                        <button id="changeGoalButton" title="${getText('goal_change_goal_button')}" class="absolute top-0 right-0 text-slate-400 hover:text-white transition-colors h-8 w-8 rounded-full flex items-center justify-center hover:bg-slate-600">
-                            <i class="fas fa-pencil-alt fa-sm"></i>
-                        </button>
-                        <div class="relative w-32 h-32">
-                            <svg class="w-full h-full" viewBox="0 0 110 110">
-                                <circle class="text-slate-500" stroke-width="10" stroke="currentColor" fill="transparent" r="50" cx="55" cy="55" />
-                                <circle class="goal-progress-circle ${circleColorClass}" stroke-width="10" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="50" cx="55" cy="55" />
-                            </svg>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                ${isCompleted ? `
-                                    <i class="fas fa-check-circle text-5xl ${circleColorClass}"></i>
-                                ` : `
-                                    <span class="text-4xl font-bold ${textColorClass}">${displayVal}</span>
-                                `}
+                    <div class="flex-grow w-full flex flex-col items-center justify-center bg-slate-700/50 rounded-lg p-4">
+                        <div class="w-full max-w-sm">
+                            <div class="flex justify-between items-baseline mb-1">
+                                <h4 class="font-semibold text-sky-300" data-translate-key="goal_title">${getText('goal_title')}</h4>
+                                <span class="text-sm font-mono ${isCompleted ? 'text-green-400' : 'text-sky-300'}">${displayVal} / ${targetVal}</span>
+                            </div>
+                            <div class="progress-bar-container">
+                                <div class="progress-bar ${progressColorClass}" style="width: ${progress}%;"></div>
+                            </div>
+                            <div class="text-center mt-3">
+                                <button id="changeGoalButton" class="bg-slate-600 hover:bg-slate-500 text-slate-300 text-xs py-1.5 px-3 rounded-md shadow-md transition-colors" data-translate-key="goal_change_goal_button">
+                                   ${getText('goal_change_goal_button')}
+                                </button>
                             </div>
                         </div>
-                        <p class="mt-2 text-lg font-semibold ${textColorClass}">${isCompleted ? getText('goal_completed_message') : `${targetVal} ${unitText}`}</p>
-                    </div>
-
-                    <div class="flex-shrink-0 flex flex-col items-center justify-center bg-slate-700/50 rounded-lg p-4 w-full mt-4 md:w-auto md:mt-0">
-                        <h4 class="text-base text-slate-300 mb-1" data-translate-key="stats_streak_label">${getText('stats_streak_label')}</h4>
-                        <p class="text-4xl font-bold ${streakColorClass} flex items-center">
-                            ${streak} <i class="fas fa-fire ml-2 text-3xl"></i>
-                        </p>
                     </div>`;
             }
             html += `</div>`;
@@ -1974,7 +1982,7 @@
                     switch (a.type) {
                         case 'totalDaysStudied': currentValueA = appData.stats.general.totalDaysStudied; break;
                         case 'totalCyclesCompleted': currentValueA = appData.stats.general.totalCyclesCompleted; break;
-                        case 'totalPureStudyHours': currentValueA = appData.stats.general.totalPureStudyHours / 3600; break;
+                        case 'totalPureStudyHours': currentValueA = appData.stats.general.totalPureStudySeconds / 3600; break;
                         case 'streak': currentValueA = appData.stats.general.streak; break;
                         case 'totalShortBreakSeconds': currentValueA = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValueA = appData.stats.general.totalLongBreakSeconds; break;
@@ -2023,7 +2031,7 @@
                     switch (ach.type) {
                         case 'totalDaysStudied': currentValue = appData.stats.general.totalDaysStudied; break;
                         case 'totalCyclesCompleted': currentValue = appData.stats.general.totalCyclesCompleted; break;
-                        case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudySeconds / 3600; break;
+                        case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudyHours / 3600; break;
                         case 'streak': currentValue = appData.stats.general.streak; break;
                         case 'totalShortBreakSeconds': currentValue = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValue = appData.stats.general.totalLongBreakSeconds; break;
@@ -2140,28 +2148,31 @@
                 } else {
                     nextModeToTransitionTo = 'shortBreak';
                 }
-            } else if (endedMode === 'shortBreak') {
-                appData.stats.general.totalShortBreakSeconds += completedDurationInSeconds;
-                notificationTitleKey = "toast_break_over_title";
-                notificationBodyKey = "toast_break_over_body";
+            } else if (endedMode === 'shortBreak' || endedMode === 'longBreak') {
+                if (endedMode === 'shortBreak') {
+                    appData.stats.general.totalShortBreakSeconds += completedDurationInSeconds;
+                    notificationTitleKey = "toast_break_over_title";
+                    notificationBodyKey = "toast_break_over_body";
+                } else { // longBreak
+                    appData.stats.general.totalLongBreakSeconds += completedDurationInSeconds;
+                    notificationTitleKey = "toast_long_break_over_title";
+                    notificationBodyKey = "toast_long_break_over_body";
+                }
                 soundNoteForEndedMode = 'E4';
                 nextModeToTransitionTo = 'study';
-            } else if (endedMode === 'longBreak') {
-                appData.stats.general.totalLongBreakSeconds += completedDurationInSeconds;
-                notificationTitleKey = "toast_long_break_over_title";
-                notificationBodyKey = "toast_long_break_over_body";
-                soundNoteForEndedMode = 'E4';
-                appData.timerState.pomodorosInCycle = 0;
-                nextModeToTransitionTo = 'study';
-                shouldAutoStart = false;
+                
+                if (endedMode === 'longBreak') {
+                    appData.timerState.pomodorosInCycle = 0;
+                    shouldAutoStart = false;
+                }
             }
             
             appData.stats.daily.totalTimeSeconds += completedDurationInSeconds;
             
-            updateStatsDisplay();
+            // Re-render everything to show progress
+            renderAllDynamicContent(); 
             checkDailyGoal();
             checkAchievements();
-            renderAllDynamicContent(); // Re-render everything to show progress
             saveData();
             
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
@@ -2259,8 +2270,10 @@
                 }
             });
             if (newAchievementUnlockedThisCheck) {
-                renderAchievements();
                 updateAchievementTabNotificationBadge();
+                if (document.getElementById('achievementsContent').classList.contains('active')) {
+                   renderAchievements();
+                }
                 saveData();
             }
         }
@@ -2283,6 +2296,7 @@
                 getText("cancel_button"), 
                 () => {
                     if (appData.timerState.isRunning) pauseTimer();
+                    // This logic might need refinement if users reset mid-cycle often
                     appData.stats.daily.sessionsCompleted -= appData.timerState.pomodorosInCycle;
                     if (appData.stats.daily.sessionsCompleted < 0) appData.stats.daily.sessionsCompleted = 0;
                     appData.timerState.pomodorosInCycle = 0;
