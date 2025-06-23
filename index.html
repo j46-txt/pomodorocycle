@@ -540,7 +540,7 @@
                 alert_reset_cycle_title: "Confirmar Reinício",
                 alert_reset_cycle_body: "Tem certeza que quer reiniciar o ciclo atual? A sessão de foco voltará para 1/4.",
                 alert_help_title: "Como o timer Pomodoro funciona",
-                alert_help_body: `<p class="mb-3">A <strong>Técnica Pomodoro</strong> é um método de gerenciamento de tempo que usa um timer para dividir o trabalho em intervalos, tradicionalmente de 25 minutos, separados por pausas curtas.</p><p class="mb-1 font-semibold">O ciclo deste timer:</p><ul><li>1. Sessão de Foco (ex: 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Curta (ex: 5 min)</li><li>2. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>3. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>4. Sessão de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Longa (ex: 15 min)</li></ul><p class="mb-3">As sessões de foco e pausas começam automaticamente. Após a pausa longa, no entanto, você precisará iniciar o novo ciclo manualmente.</p><p class="mb-3">A sequência diária só aumenta após completar a primeira sessão de foco do dia.</p><p>Reinicie o ciclo usando o botão <i class='fas fa-sync-alt fa-xs'></i>.</p>`,
+                alert_help_body: `<p class="mb-3">A <strong>Técnica Pomodoro</strong> é um método de gerenciamento de tempo que usa um timer para dividir o trabalho em intervalos, tradicionalmente de 25 minutos, separados por pausas curtas.</p><p class="mb-1 font-semibold">O ciclo deste timer:</p><ul><li>1. Sessão de Foco (ex: 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Curta (ex: 5 min)</li><li>2. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>3. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>4. Sessão de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Longa (ex: 15 min)</li></ul><p class="mb-3">As sessões de foco e pausas começam automaticamente. Após a pausa longa, no entanto, você precisará iniciar o novo ciclo manually.</p><p class="mb-3">A sequência diária só aumenta após completar a primeira sessão de foco do dia.</p><p>Reinicie o ciclo usando o botão <i class='fas fa-sync-alt fa-xs'></i>.</p>`,
                 alert_import_title: "Importar Progresso?",
                 alert_import_body: "Isso irá sobrescrever todo o seu progresso, conquistas e configurações atuais. Esta ação não pode ser desfeita. Você tem certeza que deseja continuar?",
                 achievements: {
@@ -2179,12 +2179,16 @@
             checkDailyGoal();
             checkAchievements();
             
-            // Centralized UI updates
+            // Centralized UI updates based on what is visible
             updateTimerDisplay();
-            updateStatsDisplay();
             const activeTab = document.querySelector('.tab-button.active').dataset.tab;
-            if (activeTab === 'dailyGoal') renderDailyGoal();
-            if (activeTab === 'achievements') renderAchievements();
+            if (activeTab === 'stats') {
+                updateStatsDisplay();
+            } else if (activeTab === 'dailyGoal') {
+                renderDailyGoal();
+            } else if (activeTab === 'achievements') {
+                renderAchievements();
+            }
 
 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
@@ -2567,9 +2571,10 @@
                     showToast(getText("toast_new_day_title"), getText("toast_new_day_body"), "info");
                     resetDailyStats();
                     saveData();
-                    const activeTab = document.querySelector('.tab-button.active').dataset.tab;
-                    if (activeTab === 'stats') updateStatsDisplay();
-                    if (activeTab === 'dailyGoal') renderDailyGoal();
+                    updateStatsDisplay();
+                    if (document.getElementById('dailyGoalContent').classList.contains('active')) {
+                        renderDailyGoal();
+                    }
                 }
             }, 60000);
         }
