@@ -59,14 +59,14 @@
         .progress-bar-container {
             width: 100%;
             height: 24px;
-            background-color: #4b5563; /* gray-600 */
+            background-color: #4b5563;
             border-radius: 12px;
             overflow: hidden;
             position: relative;
         }
         .progress-bar {
             height: 100%;
-            background-color: #3b82f6; /* bg-blue-500 */
+            background-color: #3b82f6;
             border-radius: 12px; 
             transition: width 0.5s ease-in-out;
             display: flex;
@@ -74,7 +74,7 @@
             justify-content: center;
         }
         .progress-bar.completed {
-             background-color: #10B981; /* bg-green-500 */
+             background-color: #10B981;
         }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
@@ -315,6 +315,7 @@
         let workerTimeLeft; let workerIsRunning=!1; let workerTimerInterval; let workerCurrentMode; let workerSettings={}; function startWorkerTimer(){if(workerIsRunning)return;if(workerTimeLeft<=0){postMessage({type:"end",mode:workerCurrentMode});return}workerIsRunning=!0;workerTimerInterval=setInterval(()=>{if(!workerIsRunning){clearInterval(workerTimerInterval);return}workerTimeLeft--;postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode});if(workerTimeLeft<=0){clearInterval(workerTimerInterval);workerIsRunning=!1;postMessage({type:"end",mode:workerCurrentMode})}},1e3)}self.onmessage=function(e){const{command:o,mode:t,duration:s,settings:i}=e.data;switch(o){case"start":workerIsRunning||startWorkerTimer();break;case"pause":workerIsRunning=!1;clearInterval(workerTimerInterval);break;case"setMode":workerCurrentMode=t;workerTimeLeft=s;workerIsRunning=!1;clearInterval(workerTimerInterval);postMessage({type:"modeSet",timeLeft:workerTimeLeft,mode:workerCurrentMode});break;case"updateSettings":workerSettings=i;if(!workerIsRunning&&workerCurrentMode){let e;e="study"===workerCurrentMode?workerSettings.studyTime*60:"shortBreak"===workerCurrentMode?workerSettings.shortBreakTime*60:"longBreak"===workerCurrentMode?workerSettings.longBreakTime*60:null;e&&workerTimeLeft!==e&&(workerTimeLeft=e,postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode}))}}};
     </script>
     <script>
+        // Start of Main Script
         const baseAchievements = [{"id":"days1","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling"},{"id":"days7","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check"},{"id":"days15","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal"},{"id":"days30","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award"},{"id":"days50","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star"},{"id":"days75","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running"},{"id":"days100","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown"},{"id":"days120","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader"},{"id":"days150","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap"},{"id":"streak3","type":"streak","threshold":3,"icon":"fas fa-fire"},{"id":"streak7","type":"streak","threshold":7,"icon":"fas fa-bolt"},{"id":"streak14","type":"streak","threshold":14,"icon":"fas fa-dumbbell"},{"id":"streak30","type":"streak","threshold":30,"icon":"fas fa-calendar-alt"},{"id":"streak50","type":"streak","threshold":50,"icon":"fas fa-shield-alt"},{"id":"cycles1","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered"},{"id":"cycles10","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin"},{"id":"cycles25","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs"},{"id":"cycles50","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket"},{"id":"cycles100","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem"},{"id":"hours1","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start"},{"id":"hours10","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain"},{"id":"hours50","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope"},{"id":"hours100","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university"},{"id":"sb_hours_1","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee"},{"id":"sb_hours_5","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot"},{"id":"sb_hours_15","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch"},{"id":"lb_hours_3","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed"},{"id":"lb_hours_10","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full"},{"id":"lb_hours_25","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach"}, {"id":"daily_sessions_5","type":"dailySessions","threshold":5,"icon":"fas fa-mountain"},{"id":"daily_sessions_10","type":"dailySessions","threshold":10,"icon":"fas fa-rocket"},{"id":"daily_hours_6","type":"dailyStudyHours","threshold":6,"icon":"fas fa-meteor"}];
 
         const translations = {
@@ -336,7 +337,6 @@
                 tab_stats: "Statistics",
                 tab_daily_goal: "Daily Goal",
                 tab_achievements: "Achievements",
-                stats_title: "Your Statistics",
                 stats_streak_label: "Daily Streak",
                 stats_daily_title: "Daily:",
                 stats_daily_cycles: "Cycles Completed Today",
@@ -363,7 +363,6 @@
                 goal_completed_message: "Goal Achieved!",
                 goal_toast_title: "Daily Goal Achieved!",
                 goal_toast_body: "Congratulations! You've reached your daily focus goal.",
-                achievements_title: "Your Achievements",
                 storage_warning: "Your progress is saved in your browser's local storage. Clearing browser data may delete your progress.",
                 donation_text: "If you'd like to support this app, you can do so {0}",
                 donation_link_text: "here ☕",
@@ -466,7 +465,6 @@
                 tab_stats: "Estatísticas",
                 tab_daily_goal: "Meta Diária",
                 tab_achievements: "Conquistas",
-                stats_title: "Suas Estatísticas",
                 stats_streak_label: "Sequência Diária",
                 stats_daily_title: "Hoje:",
                 stats_daily_cycles: "Ciclos Completos Hoje",
@@ -540,7 +538,7 @@
                 alert_reset_cycle_title: "Confirmar Reinício",
                 alert_reset_cycle_body: "Tem certeza que quer reiniciar o ciclo atual? A sessão de foco voltará para 1/4.",
                 alert_help_title: "Como o timer Pomodoro funciona",
-                alert_help_body: `<p class="mb-3">A <strong>Técnica Pomodoro</strong> é um método de gerenciamento de tempo que usa um timer para dividir o trabalho em intervalos, tradicionalmente de 25 minutos, separados por pausas curtas.</p><p class="mb-1 font-semibold">O ciclo deste timer:</p><ul><li>1. Sessão de Foco (ex: 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Curta (ex: 5 min)</li><li>2. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>3. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>4. Sessão de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Longa (ex: 15 min)</li></ul><p class="mb-3">As sessões de foco e pausas começam automaticamente. Após a pausa longa, no entanto, você precisará iniciar o novo ciclo manually.</p><p class="mb-3">A sequência diária só aumenta após completar a primeira sessão de foco do dia.</p><p>Reinicie o ciclo usando o botão <i class='fas fa-sync-alt fa-xs'></i>.</p>`,
+                alert_help_body: `<p class="mb-3">A <strong>Técnica Pomodoro</strong> é um método de gerenciamento de tempo que usa um timer para dividir o trabalho em intervalos, tradicionalmente de 25 minutos, separados por pausas curtas.</p><p class="mb-1 font-semibold">O ciclo deste timer:</p><ul><li>1. Sessão de Foco (ex: 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Curta (ex: 5 min)</li><li>2. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>3. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>4. Sessão de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Longa (ex: 15 min)</li></ul><p class="mb-3">As sessões de foco e pausas começam automaticamente. Após a pausa longa, no entanto, você precisará iniciar o novo ciclo manualmente.</p><p class="mb-3">A sequência diária só aumenta após completar a primeira sessão de foco do dia.</p><p>Reinicie o ciclo usando o botão <i class='fas fa-sync-alt fa-xs'></i>.</p>`,
                 alert_import_title: "Importar Progresso?",
                 alert_import_body: "Isso irá sobrescrever todo o seu progresso, conquistas e configurações atuais. Esta ação não pode ser desfeita. Você tem certeza que deseja continuar?",
                 achievements: {
@@ -596,7 +594,6 @@
                 tab_stats: "Estadísticas",
                 tab_daily_goal: "Meta Diaria",
                 tab_achievements: "Logros",
-                stats_title: "Tus Estadísticas",
                 stats_streak_label: "Racha Diaria",
                 stats_daily_title: "Diario:",
                 stats_daily_cycles: "Ciclos Completados Hoy",
@@ -726,7 +723,6 @@
                 tab_stats: "统计",
                 tab_daily_goal: "每日目标",
                 tab_achievements: "成就",
-                stats_title: "您的统计数据",
                 stats_streak_label: "每日连胜",
                 stats_daily_title: "每日:",
                 stats_daily_cycles: "今日完成周期",
@@ -856,7 +852,6 @@
                 tab_stats: "आँकड़े",
                 tab_daily_goal: "दैनिक लक्ष्य",
                 tab_achievements: "उपलब्धियां",
-                stats_title: "आपके आँकड़े",
                 stats_streak_label: "दैनिक स्ट्रीक",
                 stats_daily_title: "दैनिक:",
                 stats_daily_cycles: "आज पूरे हुए चक्र",
@@ -986,7 +981,6 @@
                 tab_stats: "Statistiques",
                 tab_daily_goal: "Objectif Quotidien",
                 tab_achievements: "Succès",
-                stats_title: "Vos Statistiques",
                 stats_streak_label: "Série Quotidienne",
                 stats_daily_title: "Aujourd'hui:",
                 stats_daily_cycles: "Cycles terminés aujourd'hui",
@@ -1116,7 +1110,6 @@
                 tab_stats: "Statistiken",
                 tab_daily_goal: "Tagesziel",
                 tab_achievements: "Erfolge",
-                stats_title: "Ihre Statistiken",
                 stats_streak_label: "Tägliche Serie",
                 stats_daily_title: "Täglich:",
                 stats_daily_cycles: "Zyklen heute abgeschlossen",
@@ -1246,7 +1239,6 @@
                 tab_stats: "統計",
                 tab_daily_goal: "今日の目標",
                 tab_achievements: "実績",
-                stats_title: "あなたの統計",
                 stats_streak_label: "連続日数",
                 stats_daily_title: "今日:",
                 stats_daily_cycles: "今日の完了サイクル",
@@ -1376,7 +1368,6 @@
                 tab_stats: "Статистика",
                 tab_daily_goal: "Цель на день",
                 tab_achievements: "Достижения",
-                stats_title: "Ваша статистика",
                 stats_streak_label: "Ежедн. серия",
                 stats_daily_title: "За день:",
                 stats_daily_cycles: "Циклов завершено сегодня",
@@ -1560,7 +1551,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0 },
-                appVersion: "2.4.0"
+                appVersion: "2.5.0"
             };
         }
 
@@ -1611,7 +1602,7 @@
             // Simple pluralization: 1 is singular, otherwise plural.
             const key = count === 1 ? `${baseKey}_singular` : `${baseKey}_plural`;
             // Fallback to plural if singular doesn't exist
-            return getText(key, count) || getText(`${baseKey}_plural`, count);
+            return getText(key) || getText(`${baseKey}_plural`);
         }
 
         function applyTranslations() {
@@ -1930,7 +1921,6 @@
                         <div class="w-full max-w-sm">
                             <div class="progress-bar-container">
                                 <div class="progress-bar ${progressColorClass}" style="width: ${progress}%;">
-                                    ${isCompleted ? `<i class="fas fa-check"></i>` : ''}
                                 </div>
                             </div>
                              <p class="text-center mt-2 font-semibold text-lg ${isCompleted ? 'text-green-400' : 'text-white'}">
@@ -2174,22 +2164,16 @@
                 }
             }
             
-            // Centralized data updates and checks
             saveData();
             checkDailyGoal();
             checkAchievements();
             
-            // Centralized UI updates based on what is visible
             updateTimerDisplay();
-            const activeTab = document.querySelector('.tab-button.active').dataset.tab;
-            if (activeTab === 'stats') {
-                updateStatsDisplay();
-            } else if (activeTab === 'dailyGoal') {
-                renderDailyGoal();
-            } else if (activeTab === 'achievements') {
-                renderAchievements();
-            }
+            updateStatsDisplay();
 
+            const activeTab = document.querySelector('.tab-button.active').dataset.tab;
+            if (activeTab === 'dailyGoal') renderDailyGoal();
+            if (activeTab === 'achievements') renderAchievements();
 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
             showToast(getText(notificationTitleKey), getText(notificationBodyKey), 'info');
@@ -2269,7 +2253,7 @@
                 switch (ach.type) {
                     case 'totalDaysStudied': currentValue = appData.stats.general.totalDaysStudied; break;
                     case 'totalCyclesCompleted': currentValue = appData.stats.general.totalCyclesCompleted; break;
-                    case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudySeconds / 3600; break;
+                    case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudyHours / 3600; break;
                     case 'streak': currentValue = appData.stats.general.streak; break;
                     case 'totalShortBreakSeconds': currentValue = appData.stats.general.totalShortBreakSeconds; break;
                     case 'totalLongBreakSeconds': currentValue = appData.stats.general.totalLongBreakSeconds; break;
@@ -2571,10 +2555,9 @@
                     showToast(getText("toast_new_day_title"), getText("toast_new_day_body"), "info");
                     resetDailyStats();
                     saveData();
-                    updateStatsDisplay();
-                    if (document.getElementById('dailyGoalContent').classList.contains('active')) {
-                        renderDailyGoal();
-                    }
+                    const activeTab = document.querySelector('.tab-button.active').dataset.tab;
+                    if (activeTab === 'stats') updateStatsDisplay();
+                    if (activeTab === 'dailyGoal') renderDailyGoal();
                 }
             }, 60000);
         }
