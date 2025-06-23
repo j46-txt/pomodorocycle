@@ -315,7 +315,6 @@
         let workerTimeLeft; let workerIsRunning=!1; let workerTimerInterval; let workerCurrentMode; let workerSettings={}; function startWorkerTimer(){if(workerIsRunning)return;if(workerTimeLeft<=0){postMessage({type:"end",mode:workerCurrentMode});return}workerIsRunning=!0;workerTimerInterval=setInterval(()=>{if(!workerIsRunning){clearInterval(workerTimerInterval);return}workerTimeLeft--;postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode});if(workerTimeLeft<=0){clearInterval(workerTimerInterval);workerIsRunning=!1;postMessage({type:"end",mode:workerCurrentMode})}},1e3)}self.onmessage=function(e){const{command:o,mode:t,duration:s,settings:i}=e.data;switch(o){case"start":workerIsRunning||startWorkerTimer();break;case"pause":workerIsRunning=!1;clearInterval(workerTimerInterval);break;case"setMode":workerCurrentMode=t;workerTimeLeft=s;workerIsRunning=!1;clearInterval(workerTimerInterval);postMessage({type:"modeSet",timeLeft:workerTimeLeft,mode:workerCurrentMode});break;case"updateSettings":workerSettings=i;if(!workerIsRunning&&workerCurrentMode){let e;e="study"===workerCurrentMode?workerSettings.studyTime*60:"shortBreak"===workerCurrentMode?workerSettings.shortBreakTime*60:"longBreak"===workerCurrentMode?workerSettings.longBreakTime*60:null;e&&workerTimeLeft!==e&&(workerTimeLeft=e,postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode}))}}};
     </script>
     <script>
-        // Start of Main Script
         const baseAchievements = [{"id":"days1","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling"},{"id":"days7","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check"},{"id":"days15","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal"},{"id":"days30","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award"},{"id":"days50","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star"},{"id":"days75","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running"},{"id":"days100","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown"},{"id":"days120","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader"},{"id":"days150","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap"},{"id":"streak3","type":"streak","threshold":3,"icon":"fas fa-fire"},{"id":"streak7","type":"streak","threshold":7,"icon":"fas fa-bolt"},{"id":"streak14","type":"streak","threshold":14,"icon":"fas fa-dumbbell"},{"id":"streak30","type":"streak","threshold":30,"icon":"fas fa-calendar-alt"},{"id":"streak50","type":"streak","threshold":50,"icon":"fas fa-shield-alt"},{"id":"cycles1","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered"},{"id":"cycles10","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin"},{"id":"cycles25","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs"},{"id":"cycles50","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket"},{"id":"cycles100","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem"},{"id":"hours1","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start"},{"id":"hours10","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain"},{"id":"hours50","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope"},{"id":"hours100","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university"},{"id":"sb_hours_1","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee"},{"id":"sb_hours_5","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot"},{"id":"sb_hours_15","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch"},{"id":"lb_hours_3","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed"},{"id":"lb_hours_10","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full"},{"id":"lb_hours_25","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach"}, {"id":"daily_sessions_5","type":"dailySessions","threshold":5,"icon":"fas fa-mountain"},{"id":"daily_sessions_10","type":"dailySessions","threshold":10,"icon":"fas fa-rocket"},{"id":"daily_hours_6","type":"dailyStudyHours","threshold":6,"icon":"fas fa-meteor"}];
 
         const translations = {
@@ -1477,6 +1476,7 @@
             }
         };
         
+        // --- DOM Elements ---
         const timerTextEl = document.getElementById('timerText');
         const modePillEl = document.getElementById('modePill');
         const cycleDotsContainerEl = document.getElementById('cycleDotsContainer');
@@ -1523,13 +1523,17 @@
         const languageButtonsContainer = document.getElementById('languageButtonsContainer');
         const appContainer = document.getElementById('app-container');
 
+        // --- App State ---
         const POMODOROS_PER_CYCLE = 4;
         let lastSoundScheduledTime = 0;
         const MIN_SOUND_INTERVAL = 0.05, SOUND_BASE_DELAY = 0.05;
         let justSeenAchievementIds = [];
         let blockUnloadSave = false;
         let currentTimerInitialDuration = 0;
+        let appData = {};
         
+        // --- Core Functions ---
+
         function getTodayDateString() {
             const today = new Date();
             return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -1555,8 +1559,6 @@
             };
         }
 
-        let appData = getDefaultAppData();
-        
         let synth;
         if (typeof Tone !== 'undefined') {
             synth = new Tone.Synth().toDestination();
@@ -1574,8 +1576,9 @@
             }
             try {
                 let soundNote = note, soundDuration = duration, soundVolume = 0;
-                if (type === 'achievement') { soundNote = "C5"; soundDuration = "4n"; soundVolume = -6; } 
-                else if (type === 'goal') { soundNote = "E5"; soundDuration = "2n"; soundVolume = -6; }
+                if (type === 'achievement' || type === 'goal') { 
+                    soundNote = "C5"; soundDuration = "4n"; soundVolume = -6; 
+                }
                 const currentTime = Tone.now();
                 const scheduledTime = Math.max(currentTime + SOUND_BASE_DELAY, lastSoundScheduledTime + MIN_SOUND_INTERVAL);
                 lastSoundScheduledTime = scheduledTime;
@@ -1599,10 +1602,21 @@
         
         function getPluralText(baseKey, count) {
             const lang = appData.settings.language || 'en';
-            // Simple pluralization: 1 is singular, otherwise plural.
             const key = count === 1 ? `${baseKey}_singular` : `${baseKey}_plural`;
-            // Fallback to plural if singular doesn't exist
             return getText(key) || getText(`${baseKey}_plural`);
+        }
+
+        function getText(key, ...args) {
+            const lang = appData.settings.language || 'en';
+            let text = translations[lang]?.[key] || translations['en']?.[key];
+            if (!text) return key;
+
+            if (args.length > 0) {
+                args.forEach((arg, index) => {
+                    text = text.replace(`{${index}}`, arg);
+                });
+            }
+            return text;
         }
 
         function applyTranslations() {
@@ -1673,6 +1687,9 @@
         
         function sanitizeLoadedData(data) {
             const stats = data.stats;
+            if (!stats.daily) stats.daily = {};
+            if (!stats.general) stats.general = {};
+            
             stats.daily.cyclesCompleted = parseInt(stats.daily.cyclesCompleted) || 0;
             stats.daily.sessionsCompleted = parseInt(stats.daily.sessionsCompleted) || 0;
             stats.daily.pureStudySeconds = parseFloat(stats.daily.pureStudySeconds) || 0;
@@ -1685,6 +1702,7 @@
             stats.general.totalShortBreakSeconds = parseFloat(stats.general.totalShortBreakSeconds) || 0;
             stats.general.totalLongBreakSeconds = parseFloat(stats.general.totalLongBreakSeconds) || 0;
             
+            if(!data.timerState) data.timerState = {};
             data.timerState.pomodorosInCycle = parseInt(data.timerState.pomodorosInCycle) || 0;
             data.timerState.timeLeft = parseFloat(data.timerState.timeLeft) || (data.settings.studyTime * 60);
 
@@ -1921,6 +1939,7 @@
                         <div class="w-full max-w-sm">
                             <div class="progress-bar-container">
                                 <div class="progress-bar ${progressColorClass}" style="width: ${progress}%;">
+                                    ${isCompleted ? `<i class="fas fa-check"></i>` : ''}
                                 </div>
                             </div>
                              <p class="text-center mt-2 font-semibold text-lg ${isCompleted ? 'text-green-400' : 'text-white'}">
@@ -2168,12 +2187,14 @@
             checkDailyGoal();
             checkAchievements();
             
+            // Centralized UI updates
             updateTimerDisplay();
             updateStatsDisplay();
 
             const activeTab = document.querySelector('.tab-button.active').dataset.tab;
             if (activeTab === 'dailyGoal') renderDailyGoal();
             if (activeTab === 'achievements') renderAchievements();
+
 
             playSound(soundNoteForEndedMode, '4n', 'timerComplete');
             showToast(getText(notificationTitleKey), getText(notificationBodyKey), 'info');
@@ -2253,7 +2274,7 @@
                 switch (ach.type) {
                     case 'totalDaysStudied': currentValue = appData.stats.general.totalDaysStudied; break;
                     case 'totalCyclesCompleted': currentValue = appData.stats.general.totalCyclesCompleted; break;
-                    case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudyHours / 3600; break;
+                    case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudySeconds / 3600; break;
                     case 'streak': currentValue = appData.stats.general.streak; break;
                     case 'totalShortBreakSeconds': currentValue = appData.stats.general.totalShortBreakSeconds; break;
                     case 'totalLongBreakSeconds': currentValue = appData.stats.general.totalLongBreakSeconds; break;
