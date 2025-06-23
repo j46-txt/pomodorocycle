@@ -27,13 +27,15 @@
         .tab-button.active {
             border-bottom-width: 4px;
         }
-        .achievement-item { 
-            height: 7rem; 
+        .achievement-item, .daily-goal-pane { 
+            height: 16rem; /* 256px / h-64 */
             display: flex;
             flex-direction: column;
-            justify-content: space-between; 
-            overflow: hidden; 
-            position: relative; 
+        }
+        .achievement-item {
+             justify-content: space-between; 
+             overflow: hidden; 
+             position: relative; 
         }
         .modal { display: none; }
         .modal.show { display: flex; }
@@ -183,14 +185,13 @@
             </div>
 
             <div id="tabContent"> 
-                <div id="statsContent" class="tab-pane active p-4 bg-slate-700 rounded-b-lg">
+                <div id="statsContent" class="tab-pane daily-goal-pane active p-4 bg-slate-700 rounded-b-lg overflow-y-auto">
                     <h3 class="text-lg sm:text-xl font-semibold text-sky-300 mb-4" data-translate-key="stats_title">Your Statistics</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="bg-slate-600 p-4 rounded-lg shadow">
                             <h4 class="font-bold text-sky-400" data-translate-key="stats_daily_title">Daily:</h4>
-                            <p><span data-translate-key="stats_daily_cycles">Cycles Completed Today</span>: <span id="dailyCycles">0</span></p>
+                            <p><span data-translate-key="stats_daily_sessions">Focus Sessions Today</span>: <span id="dailySessions">0</span></p>
                             <p><span data-translate-key="stats_daily_study_time">Focus Time Today</span>: <span id="dailyStudyTime">0h 0m</span></p>
-                            <p><span data-translate-key="stats_daily_total_time">Total Time Today</span>: <span id="dailyTotalTime">0h 0m</span></p>
                         </div>
                         <div class="bg-slate-600 p-4 rounded-lg shadow">
                             <h4 class="font-bold text-sky-400" data-translate-key="stats_general_title">General:</h4>
@@ -200,11 +201,11 @@
                         </div>
                     </div>
                 </div>
-                <div id="dailyGoalContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg max-h-64 overflow-y-auto">
+                <div id="dailyGoalContent" class="tab-pane daily-goal-pane hidden p-4 bg-slate-700 rounded-b-lg overflow-y-auto">
                     </div>
-                <div id="achievementsContent" class="tab-pane hidden p-4 bg-slate-700 rounded-b-lg">
+                <div id="achievementsContent" class="tab-pane daily-goal-pane hidden p-4 bg-slate-700 rounded-b-lg">
                     <h3 class="text-lg sm:text-xl font-semibold mb-4 text-sky-300" data-translate-key="achievements_title">Your Achievements</h3>
-                    <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-64 overflow-y-auto pr-2"></div>
+                    <div id="achievementsList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
                 </div>
             </div>
             <div class="mt-4 text-center">
@@ -300,7 +301,7 @@
         let workerTimeLeft; let workerIsRunning=!1; let workerTimerInterval; let workerCurrentMode; let workerSettings={}; function startWorkerTimer(){if(workerIsRunning)return;if(workerTimeLeft<=0){postMessage({type:"end",mode:workerCurrentMode});return}workerIsRunning=!0;workerTimerInterval=setInterval(()=>{if(!workerIsRunning){clearInterval(workerTimerInterval);return}workerTimeLeft--;postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode});if(workerTimeLeft<=0){clearInterval(workerTimerInterval);workerIsRunning=!1;postMessage({type:"end",mode:workerCurrentMode})}},1e3)}self.onmessage=function(e){const{command:o,mode:t,duration:s,settings:i}=e.data;switch(o){case"start":workerIsRunning||startWorkerTimer();break;case"pause":workerIsRunning=!1;clearInterval(workerTimerInterval);break;case"setMode":workerCurrentMode=t;workerTimeLeft=s;workerIsRunning=!1;clearInterval(workerTimerInterval);postMessage({type:"modeSet",timeLeft:workerTimeLeft,mode:workerCurrentMode});break;case"updateSettings":workerSettings=i;if(!workerIsRunning&&workerCurrentMode){let e;e="study"===workerCurrentMode?workerSettings.studyTime*60:"shortBreak"===workerCurrentMode?workerSettings.shortBreakTime*60:"longBreak"===workerCurrentMode?workerSettings.longBreakTime*60:null;e&&workerTimeLeft!==e&&(workerTimeLeft=e,postMessage({type:"tick",timeLeft:workerTimeLeft,mode:workerCurrentMode}))}}};
     </script>
     <script>
-        const baseAchievements = [{"id":"days1","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling"},{"id":"days7","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check"},{"id":"days15","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal"},{"id":"days30","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award"},{"id":"days50","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star"},{"id":"days75","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running"},{"id":"days100","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown"},{"id":"days120","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader"},{"id":"days150","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap"},{"id":"streak3","type":"streak","threshold":3,"icon":"fas fa-fire"},{"id":"streak7","type":"streak","threshold":7,"icon":"fas fa-bolt"},{"id":"streak14","type":"streak","threshold":14,"icon":"fas fa-dumbbell"},{"id":"streak30","type":"streak","threshold":30,"icon":"fas fa-calendar-alt"},{"id":"streak50","type":"streak","threshold":50,"icon":"fas fa-shield-alt"},{"id":"cycles1","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered"},{"id":"cycles10","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin"},{"id":"cycles25","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs"},{"id":"cycles50","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket"},{"id":"cycles100","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem"},{"id":"hours1","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start"},{"id":"hours10","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain"},{"id":"hours50","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope"},{"id":"hours100","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university"},{"id":"sb_hours_1","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee"},{"id":"sb_hours_5","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot"},{"id":"sb_hours_15","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch"},{"id":"lb_hours_3","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed"},{"id":"lb_hours_10","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full"},{"id":"lb_hours_25","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach"}, {"id":"daily_cycles_3","type":"dailyCycles","threshold":3,"icon":"fas fa-mountain"},{"id":"daily_hours_4","type":"dailyStudyHours","threshold":4,"icon":"fas fa-brain"},{"id":"daily_hours_6","type":"dailyStudyHours","threshold":6,"icon":"fas fa-meteor"}];
+        const baseAchievements = [{"id":"days1","type":"totalDaysStudied","threshold":1,"icon":"fas fa-seedling"},{"id":"days7","type":"totalDaysStudied","threshold":7,"icon":"fas fa-calendar-check"},{"id":"days15","type":"totalDaysStudied","threshold":15,"icon":"fas fa-medal"},{"id":"days30","type":"totalDaysStudied","threshold":30,"icon":"fas fa-award"},{"id":"days50","type":"totalDaysStudied","threshold":50,"icon":"fas fa-star"},{"id":"days75","type":"totalDaysStudied","threshold":75,"icon":"fas fa-running"},{"id":"days100","type":"totalDaysStudied","threshold":100,"icon":"fas fa-crown"},{"id":"days120","type":"totalDaysStudied","threshold":120,"icon":"fas fa-book-reader"},{"id":"days150","type":"totalDaysStudied","threshold":150,"icon":"fas fa-graduation-cap"},{"id":"streak3","type":"streak","threshold":3,"icon":"fas fa-fire"},{"id":"streak7","type":"streak","threshold":7,"icon":"fas fa-bolt"},{"id":"streak14","type":"streak","threshold":14,"icon":"fas fa-dumbbell"},{"id":"streak30","type":"streak","threshold":30,"icon":"fas fa-calendar-alt"},{"id":"streak50","type":"streak","threshold":50,"icon":"fas fa-shield-alt"},{"id":"cycles1","type":"totalCyclesCompleted","threshold":1,"icon":"fas fa-flag-checkered"},{"id":"cycles10","type":"totalCyclesCompleted","threshold":10,"icon":"fas fa-spinner fa-spin"},{"id":"cycles25","type":"totalCyclesCompleted","threshold":25,"icon":"fas fa-cogs"},{"id":"cycles50","type":"totalCyclesCompleted","threshold":50,"icon":"fas fa-rocket"},{"id":"cycles100","type":"totalCyclesCompleted","threshold":100,"icon":"fas fa-gem"},{"id":"hours1","type":"totalPureStudyHours","threshold":1,"icon":"fas fa-hourglass-start"},{"id":"hours10","type":"totalPureStudyHours","threshold":10,"icon":"fas fa-brain"},{"id":"hours50","type":"totalPureStudyHours","threshold":50,"icon":"fas fa-microscope"},{"id":"hours100","type":"totalPureStudyHours","threshold":100,"icon":"fas fa-university"},{"id":"sb_hours_1","type":"totalShortBreakSeconds","threshold":3600,"icon":"fas fa-coffee"},{"id":"sb_hours_5","type":"totalShortBreakSeconds","threshold":18000,"icon":"fas fa-mug-hot"},{"id":"sb_hours_15","type":"totalShortBreakSeconds","threshold":54000,"icon":"fas fa-couch"},{"id":"lb_hours_3","type":"totalLongBreakSeconds","threshold":10800,"icon":"fas fa-bed"},{"id":"lb_hours_10","type":"totalLongBreakSeconds","threshold":36000,"icon":"fas fa-battery-full"},{"id":"lb_hours_25","type":"totalLongBreakSeconds","threshold":90000,"icon":"fas fa-umbrella-beach"}, {"id":"daily_sessions_5","type":"dailySessions","threshold":5,"icon":"fas fa-mountain"},{"id":"daily_sessions_10","type":"dailySessions","threshold":10,"icon":"fas fa-rocket"},{"id":"daily_hours_6","type":"dailyStudyHours","threshold":6,"icon":"fas fa-meteor"}];
 
         const translations = {
             'en': {
@@ -324,9 +325,8 @@
                 stats_title: "Your Statistics",
                 stats_streak_label: "Daily Streak",
                 stats_daily_title: "Daily:",
-                stats_daily_cycles: "Cycles Completed Today",
+                stats_daily_sessions: "Focus Sessions Today",
                 stats_daily_study_time: "Focus Time Today",
-                stats_daily_total_time: "Total Time Today",
                 stats_general_title: "General:",
                 stats_general_cycles: "Total Cycles Completed",
                 stats_general_study_time: "Total Focus Time",
@@ -335,6 +335,7 @@
                 goal_no_goal_set: "No goal set for today.",
                 goal_set_goal_button: "Set Goal",
                 goal_change_goal_button: "Change Goal",
+                goal_type_sessions: "Focus Sessions",
                 goal_type_cycles: "Focus Cycles",
                 goal_type_hours: "Focus Hours",
                 goal_value_placeholder: "Value",
@@ -421,8 +422,8 @@
                     "lb_hours_3": {"name":"Well Deserved Rest","description":"Accumulate 3 hours in long breaks."},
                     "lb_hours_10": {"name":"Recharge Master","description":"Accumulate 10 hours in long breaks."},
                     "lb_hours_25": {"name":"Leisure Expert","description":"Accumulate 25 hours in long breaks."},
-                    "daily_cycles_3": {"name":"Daily Peak","description":"Complete 3 cycles in one day."},
-                    "daily_hours_4": {"name":"Focus Sprint","description":"Focus for 4 hours in one day."},
+                    "daily_sessions_5": {"name":"Daily Grinder","description":"Complete 5 sessions in one day."},
+                    "daily_sessions_10": {"name":"Focus Machine","description":"Complete 10 sessions in one day."},
                     "daily_hours_6": {"name":"Deep Dive","description":"Focus for 6 hours in one day."}
                 }
             },
@@ -447,9 +448,8 @@
                 stats_title: "Suas Estatísticas",
                 stats_streak_label: "Sequência Diária",
                 stats_daily_title: "Hoje:",
-                stats_daily_cycles: "Ciclos Completos Hoje",
+                stats_daily_sessions: "Sessões de Foco Hoje",
                 stats_daily_study_time: "Tempo de Foco Hoje",
-                stats_daily_total_time: "Tempo Total Hoje",
                 stats_general_title: "Geral:",
                 stats_general_cycles: "Total de Ciclos Completos",
                 stats_general_study_time: "Total de Tempo de Foco",
@@ -458,6 +458,7 @@
                 goal_no_goal_set: "Nenhuma meta definida para hoje.",
                 goal_set_goal_button: "Definir Meta",
                 goal_change_goal_button: "Alterar Meta",
+                goal_type_sessions: "Sessões de Foco",
                 goal_type_cycles: "Ciclos de Foco",
                 goal_type_hours: "Horas de Foco",
                 goal_value_placeholder: "Valor",
@@ -544,8 +545,8 @@
                     "lb_hours_3": {"name":"Descanso Merecido","description":"Acumule 3 horas em pausas longas."},
                     "lb_hours_10": {"name":"Mestre da Recarga","description":"Acumule 10 horas em pausas longas."},
                     "lb_hours_25": {"name":"Expert do Lazer","description":"Acumule 25 horas em pausas longas."},
-                    "daily_cycles_3": {"name":"Pico do Dia","description":"Complete 3 ciclos em um dia."},
-                    "daily_hours_4": {"name":"Sprint de Foco","description":"Foque por 4 horas em um dia."},
+                    "daily_sessions_5": {"name":"Moedor Diário","description":"Complete 5 sessões em um dia."},
+                    "daily_sessions_10": {"name":"Máquina de Foco","description":"Complete 10 sessões em um dia."},
                     "daily_hours_6": {"name":"Mergulho Profundo","description":"Foque por 6 horas em um dia."}
                 }
             },
@@ -570,9 +571,8 @@
                 stats_title: "Tus Estadísticas",
                 stats_streak_label: "Racha Diaria",
                 stats_daily_title: "Diario:",
-                stats_daily_cycles: "Ciclos Completados Hoy",
+                stats_daily_sessions: "Sesiones de Foco Hoy",
                 stats_daily_study_time: "Tiempo de Foco Hoy",
-                stats_daily_total_time: "Tiempo Total Hoy",
                 stats_general_title: "General:",
                 stats_general_cycles: "Ciclos Totales Completados",
                 stats_general_study_time: "Tiempo Total de Foco",
@@ -581,6 +581,7 @@
                 goal_no_goal_set: "No hay meta para hoy.",
                 goal_set_goal_button: "Fijar Meta",
                 goal_change_goal_button: "Cambiar Meta",
+                goal_type_sessions: "Sesiones de Foco",
                 goal_type_cycles: "Ciclos de Foco",
                 goal_type_hours: "Horas de Foco",
                 goal_value_placeholder: "Valor",
@@ -667,8 +668,8 @@
                     "lb_hours_3": {"name":"Descanso Merecido","description":"Acumula 3 horas en pausas largas."},
                     "lb_hours_10": {"name":"Maestro de Recarga","description":"Acumula 10 horas en pausas largas."},
                     "lb_hours_25": {"name":"Experto del Ocio","description":"Acumula 25 horas en pausas largas."},
-                    "daily_cycles_3": {"name":"Cima del Día","description":"Completa 3 ciclos en un día."},
-                    "daily_hours_4": {"name":"Sprint de Foco","description":"Enfócate 4 horas en un día."},
+                    "daily_sessions_5": {"name":"Currante Diario","description":"Completa 5 sesiones en un día."},
+                    "daily_sessions_10": {"name":"Máquina de Foco","description":"Completa 10 sesiones en un día."},
                     "daily_hours_6": {"name":"Inmersión Profunda","description":"Enfócate 6 horas en un día."}
                 }
             },
@@ -693,9 +694,8 @@
                 stats_title: "您的统计数据",
                 stats_streak_label: "每日连胜",
                 stats_daily_title: "每日:",
-                stats_daily_cycles: "今日完成周期",
+                stats_daily_sessions: "今日专注次数",
                 stats_daily_study_time: "今日专注时间",
-                stats_daily_total_time: "今日总时间",
                 stats_general_title: "总计:",
                 stats_general_cycles: "总完成周期",
                 stats_general_study_time: "总专注时间",
@@ -704,6 +704,7 @@
                 goal_no_goal_set: "今日未设定目标。",
                 goal_set_goal_button: "设定目标",
                 goal_change_goal_button: "更改目标",
+                goal_type_sessions: "专注次数",
                 goal_type_cycles: "专注周期",
                 goal_type_hours: "专注小时",
                 goal_value_placeholder: "数值",
@@ -790,8 +791,8 @@
                     "lb_hours_3": {"name":"应得的休息","description":"累计3小时的长时间休息。"},
                     "lb_hours_10": {"name":"充电大师","description":"累计10小时的长时间休息。"},
                     "lb_hours_25": {"name":"休闲专家","description":"累计25小时的长时间休息。"},
-                    "daily_cycles_3": {"name":"每日巅峰","description":"一天内完成3个周期。"},
-                    "daily_hours_4": {"name":"专注冲刺","description":"一天内专注4小时。"},
+                    "daily_sessions_5": {"name":"每日苦干","description":"一天内完成5个时段。"},
+                    "daily_sessions_10": {"name":"专注机器","description":"一天内完成10个时段。"},
                     "daily_hours_6": {"name":"深度潜心","description":"一天内专注6小时。"}
                 }
             },
@@ -816,9 +817,8 @@
                 stats_title: "आपके आँकड़े",
                 stats_streak_label: "दैनिक स्ट्रीक",
                 stats_daily_title: "दैनिक:",
-                stats_daily_cycles: "आज पूरे हुए चक्र",
+                stats_daily_sessions: "आज के फोकस सत्र",
                 stats_daily_study_time: "आज का फोकस समय",
-                stats_daily_total_time: "आज का कुल समय",
                 stats_general_title: "सामान्य:",
                 stats_general_cycles: "कुल पूरे हुए चक्र",
                 stats_general_study_time: "कुल फोकस समय",
@@ -827,6 +827,7 @@
                 goal_no_goal_set: "आज के लिए कोई लक्ष्य निर्धारित नहीं है।",
                 goal_set_goal_button: "लक्ष्य निर्धारित करें",
                 goal_change_goal_button: "लक्ष्य बदलें",
+                goal_type_sessions: "फोकस सत्र",
                 goal_type_cycles: "फोकस चक्र",
                 goal_type_hours: "फोकस घंटे",
                 goal_value_placeholder: "मान",
@@ -913,8 +914,8 @@
                     "lb_hours_3": {"name":"सुपात्र आराम","description":"लंबे ब्रेक में 3 घंटे जमा करें।"},
                     "lb_hours_10": {"name":"रिचार्ज मास्टर","description":"लंबे ब्रेक में 10 घंटे जमा करें।"},
                     "lb_hours_25": {"name":"अवकाश विशेषज्ञ","description":"लंबे ब्रेक में 25 घंटे जमा करें।"},
-                    "daily_cycles_3": {"name":"दैनिक शिखर","description":"एक दिन में 3 चक्र पूरे करें।"},
-                    "daily_hours_4": {"name":"फोकस स्प्रिंट","description":"एक दिन में 4 घंटे फोकस करें।"},
+                    "daily_sessions_5": {"name":"दैनिक परिश्रमी","description":"एक दिन में 5 सत्र पूरे करें।"},
+                    "daily_sessions_10": {"name":"फोकस मशीन","description":"एक दिन में 10 सत्र पूरे करें।"},
                     "daily_hours_6": {"name":"गहरा गोता","description":"एक दिन में 6 घंटे फोकस करें।"}
                 }
             },
@@ -939,9 +940,8 @@
                 stats_title: "Vos Statistiques",
                 stats_streak_label: "Série Quotidienne",
                 stats_daily_title: "Aujourd'hui:",
-                stats_daily_cycles: "Cycles terminés aujourd'hui",
+                stats_daily_sessions: "Sessions de focus",
                 stats_daily_study_time: "Temps de concentration",
-                stats_daily_total_time: "Temps total aujourd'hui",
                 stats_general_title: "Général:",
                 stats_general_cycles: "Total de cycles terminés",
                 stats_general_study_time: "Temps de concentration total",
@@ -950,8 +950,9 @@
                 goal_no_goal_set: "Aucun objectif fixé pour aujourd'hui.",
                 goal_set_goal_button: "Fixer l'objectif",
                 goal_change_goal_button: "Changer d'objectif",
-                goal_type_cycles: "Cycles de concentration",
-                goal_type_hours: "Heures de concentration",
+                goal_type_sessions: "Sessions de focus",
+                goal_type_cycles: "Cycles de focus",
+                goal_type_hours: "Heures de focus",
                 goal_value_placeholder: "Valeur",
                 goal_completed_message: "Objectif Atteint !",
                 goal_toast_title: "Objectif quotidien atteint !",
@@ -1036,8 +1037,8 @@
                     "lb_hours_3": {"name":"Repos bien mérité","description":"Accumulez 3h en pauses longues."},
                     "lb_hours_10": {"name":"Maître de la recharge","description":"Accumulez 10h en pauses longues."},
                     "lb_hours_25": {"name":"Expert du loisir","description":"Accumulez 25h en pauses longues."},
-                    "daily_cycles_3": {"name":"Pic du jour","description":"Terminez 3 cycles en un jour."},
-                    "daily_hours_4": {"name":"Sprint de focus","description":"Concentrez-vous 4h en un jour."},
+                    "daily_sessions_5": {"name":"Grind Quotidien","description":"Terminez 5 sessions en un jour."},
+                    "daily_sessions_10": {"name":"Machine de Focus","description":"Terminez 10 sessions en un jour."},
                     "daily_hours_6": {"name":"Plongée profonde","description":"Concentrez-vous 6h en un jour."}
                 }
             },
@@ -1062,9 +1063,8 @@
                 stats_title: "Ihre Statistiken",
                 stats_streak_label: "Tägliche Serie",
                 stats_daily_title: "Täglich:",
-                stats_daily_cycles: "Zyklen heute abgeschlossen",
+                stats_daily_sessions: "Fokus-Sitzungen heute",
                 stats_daily_study_time: "Fokuszeit heute",
-                stats_daily_total_time: "Gesamtzeit heute",
                 stats_general_title: "Allgemein:",
                 stats_general_cycles: "Zyklen insgesamt",
                 stats_general_study_time: "Fokuszeit insgesamt",
@@ -1073,6 +1073,7 @@
                 goal_no_goal_set: "Kein Ziel für heute gesetzt.",
                 goal_set_goal_button: "Ziel festlegen",
                 goal_change_goal_button: "Ziel ändern",
+                goal_type_sessions: "Fokus-Sitzungen",
                 goal_type_cycles: "Fokus-Zyklen",
                 goal_type_hours: "Fokus-Stunden",
                 goal_value_placeholder: "Wert",
@@ -1159,8 +1160,8 @@
                     "lb_hours_3": {"name":"Wohlverdiente Ruhe","description":"Sammle 3h in langen Pausen."},
                     "lb_hours_10": {"name":"Auflade-Meister","description":"Sammle 10h in langen Pausen."},
                     "lb_hours_25": {"name":"Freizeit-Experte","description":"Sammle 25h in langen Pausen."},
-                    "daily_cycles_3": {"name":"Tages-Gipfel","description":"Schließe 3 Zyklen an einem Tag ab."},
-                    "daily_hours_4": {"name":"Fokus-Sprint","description":"Fokussiere 4h an einem Tag."},
+                    "daily_sessions_5": {"name":"Tages-Schufter","description":"Schließe 5 Sitzungen an einem Tag ab."},
+                    "daily_sessions_10": {"name":"Fokus-Maschine","description":"Schließe 10 Sitzungen an einem Tag ab."},
                     "daily_hours_6": {"name":"Tief-Tauchgang","description":"Fokussiere 6h an einem Tag."}
                 }
             },
@@ -1185,9 +1186,8 @@
                 stats_title: "あなたの統計",
                 stats_streak_label: "連続日数",
                 stats_daily_title: "今日:",
-                stats_daily_cycles: "今日の完了サイクル",
+                stats_daily_sessions: "今日の集中セッション",
                 stats_daily_study_time: "今日の集中時間",
-                stats_daily_total_time: "今日の合計時間",
                 stats_general_title: "総合:",
                 stats_general_cycles: "合計完了サイクル",
                 stats_general_study_time: "合計集中時間",
@@ -1196,6 +1196,7 @@
                 goal_no_goal_set: "今日の目標が設定されていません。",
                 goal_set_goal_button: "目標を設定",
                 goal_change_goal_button: "目標を変更",
+                goal_type_sessions: "集中セッション",
                 goal_type_cycles: "集中サイクル",
                 goal_type_hours: "集中時間",
                 goal_value_placeholder: "値",
@@ -1282,8 +1283,8 @@
                     "lb_hours_3": {"name":"当然の休息","description":"長い休憩で3時間を達成。"},
                     "lb_hours_10": {"name":"リチャージマスター","description":"長い休憩で10時間を達成。"},
                     "lb_hours_25": {"name":"余暇の専門家","description":"長い休憩で25時間を達成。"},
-                    "daily_cycles_3": {"name":"デイリーピーク","description":"1日で3サイクル完了。"},
-                    "daily_hours_4": {"name":"集中スプリント","description":"1日で4時間集中。"},
+                    "daily_sessions_5": {"name":"デイリーグラインダー","description":"1日で5セッション完了。"},
+                    "daily_sessions_10": {"name":"集中マシン","description":"1日で10セッション完了。"},
                     "daily_hours_6": {"name":"ディープダイブ","description":"1日で6時間集中。"}
                 }
             },
@@ -1306,11 +1307,10 @@
                 tab_daily_goal: "Цель на день",
                 tab_achievements: "Достижения",
                 stats_title: "Ваша статистика",
-                stats_streak_label: "Ежедневн. серия",
+                stats_streak_label: "Ежедн. серия",
                 stats_daily_title: "За день:",
-                stats_daily_cycles: "Циклов завершено сегодня",
+                stats_daily_sessions: "Сессии фокуса сегодня",
                 stats_daily_study_time: "Время фокуса сегодня",
-                stats_daily_total_time: "Общее время сегодня",
                 stats_general_title: "Общее:",
                 stats_general_cycles: "Всего циклов завершено",
                 stats_general_study_time: "Общее время фокуса",
@@ -1319,6 +1319,7 @@
                 goal_no_goal_set: "Цель на сегодня не установлена.",
                 goal_set_goal_button: "Установить цель",
                 goal_change_goal_button: "Изменить цель",
+                goal_type_sessions: "Сессии фокуса",
                 goal_type_cycles: "Циклы фокуса",
                 goal_type_hours: "Часы фокуса",
                 goal_value_placeholder: "Значение",
@@ -1405,8 +1406,8 @@
                     "lb_hours_3": {"name":"Заслуженный отдых","description":"Накопите 3 часа длинных перерывов."},
                     "lb_hours_10": {"name":"Мастер перезарядки","description":"Накопите 10 часов длинных перерывов."},
                     "lb_hours_25": {"name":"Эксперт досуга","description":"Накопите 25 часов длинных перерывов."},
-                    "daily_cycles_3": {"name":"Пик дня","description":"Завершите 3 цикла за один день."},
-                    "daily_hours_4": {"name":"Фокус-спринт","description":"Сфокусируйтесь 4ч за один день."},
+                    "daily_sessions_5": {"name":"Дневной трудяга","description":"Завершите 5 сессий за один день."},
+                    "daily_sessions_10": {"name":"Машина фокуса","description":"Завершите 10 сессий за один день."},
                     "daily_hours_6": {"name":"Глубокое погружение","description":"Сфокусируйтесь 6ч за один день."}
                 }
             }
@@ -1434,9 +1435,8 @@
         const importFileInput = document.getElementById('importFileInput');
         const tabButtons = document.querySelectorAll('.tab-button');
         const tabPanes = document.querySelectorAll('.tab-pane');
-        const dailyCyclesEl = document.getElementById('dailyCycles'); 
+        const dailySessionsEl = document.getElementById('dailySessions'); 
         const dailyStudyTimeEl = document.getElementById('dailyStudyTime');
-        const dailyTotalTimeEl = document.getElementById('dailyTotalTime');
         const totalDaysStudiedEl = document.getElementById('totalDaysStudied');
         const totalCyclesEl = document.getElementById('totalCycles');
         const totalStudyTimeEl = document.getElementById('totalStudyTime');
@@ -1481,12 +1481,12 @@
                     lastTimerUsed: null
                 },
                 stats: {
-                    daily: { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false, dailyGoal: null },
+                    daily: { date: getTodayDateString(), sessionsCompleted: 0, pureStudySeconds: 0, dailyGoal: null },
                     general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null, totalShortBreakSeconds: 0, totalLongBreakSeconds: 0 }
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0 },
-                appVersion: "2.1.0"
+                appVersion: "2.2.0"
             };
         }
 
@@ -1572,7 +1572,7 @@
             }
         }
 
-        const STORAGE_KEY = 'pomodoroGamifiedAppData_v2';
+        const STORAGE_KEY = 'pomodoroGamifiedAppData_v2.2';
 
         function buildAchievements(lang, savedAchievements = []) {
              const achievementTexts = translations[lang]?.achievements || translations['en'].achievements;
@@ -1581,8 +1581,8 @@
                  const translatedText = achievementTexts[baseAch.id];
                  return {
                      ...baseAch,
-                     name: translatedText.name,
-                     description: translatedText.description,
+                     name: translatedText ? translatedText.name : baseAch.id,
+                     description: translatedText ? translatedText.description : '',
                      unlocked: userAchData.unlocked || false,
                      unlockedDate: userAchData.unlockedDate || null,
                      seen: userAchData.seen || (userAchData.unlocked || false)
@@ -1613,9 +1613,8 @@
         
         function sanitizeLoadedData(data) {
             const stats = data.stats;
-            stats.daily.cyclesCompleted = parseInt(stats.daily.cyclesCompleted) || 0;
+            stats.daily.sessionsCompleted = parseInt(stats.daily.sessionsCompleted) || 0;
             stats.daily.pureStudySeconds = parseFloat(stats.daily.pureStudySeconds) || 0;
-            stats.daily.totalTimeTodaySeconds = parseFloat(stats.daily.totalTimeTodaySeconds) || 0;
 
             stats.general.totalDaysStudied = parseInt(stats.general.totalDaysStudied) || 0;
             stats.general.totalCyclesCompleted = parseInt(stats.general.totalCyclesCompleted) || 0;
@@ -1788,9 +1787,8 @@
         }
         
         function updateStatsDisplay() {
-            dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted;
+            dailySessionsEl.textContent = appData.stats.daily.sessionsCompleted;
             dailyStudyTimeEl.textContent = formatHoursMinutes(appData.stats.daily.pureStudySeconds);
-            if (dailyTotalTimeEl) dailyTotalTimeEl.textContent = formatHoursMinutes(appData.stats.daily.totalTimeTodaySeconds);
             totalDaysStudiedEl.textContent = appData.stats.general.totalDaysStudied;
             totalCyclesEl.textContent = appData.stats.general.totalCyclesCompleted;
             totalStudyTimeEl.textContent = formatHoursMinutes(appData.stats.general.totalPureStudySeconds);
@@ -1808,72 +1806,72 @@
             else if (streak >= 1) streakColorClass = 'text-orange-400';
 
             let html = `
-                <div class="flex flex-col md:flex-row gap-4 items-center">
-                    <div class="w-full md:w-1/3 bg-slate-600 p-4 rounded-lg flex flex-col items-center justify-center text-center h-40">
-                        <p class="text-base text-slate-300 mb-2" data-translate-key="stats_streak_label">${getText('stats_streak_label')}</p>
-                        <p class="text-5xl font-bold ${streakColorClass} flex items-center">
-                            ${streak} <i class="fas fa-fire ml-2"></i>
-                        </p>
-                    </div>
-
-                    <div class="w-full md:w-2/3 bg-slate-600 p-4 rounded-lg flex flex-col items-center justify-center text-center h-40">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full">
+                    <div class="lg:col-span-2 bg-slate-600 p-4 rounded-lg flex flex-col items-center justify-center text-center relative">
                         <h4 class="font-bold text-sky-400 mb-2" data-translate-key="goal_title">${getText('goal_title')}</h4>`;
 
             if (!goal) {
                 html += `
-                    <div class="flex items-center gap-2">
-                        <select id="goalTypeSelect" class="p-2 rounded bg-slate-500 text-white">
+                    <div class="flex flex-col sm:flex-row items-center gap-2 mt-2">
+                        <select id="goalTypeSelect" class="p-2 rounded bg-slate-500 text-white w-full sm:w-auto">
+                            <option value="sessions" data-translate-key="goal_type_sessions">${getText('goal_type_sessions')}</option>
                             <option value="cycles" data-translate-key="goal_type_cycles">${getText('goal_type_cycles')}</option>
                             <option value="hours" data-translate-key="goal_type_hours">${getText('goal_type_hours')}</option>
                         </select>
-                        <input type="number" id="goalValueInput" data-translate-key="goal_value_placeholder" placeholder="${getText('goal_value_placeholder')}" step="0.5" min="0.5" class="w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300">
+                        <input type="number" id="goalValueInput" data-translate-key="goal_value_placeholder" placeholder="${getText('goal_value_placeholder')}" step="1" min="1" class="w-28 p-2 rounded bg-slate-500 text-white placeholder-slate-300">
                     </div>
-                    <button id="setGoalButton" class="mt-3 bg-green-500 hover:bg-green-600 text-white font-bold py-1.5 px-4 rounded transition-colors" data-translate-key="goal_set_goal_button">${getText('goal_set_goal_button')}</button>
+                    <button id="setGoalButton" class="mt-4 bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-5 rounded transition-colors" data-translate-key="goal_set_goal_button">${getText('goal_set_goal_button')}</button>
                 `;
             } else {
                 let progress = 0;
-                let currentVal, targetVal, unit;
+                let currentVal, targetVal;
 
-                if (goal.type === 'cycles') {
-                    currentVal = appData.stats.daily.cyclesCompleted;
-                    targetVal = goal.threshold;
-                    progress = targetVal > 0 ? (currentVal / targetVal) * 100 : 0;
-                    unit = getText('goal_type_cycles');
+                if (goal.type === 'sessions') {
+                    currentVal = appData.stats.daily.sessionsCompleted;
+                } else if (goal.type === 'cycles') {
+                    currentVal = Math.floor(appData.stats.daily.sessionsCompleted / POMODOROS_PER_CYCLE);
                 } else { // hours
                     currentVal = (appData.stats.daily.pureStudySeconds / 3600);
-                    targetVal = goal.threshold;
-                    progress = targetVal > 0 ? (currentVal / targetVal) * 100 : 0;
-                    unit = getText('goal_type_hours');
-                    currentVal = currentVal.toFixed(1);
                 }
+                
+                targetVal = goal.threshold;
+                progress = targetVal > 0 ? (currentVal / targetVal) * 100 : 0;
                 progress = Math.min(progress, 100);
                 
                 const isCompleted = goal.completed;
                 const circleColorClass = isCompleted ? 'text-green-400' : 'text-sky-400';
-                const textColorClass = isCompleted ? 'text-green-300' : 'text-sky-200';
+                const textColorClass = isCompleted ? 'text-green-300' : 'text-white';
                 const circumference = 2 * Math.PI * 45; // r=45
                 const offset = circumference - (progress / 100) * circumference;
+                
+                let displayVal = (goal.type === 'hours') ? currentVal.toFixed(1) : Math.floor(currentVal);
 
                 html += `
-                    <div class="relative w-24 h-24">
+                    <div class="relative w-32 h-32 my-2">
                         <svg class="w-full h-full" viewBox="0 0 100 100">
-                            <circle class="text-slate-500" stroke-width="8" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
-                            <circle class="goal-progress-circle ${circleColorClass}" stroke-width="8" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
+                            <circle class="text-slate-500" stroke-width="10" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
+                            <circle class="goal-progress-circle ${circleColorClass}" stroke-width="10" stroke-dasharray="${circumference}" stroke-dashoffset="${offset}" stroke-linecap="round" stroke="currentColor" fill="transparent" r="45" cx="50" cy="50" />
                         </svg>
                         <div class="absolute inset-0 flex flex-col items-center justify-center">
                             ${isCompleted ? `
-                                <i class="fas fa-check-circle text-4xl ${circleColorClass}"></i>
-                                <p class="text-xs font-semibold mt-1 ${textColorClass}" data-translate-key="goal_completed_message">${getText('goal_completed_message')}</p>
+                                <i class="fas fa-check-circle text-5xl ${circleColorClass}"></i>
                             ` : `
-                                <span class="text-xl font-bold ${textColorClass}">${currentVal}</span>
-                                <span class="text-xs text-slate-400">of ${targetVal}</span>
+                                <span class="text-3xl font-bold ${textColorClass}">${displayVal}</span>
+                                <span class="text-sm text-slate-400">of ${targetVal}</span>
                             `}
                         </div>
                     </div>
                      <button id="changeGoalButton" class="absolute bottom-2 right-2 text-xs text-slate-400 hover:text-white" data-translate-key="goal_change_goal_button">${getText('goal_change_goal_button')}</button>
                 `;
             }
-            html += `</div></div>`;
+            html += `</div>
+                    <div class="lg:col-span-1 bg-slate-600 p-4 rounded-lg flex flex-col items-center justify-center text-center">
+                        <h4 class="font-semibold text-sky-300 mb-2" data-translate-key="stats_streak_label">${getText('stats_streak_label')}</h4>
+                        <p class="text-5xl font-bold ${streakColorClass} flex items-center">
+                            ${streak} <i class="fas fa-fire ml-2 text-4xl"></i>
+                        </p>
+                    </div>
+                </div>`;
             dailyGoalContentEl.innerHTML = html;
 
             // Add event listeners
@@ -1881,7 +1879,9 @@
             if (setGoalButton) {
                 setGoalButton.addEventListener('click', () => {
                     const type = document.getElementById('goalTypeSelect').value;
-                    const threshold = parseFloat(document.getElementById('goalValueInput').value);
+                    let threshold = parseFloat(document.getElementById('goalValueInput').value);
+                    if (type !== 'hours') threshold = Math.round(threshold);
+
                     if (!isNaN(threshold) && threshold > 0) {
                         appData.stats.daily.dailyGoal = { type, threshold, completed: false };
                         saveData();
@@ -1919,7 +1919,7 @@
                         case 'streak': currentValueA = appData.stats.general.streak; break;
                         case 'totalShortBreakSeconds': currentValueA = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValueA = appData.stats.general.totalLongBreakSeconds; break;
-                        case 'dailyCycles': currentValueA = appData.stats.daily.cyclesCompleted; break;
+                        case 'dailySessions': currentValueA = appData.stats.daily.sessionsCompleted; break;
                         case 'dailyStudyHours': currentValueA = appData.stats.daily.pureStudySeconds / 3600; break;
                     }
                     const progressA = a.threshold > 0 ? (currentValueA / a.threshold) : -1;
@@ -1931,7 +1931,7 @@
                         case 'streak': currentValueB = appData.stats.general.streak; break;
                         case 'totalShortBreakSeconds': currentValueB = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValueB = appData.stats.general.totalLongBreakSeconds; break;
-                        case 'dailyCycles': currentValueB = appData.stats.daily.cyclesCompleted; break;
+                        case 'dailySessions': currentValueB = appData.stats.daily.sessionsCompleted; break;
                         case 'dailyStudyHours': currentValueB = appData.stats.daily.pureStudySeconds / 3600; break;
                     }
                     const progressB = b.threshold > 0 ? (currentValueB / b.threshold) : -1;
@@ -1968,7 +1968,7 @@
                         case 'streak': currentValue = appData.stats.general.streak; break;
                         case 'totalShortBreakSeconds': currentValue = appData.stats.general.totalShortBreakSeconds; break;
                         case 'totalLongBreakSeconds': currentValue = appData.stats.general.totalLongBreakSeconds; break;
-                        case 'dailyCycles': currentValue = appData.stats.daily.cyclesCompleted; break;
+                        case 'dailySessions': currentValue = appData.stats.daily.sessionsCompleted; break;
                         case 'dailyStudyHours': currentValue = appData.stats.daily.pureStudySeconds / 3600; break;
                     }
                     let displayThreshold = ach.threshold, displayCurrentValue = currentValue;
@@ -2053,7 +2053,7 @@
             if (endedMode === 'study') {
                 appData.stats.daily.pureStudySeconds += completedDurationInSeconds;
                 appData.stats.general.totalPureStudySeconds += completedDurationInSeconds;
-                appData.stats.daily.cyclesCompleted++; // A study session is one "pomodoro", we'll count it for cycle stats
+                appData.stats.daily.sessionsCompleted++;
                 appData.timerState.pomodorosInCycle++;
                 
                 notificationTitleKey = "toast_study_complete_title";
@@ -2095,8 +2095,6 @@
                 nextModeToTransitionTo = 'study';
                 shouldAutoStart = false;
             }
-
-            appData.stats.daily.totalTimeTodaySeconds += completedDurationInSeconds;
             
             updateStatsDisplay();
             checkDailyGoal();
@@ -2141,21 +2139,23 @@
         }
 
         function resetDailyStats() {
-            appData.stats.daily = { date: getTodayDateString(), cyclesCompleted: 0, pureStudySeconds: 0, totalTimeTodaySeconds: 0, firstStudySessionCompletedToday: false, dailyGoal: null };
+            appData.stats.daily = { date: getTodayDateString(), sessionsCompleted: 0, pureStudySeconds: 0, dailyGoal: null };
         }
         
         function checkDailyGoal() {
             const goal = appData.stats.daily.dailyGoal;
             if (!goal || goal.completed) return;
             
-            let progress = 0;
-            if (goal.type === 'cycles') {
-                progress = appData.stats.daily.cyclesCompleted;
+            let currentVal = 0;
+            if (goal.type === 'sessions') {
+                currentVal = appData.stats.daily.sessionsCompleted;
+            } else if (goal.type === 'cycles') {
+                currentVal = Math.floor(appData.stats.daily.sessionsCompleted / POMODOROS_PER_CYCLE);
             } else { // hours
-                progress = appData.stats.daily.pureStudySeconds / 3600;
+                currentVal = appData.stats.daily.pureStudySeconds / 3600;
             }
             
-            if (progress >= goal.threshold) {
+            if (currentVal >= goal.threshold) {
                 goal.completed = true;
                 playSound('G5', '2n', 'goal');
                 showToast(getText('goal_toast_title'), getText('goal_toast_body'), 'success');
@@ -2176,7 +2176,7 @@
                     case 'streak': currentValue = appData.stats.general.streak; break;
                     case 'totalShortBreakSeconds': currentValue = appData.stats.general.totalShortBreakSeconds; break;
                     case 'totalLongBreakSeconds': currentValue = appData.stats.general.totalLongBreakSeconds; break;
-                    case 'dailyCycles': currentValue = appData.stats.daily.cyclesCompleted; break;
+                    case 'dailySessions': currentValue = appData.stats.daily.sessionsCompleted; break;
                     case 'dailyStudyHours': currentValue = appData.stats.daily.pureStudySeconds / 3600; break;
                     default: return;
                 }
@@ -2217,11 +2217,12 @@
                 getText("cancel_button"), 
                 () => {
                     if (appData.timerState.isRunning) pauseTimer();
+                    appData.stats.daily.sessionsCompleted -= appData.timerState.pomodorosInCycle;
+                    if (appData.stats.daily.sessionsCompleted < 0) appData.stats.daily.sessionsCompleted = 0;
                     appData.timerState.pomodorosInCycle = 0;
-                    appData.stats.daily.cyclesCompleted -= appData.timerState.pomodorosInCycle; // Correct stats
-                    if (appData.stats.daily.cyclesCompleted < 0) appData.stats.daily.cyclesCompleted = 0;
                     setTimer('study');
                     saveData();
+                    renderAllDynamicContent();
                 }, 
                 () => {}
             );
@@ -2252,8 +2253,6 @@
                 }
 
                 if (skippedTime > 0) {
-                    appData.stats.daily.totalTimeTodaySeconds += skippedTime;
-                    updateStatsDisplay();
                     checkAchievements();
                 }
 
@@ -2262,6 +2261,7 @@
                 
                 appData.timerState.lastTimerUsed = skippedMode;
                 setTimer('study');
+                renderAllDynamicContent();
             }
         });
 
@@ -2336,11 +2336,17 @@
                 });
                 button.classList.add('active', 'text-sky-400', 'border-sky-400');
                 button.classList.remove('text-slate-400', 'border-transparent');
+                
                 tabPanes.forEach(pane => {
-                    pane.style.display = 'none';
+                    pane.classList.add('hidden');
+                    pane.classList.remove('active');
                 });
+
                 const targetPane = document.getElementById(`${targetTab}Content`);
-                if(targetPane) targetPane.style.display = 'block';
+                if(targetPane) {
+                    targetPane.classList.remove('hidden');
+                    targetPane.classList.add('active');
+                }
 
                 if (targetTab === 'achievements') {
                     appData.achievements.forEach(ach => { if (ach.unlocked && !ach.seen) justSeenAchievementIds.push(ach.id); if (ach.unlocked) ach.seen = true; });
@@ -2525,7 +2531,7 @@
 
         function handleFirstVisitOrLanguageSetup() {
             const languageDisplayNames = {
-                'en': 'English', 'pt-BR': 'Português (Brasil)', 'es': 'Español', 'zh-CN': '中文 (简体)', 'hi-IN': 'हिन्दी',
+                'en': 'English', 'pt-BR': 'Português (BR)', 'es': 'Español', 'zh-CN': '中文 (简体)', 'hi-IN': 'हिन्दी',
                 'fr': 'Français', 'de': 'Deutsch', 'ja': '日本語', 'ru': 'Русский'
             };
 
