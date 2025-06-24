@@ -175,7 +175,7 @@
                                         <p><span data-translate-key="stats_daily_focus_sessions">Focus Sessions Today</span>: <span id="dailyFocusSessions" class="font-semibold">0</span></p>
                                         <p><span data-translate-key="stats_daily_cycles">Cycles Completed Today</span>: <span id="dailyCycles" class="font-semibold">0</span></p>
                                     </div>
-                  _200c_             </div>
+                                </div>
                             </div>
                         </div>
                         <div class="mt-auto pt-4 text-center stats-bottom-warning">
@@ -197,7 +197,7 @@
                                 <p id="goalProgressText" class="text-sm text-slate-300"></p>
                             </div>
                             <div class="w-full bg-slate-800/70 rounded-full h-3 shadow-inner">
-                                <div id="goalProgressBar" class="h-3 rounded-full"></div>
+                                  <div id="goalProgressBar" class="h-3 rounded-full"></div>
                             </div>
                         </div>
                         <div class="relative flex-grow min-h-0">
@@ -232,7 +232,7 @@
                                         <input type="number" id="goalValueInputWeekend" min="1" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 focus:ring-sky-500 focus:border-sky-500">
                                     </div>
                                 </div>
-                            </div>
+                          _200c_ </div>
                             <div id="goalInputsCustom" class="hidden space-y-4">
                                 <div class="custom-day-grid">
                                 </div>
@@ -421,8 +421,6 @@
         let currentTimerInitialDuration = 0;
         let activeTabId = 'stats';
         
-        // --- INÍCIO DO BLOCO DE SCRIPT COMPLETO ---
-        
         function getTodayDateString() {
             const today = new Date();
             return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -443,7 +441,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "3.7.1"
+                appVersion: "3.7.2"
             };
         }
 
@@ -599,25 +597,37 @@
         
         function loadData() {
             const storedData = localStorage.getItem(STORAGE_KEY);
-            const defaultData = getDefaultAppData();
             if (storedData) {
                 try {
                     const parsedData = JSON.parse(storedData);
-                    appData = mergeDeep(defaultData, parsedData);
+                    const defaultData = getDefaultAppData();
+                    appData = mergeDeep(JSON.parse(JSON.stringify(defaultData)), parsedData);
+
+                    // **FIX: Robust data validation to prevent crashes from old/null data**
+                    if (!isObject(appData.stats)) appData.stats = defaultData.stats;
+                    if (!isObject(appData.stats.daily)) appData.stats.daily = defaultData.stats.daily;
+                    if (!isObject(appData.stats.general)) appData.stats.general = defaultData.stats.general;
+                    if (!isObject(appData.dailyGoal)) appData.dailyGoal = defaultData.dailyGoal;
+                    if (!isObject(appData.timerState)) appData.timerState = defaultData.timerState;
+                    if (!isObject(appData.settings)) appData.settings = defaultData.settings;
+                    if (!isObject(appData.uiState)) appData.uiState = defaultData.uiState;
+                    if (!Array.isArray(appData.achievements)) appData.achievements = defaultData.achievements;
+                    
                     appData = sanitizeLoadedData(appData);
-                    if (!appData.dailyGoal.settings) {
-                        const oldTarget = appData.dailyGoal.target || 4;
-                        appData.dailyGoal.settings={mode:'all_days',targetAll:oldTarget,targetWeekday:oldTarget,targetWeekend:2,targetsCustom:[2,oldTarget,oldTarget,oldTarget,oldTarget,oldTarget,2]};
-                    }
+                    
                     const lang = appData.settings.language || 'en';
                     appData.achievements = buildAchievements(lang, parsedData.achievements || []);
                 } catch (e) {
+                    console.error("Could not parse or validate data from localStorage. It might be corrupted.", e);
+                    // **FIX: Clear corrupted data to prevent error loop and ensure a clean start on next reload**
+                    localStorage.removeItem(STORAGE_KEY);
                     appData = getDefaultAppData();
                     appData.achievements = buildAchievements(appData.settings.language);
+                    alert("An error occurred while loading your data. The app has been reset to its default state to prevent further issues. Please reload the page.");
                 }
             } else {
-                 appData = defaultData;
-                 appData.achievements = buildAchievements(appData.settings.language);
+                appData = getDefaultAppData();
+                appData.achievements = buildAchievements(appData.settings.language);
             }
             if (appData.stats.daily.date !== getTodayDateString()) {
                 archiveGoalProgress();
@@ -681,6 +691,11 @@
             customAlertModal.classList.add('show');
         }
         
+        function updateTimerDisplay() {
+            // ... (O restante do código permanece igual e não precisa ser listado novamente)
+        // O restante do seu <script> continua aqui, sem alterações...
+        // As funções de updateTimerDisplay, updateCycleInfo, updateStatsDisplay, etc.,
+        // permanecem as mesmas. A correção está focada na inicialização e carregamento de dados.
         function updateTimerDisplay() {
             timerTextEl.textContent = formatTime(appData.timerState.timeLeft);
             let modeKey = '', bodyClass = 'bg-slate-900', timerColorClass = 'text-sky-400', pillClass = 'bg-sky-400/10 text-sky-400';
@@ -1038,7 +1053,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-        _200c_                 label: getText('progress_label'), data: progressData,
+                        label: getText('progress_label'), data: progressData,
                         backgroundColor: (context) => context.index === 6 ? 'rgba(56, 189, 248, 1)' : 'rgba(56, 189, 248, 0.6)',
                         borderColor: 'rgba(56, 189, 248, 1)', borderWidth: 1, borderRadius: 2,
                     }, {
@@ -1125,7 +1140,7 @@
                 const lastStudy=new Date(appData.stats.general.lastStudyDate), today=new Date(todayStrInitialize), yesterday=new Date(today);
                 yesterday.setDate(today.getDate() - 1);
                 lastStudy.setHours(0,0,0,0); yesterday.setHours(0,0,0,0);
-          _200c_     if (lastStudy.getTime() < yesterday.getTime()) {
+                if (lastStudy.getTime() < yesterday.getTime()) {
                     appData.stats.general.streak = 0;
                 }
             }
@@ -1205,13 +1220,18 @@
         });
         
         document.addEventListener('DOMContentLoaded', () => {
-            setupLanguageChoices();
-            if (!localStorage.getItem(STORAGE_KEY)) {
-                handleFirstVisit();
-            } else {
-                initializeApp();
+            try {
+                setupLanguageChoices();
+                if (!localStorage.getItem(STORAGE_KEY)) {
+                    handleFirstVisit();
+                } else {
+                    initializeApp();
+                }
+            } catch (e) {
+                console.error("A critical error occurred on startup.", e);
+                alert("A critical error occurred. The application data may be corrupted. Please clear your browser's site data for this page and reload.");
             }
-        
+            
             startPauseButton.addEventListener('click', () => {
                 if (Tone.context.state !== 'running') { try { Tone.start(); } catch (e) {} }
                 if (appData.timerState.isRunning) {
@@ -1300,7 +1320,7 @@
                 const isCollapsed = tabContentEl.classList.contains('collapsed');
                 appData.uiState.tabsCollapsed = !isCollapsed;
                 if (isCollapsed) {
-          _200c_         tabContentEl.classList.remove('collapsed');
+                    tabContentEl.classList.remove('collapsed');
                     collapseIcon.className = 'fas fa-chevron-up';
                     setTabStyling(false); 
                 } else {
