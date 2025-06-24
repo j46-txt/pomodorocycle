@@ -146,6 +146,46 @@
                 font-size: 1rem;
             }
         }
+        .goal-mode-selector {
+            display: flex;
+            border-radius: 0.5rem;
+            border: 1px solid #475569;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .goal-mode-selector label {
+            flex: 1;
+            padding: 0.5rem 0.25rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+            position: relative;
+        }
+        .goal-mode-selector input[type="radio"] {
+            display: none;
+        }
+        .goal-mode-selector input[type="radio"]:checked + label {
+            background-color: #38bdf8;
+            color: #ffffff;
+            font-weight: 600;
+        }
+        .goal-mode-selector label:not(:last-child) {
+            border-right: 1px solid #475569;
+        }
+        .custom-day-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(60px, 1fr));
+            gap: 0.75rem;
+        }
+        .custom-day-input-group {
+            text-align: center;
+        }
+        .custom-day-input-group label {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
@@ -283,24 +323,46 @@
                         </div>
                     </div>
                     <div id="goalEditView" class="hidden h-full flex flex-col justify-center items-center">
-                         <div class="max-w-xs w-full">
-                            <h3 class="text-base sm:text-lg font-semibold mb-6 text-sky-300 text-center" data-translate-key="set_goal_title">Set Your Daily Goal</h3>
-                            <div class="space-y-4">
+                        <div class="w-full max-w-sm">
+                            <h3 class="text-lg font-semibold mb-4 text-sky-300 text-center" data-translate-key="set_goal_title">Set Your Daily Goal</h3>
+
+                            <div id="goalModeSelector" class="goal-mode-selector">
+                                <input type="radio" id="goalModeAllDays" name="goalMode" value="all_days" checked>
+                                <label for="goalModeAllDays">All Days</label>
+
+                                <input type="radio" id="goalModeWeekend" name="goalMode" value="weekend">
+                                <label for="goalModeWeekend">Week/Weekend</label>
+
+                                <input type="radio" id="goalModeCustom" name="goalMode" value="custom">
+                                <label for="goalModeCustom">Custom Days</label>
+                            </div>
+
+                            <div id="goalInputsAllDays" class="space-y-4">
                                 <div>
-                                    <label for="goalTypeSelect" class="block text-sm font-medium text-slate-300 mb-1" data-translate-key="goal_type_label">Goal Type:</label>
-                                    <select id="goalTypeSelect" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 focus:ring-sky-500 focus:border-sky-500">
-                                        <option value="focusSessions" data-translate-key="goal_type_sessions">Focus Sessions</option>
-                                        <option value="completedCycles" data-translate-key="goal_type_cycles">Completed Cycles</option>
-                                    </select>
+                                    <label for="goalValueInputAll" class="block text-sm font-medium text-slate-300 mb-1">Sessions per day:</label>
+                                    <input type="number" id="goalValueInputAll" min="1" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 focus:ring-sky-500 focus:border-sky-500">
+                                </div>
+                            </div>
+
+                            <div id="goalInputsWeekend" class="hidden space-y-4">
+                                <div>
+                                    <label for="goalValueInputWeekday" class="block text-sm font-medium text-slate-300 mb-1">Sessions on Weekdays:</label>
+                                    <input type="number" id="goalValueInputWeekday" min="1" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 focus:ring-sky-500 focus:border-sky-500">
                                 </div>
                                 <div>
-                                    <label for="goalValueInput" class="block text-sm font-medium text-slate-300 mb-1" data-translate-key="goal_value_label">Target Value:</label>
-                                    <input type="number" id="goalValueInput" placeholder="e.g., 4" step="1" min="1" class="w-full p-2 rounded bg-slate-600 text-white placeholder-slate-300 border border-slate-500 focus:ring-sky-500 focus:border-sky-500">
+                                    <label for="goalValueInputWeekend" class="block text-sm font-medium text-slate-300 mb-1">Sessions on Weekends:</label>
+                                    <input type="number" id="goalValueInputWeekend" min="1" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 focus:ring-sky-500 focus:border-sky-500">
                                 </div>
-                                <div class="flex justify-end space-x-2 pt-2">
-                                     <button id="cancelGoalButton" class="bg-slate-600 hover:bg-slate-500 text-slate-300 font-bold py-2 px-4 rounded transition-colors" data-translate-key="cancel_button">Cancel</button>
-                                    <button id="saveGoalButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors" data-translate-key="save_goal_button">Save Goal</button>
+                            </div>
+
+                            <div id="goalInputsCustom" class="hidden space-y-4">
+                                <div class="custom-day-grid">
                                 </div>
+                            </div>
+
+                            <div class="flex justify-end space-x-2 pt-6">
+                                <button id="cancelGoalButton" class="bg-slate-600 hover:bg-slate-500 text-slate-300 font-bold py-2 px-4 rounded transition-colors" data-translate-key="cancel_button">Cancel</button>
+                                <button id="saveGoalButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors" data-translate-key="save_goal_button">Save Goal</button>
                             </div>
                         </div>
                     </div>
@@ -505,7 +567,19 @@
                     general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalFocusSessions: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null, totalShortBreakSeconds: 0, totalLongBreakSeconds: 0 },
                     goalHistory: []
                 },
-                dailyGoal: { type: 'focusSessions', target: 0, progress: 0, completed: false, notificationShown: false },
+                dailyGoal: {
+                    settings: {
+                        mode: 'all_days',
+                        targetAll: 4,
+                        targetWeekday: 4,
+                        targetWeekend: 2,
+                        targetsCustom: [2, 4, 4, 4, 4, 4, 2],
+                    },
+                    target: 0,
+                    progress: 0,
+                    completed: false,
+                    notificationShown: false
+                },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
                 appVersion: "3.5.1"
@@ -677,6 +751,16 @@
                     const parsedData = JSON.parse(storedData);
                     appData = mergeDeep(defaultData, parsedData);
                     appData = sanitizeLoadedData(appData);
+                    if (!appData.dailyGoal.settings) {
+                        const oldTarget = appData.dailyGoal.target || 4;
+                        appData.dailyGoal.settings = {
+                            mode: 'all_days',
+                            targetAll: oldTarget,
+                            targetWeekday: oldTarget,
+                            targetWeekend: 2,
+                            targetsCustom: [2, oldTarget, oldTarget, oldTarget, oldTarget, oldTarget, 2]
+                        };
+                    }
 
                     const lang = appData.settings.language || 'en';
                     appData.achievements = buildAchievements(lang, parsedData.achievements || []);
@@ -1110,6 +1194,26 @@
             appData.dailyGoal.notificationShown = false;
         }
 
+        function setTodaysGoal() {
+            const settings = appData.dailyGoal.settings;
+            const today = new Date().getDay();
+            let newTarget = 0;
+
+            switch (settings.mode) {
+                case 'weekend':
+                    newTarget = (today === 0 || today === 6) ? settings.targetWeekend : settings.targetWeekday;
+                    break;
+                case 'custom':
+                    newTarget = settings.targetsCustom[today];
+                    break;
+                case 'all_days':
+                default:
+                    newTarget = settings.targetAll;
+                    break;
+            }
+            appData.dailyGoal.target = newTarget || 0;
+        }
+
         function checkGoalProgress() {
             const goal = appData.dailyGoal;
             if (goal.target <= 0) {
@@ -1122,15 +1226,7 @@
                 return;
             }
 
-            let currentProgress = 0;
-            switch (goal.type) {
-                case 'focusSessions':
-                    currentProgress = appData.stats.daily.focusSessions;
-                    break;
-                case 'completedCycles':
-                    currentProgress = appData.stats.daily.cyclesCompleted + (appData.timerState.pomodorosInCycle / POMODOROS_PER_CYCLE);
-                    break;
-            }
+            const currentProgress = appData.stats.daily.focusSessions;
             goal.progress = currentProgress;
 
             if (currentProgress >= goal.target) {
@@ -1142,60 +1238,6 @@
             }
             renderDailyGoal();
             if(chartRendered) renderGoalHistoryChart();
-        }
-
-        function checkAchievements() {
-            let newAchievementUnlockedThisCheck = false;
-            appData.achievements.forEach(ach => {
-                if (ach.unlocked) return;
-
-                const { current } = getAchievementProgress(ach.type, ach.threshold);
-
-                if (current >= ach.threshold) {
-                    ach.unlocked = true;
-                    ach.unlockedDate = new Date().toISOString();
-                    ach.seen = false;
-                    newAchievementUnlockedThisCheck = true;
-                    if (!ach.notificationShown) {
-                        showToast(getText("toast_achievement_unlocked_title"), getText("toast_achievement_unlocked_body", ach.name), 'success');
-                        playSound('A5', '1n', 'achievement');
-                        ach.notificationShown = true;
-                    }
-                }
-            });
-            if (newAchievementUnlockedThisCheck) {
-                renderAchievements();
-                updateNotificationBadges();
-                saveData();
-            }
-        }
-
-        function renderDailyGoal() {
-            const goal = appData.dailyGoal;
-            goalProgressContainer.style.display = goal.target > 0 ? 'block' : 'none';
-
-            if (goal.target <= 0) {
-                goalTextEl.textContent = getText('no_goal_set');
-                editGoalButton.querySelector('span').textContent = getText('set_goal_button');
-                goalProgressBarEl.style.width = '0%';
-                goalProgressTextEl.textContent = '';
-                return;
-            }
-
-            editGoalButton.querySelector('span').textContent = getText('edit_goal_button');
-            goalTextEl.textContent = getPluralText(goal.type, goal.target);
-
-            const progressValue = goal.type === 'completedCycles' ? goal.progress.toFixed(2) : Math.floor(goal.progress);
-            goalProgressTextEl.textContent = `${progressValue} / ${goal.target}`;
-
-            const progressPercent = Math.min(100, (goal.progress / goal.target) * 100);
-            goalProgressBarEl.style.width = `${progressPercent}%`;
-
-            if (goal.completed) {
-                goalProgressBarEl.classList.add('completed');
-            } else {
-                goalProgressBarEl.classList.remove('completed');
-            }
         }
 
         function renderGoalHistoryChart() {
@@ -1239,17 +1281,7 @@
             }
             labels[6] = `${labels[6]} (${getText('today_label')})`;
 
-            let suggestedMax, stepSize;
-            const goal = appData.dailyGoal;
-            const currentMaxDataValue = Math.max(maxVal, goal.progress, goal.target);
-
-            if (goal.type === 'completedCycles') {
-                suggestedMax = Math.max(2, Math.ceil(currentMaxDataValue) + 0.5);
-                stepSize = 0.5;
-            } else {
-                suggestedMax = Math.max(4, Math.ceil(currentMaxDataValue) + 1);
-                stepSize = 1;
-            }
+            const suggestedMax = Math.max(4, Math.ceil(maxVal) + 1);
 
             const ctx = goalHistoryChartCanvas.getContext('2d');
             goalHistoryChart = new Chart(ctx, {
@@ -1283,13 +1315,7 @@
                             max: suggestedMax,
                             ticks: {
                                 color: '#94a3b8',
-                                stepSize: stepSize,
-                                callback: function(value) {
-                                    if (appData.dailyGoal.type === 'focusSessions' && value % 1 !== 0) {
-                                        return null;
-                                    }
-                                    return value;
-                                }
+                                stepSize: 1,
                             },
                             grid: { color: 'rgba(255, 255, 255, 0.1)' }
                         },
@@ -1316,12 +1342,7 @@
                                      let label = context.dataset.label || '';
                                      if (label) label += ': ';
                                      if (context.parsed.y !== null) {
-                                         const value = context.parsed.y;
-                                         if (value % 1 !== 0) {
-                                             label += value.toFixed(2);
-                                         } else {
-                                             label += Math.floor(value);
-                                         }
+                                         label += Math.floor(context.parsed.y);
                                      }
                                      return label;
                                  }
@@ -1336,228 +1357,67 @@
             if (show) {
                 goalDisplayView.classList.add('hidden');
                 goalEditView.classList.remove('hidden');
-                goalTypeSelect.value = appData.dailyGoal.type;
-                goalValueInput.value = appData.dailyGoal.target > 0 ? appData.dailyGoal.target : '';
-                goalValueInput.step = appData.dailyGoal.type === 'completedCycles' ? "0.25" : "1";
+
+                const settings = appData.dailyGoal.settings;
+                document.querySelector(`input[name="goalMode"][value="${settings.mode}"]`).checked = true;
+
+                document.getElementById('goalValueInputAll').value = settings.targetAll;
+                document.getElementById('goalValueInputWeekday').value = settings.targetWeekday;
+                document.getElementById('goalValueInputWeekend').value = settings.targetWeekend;
+
+                const customContainer = document.querySelector('#goalInputsCustom .custom-day-grid');
+                customContainer.innerHTML = '';
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                settings.targetsCustom.forEach((val, i) => {
+                    const dayName = dayNames[i];
+                    const inputHtml = `
+                        <div class="custom-day-input-group">
+                            <label for="goalDay${i}" class="block">${dayName}</label>
+                            <input type="number" id="goalDay${i}" data-day-index="${i}" min="0" value="${val}" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500">
+                        </div>
+                    `;
+                    customContainer.insertAdjacentHTML('beforeend', inputHtml);
+                });
+
+                document.querySelectorAll('input[name="goalMode"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        document.getElementById('goalInputsAllDays').classList.toggle('hidden', e.target.value !== 'all_days');
+                        document.getElementById('goalInputsWeekend').classList.toggle('hidden', e.target.value !== 'weekend');
+                        document.getElementById('goalInputsCustom').classList.toggle('hidden', e.target.value !== 'custom');
+                    });
+                    if(radio.checked) radio.dispatchEvent(new Event('change'));
+                });
+
             } else {
                 goalDisplayView.classList.remove('hidden');
                 goalEditView.classList.add('hidden');
             }
         }
 
-        goalTypeSelect.addEventListener('change', () => {
-            goalValueInput.step = goalTypeSelect.value === 'completedCycles' ? "0.25" : "1";
-            goalValueInput.value = '';
-        });
-
-        startPauseButton.addEventListener('click', () => {
-            if (synth && Tone.context.state !== 'running') {
-                Tone.context.resume().catch(e => console.error("AudioContext resume failed", e));
-            }
-            appData.timerState.isRunning ? pauseTimer() : startTimer();
-        });
-
-        resetButton.addEventListener('click', resetCurrentTimer);
-
-        resetCycleCountButtonEl.addEventListener('click', () => {
-            showCustomAlert(
-                getText("alert_reset_cycle_title"),
-                getText("alert_reset_cycle_body"),
-                "fas fa-exclamation-triangle text-yellow-400",
-                getText("confirm_button"),
-                getText("cancel_button"),
-                () => {
-                    if (appData.timerState.isRunning) pauseTimer();
-                    appData.timerState.pomodorosInCycle = 0;
-                    setTimer('study');
-                    saveData();
-                },
-                () => {}
-            );
-        });
-
-        helpButton.addEventListener('click', () => {
-            showCustomAlert(
-                getText("alert_help_title"),
-                getText("alert_help_body"),
-                "fas fa-question-circle text-sky-400",
-                getText("got_it_button"),
-                null,
-                null,
-                null,
-                true
-            );
-        });
-
-        skipBreakButton.addEventListener('click', () => {
-            const currentMode = appData.timerState.currentMode;
-            if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
-                if (timerWorker) timerWorker.postMessage({ command: 'pause' });
-                appData.timerState.isRunning = false;
-
-                appData.timerState.lastTimerUsed = currentMode;
-                setTimer('study');
-            }
-        });
-
-        settingsButton.addEventListener('click', () => settingsModal.classList.add('show'));
-
-        cancelSettingsButton.addEventListener('click', () => {
-            studyTimeInput.value = appData.settings.studyTime;
-            shortBreakTimeInput.value = appData.settings.shortBreakTime;
-            longBreakTimeInput.value = appData.settings.longBreakTime;
-            soundToggle.checked = appData.settings.soundEnabled;
-            languageSelect.value = appData.settings.language;
-            settingsModal.classList.remove('show');
-        });
-
-        saveSettingsButton.addEventListener('click', () => {
-            settingsModal.classList.remove('show');
-            const newStudyTime = parseInt(studyTimeInput.value), newShortBreakTime = parseInt(shortBreakTimeInput.value), newLongBreakTime = parseInt(longBreakTimeInput.value);
-            const newLanguage = languageSelect.value;
-
-            let settingsChanged = false;
-            let durationChangedForCurrentMode = false;
-
-            if (!isNaN(newStudyTime) && newStudyTime >= 1 && appData.settings.studyTime !== newStudyTime) {
-                if (appData.timerState.currentMode === 'study') durationChangedForCurrentMode = true;
-                appData.settings.studyTime = newStudyTime;
-                settingsChanged = true;
-            }
-            if (!isNaN(newShortBreakTime) && newShortBreakTime >= 1 && appData.settings.shortBreakTime !== newShortBreakTime) {
-                if (appData.timerState.currentMode === 'shortBreak') durationChangedForCurrentMode = true;
-                appData.settings.shortBreakTime = newShortBreakTime;
-                settingsChanged = true;
-            }
-            if (!isNaN(newLongBreakTime) && newLongBreakTime >= 1 && appData.settings.longBreakTime !== newLongBreakTime) {
-                if (appData.timerState.currentMode === 'longBreak') durationChangedForCurrentMode = true;
-                appData.settings.longBreakTime = newLongBreakTime;
-                settingsChanged = true;
-            }
-            if (appData.settings.soundEnabled !== soundToggle.checked) {
-                appData.settings.soundEnabled = soundToggle.checked;
-                settingsChanged = true;
-            }
-
-            if (appData.settings.language !== newLanguage) {
-                appData.settings.language = newLanguage;
-                appData.achievements = buildAchievements(newLanguage, appData.achievements);
-                settingsChanged = true;
-            }
-
-            if (settingsChanged) {
-                applyTranslations();
-                renderAllDynamicContent();
-                saveData();
-
-                if (timerWorker) timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
-
-                if (!appData.timerState.isRunning && durationChangedForCurrentMode) {
-                    setTimer(appData.timerState.currentMode);
-                } else {
-                    saveData();
-                }
-                showToast(getText("toast_settings_saved_title"), getText("toast_settings_saved_body"), "success");
-            }
-        });
-
-        function setTabStyling(isCollapsed) {
-            tabButtons.forEach(btn => {
-                btn.classList.remove('active', 'text-sky-400', 'border-sky-400');
-                btn.classList.add('text-slate-400', 'border-transparent');
-                if (!isCollapsed && btn.dataset.tab === activeTabId) {
-                    btn.classList.add('active', 'text-sky-400', 'border-sky-400');
-                    btn.classList.remove('text-slate-400', 'border-transparent');
-                }
-            });
-        }
-
-        tabButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const isCurrentlyCollapsed = tabContentEl.classList.contains('collapsed');
-                if (isCurrentlyCollapsed) {
-                    tabContentEl.classList.remove('collapsed');
-                    appData.uiState.tabsCollapsed = false;
-                    collapseIcon.className = 'fas fa-chevron-up';
-                }
-
-                justSeenAchievementIds = [];
-                activeTabId = button.dataset.tab;
-                setTabStyling(false);
-
-                tabPanes.forEach(pane => {
-                    pane.style.display = 'none';
-                    pane.classList.remove('active');
-                });
-                const targetPane = document.getElementById(`${activeTabId}Content`);
-                if(targetPane) {
-                    targetPane.style.display = 'flex';
-                    targetPane.classList.add('active');
-                }
-
-                if (activeTabId === 'achievements') {
-                    appData.achievements.forEach(ach => { if (ach.unlocked && !ach.seen) justSeenAchievementIds.push(ach.id); if (ach.unlocked) ach.seen = true; });
-                    appData.uiState.newAchievementsCount = 0;
-                    updateNotificationBadges();
-                    saveData();
-                    renderAchievements();
-                } else if (activeTabId === 'dailyGoal') {
-                    if (!chartRendered) {
-                        renderGoalHistoryChart();
-                    }
-                    if (appData.dailyGoal.target <= 0) {
-                        showGoalEditView(true);
-                    } else {
-                        showGoalEditView(false);
-                    }
-                }
-            });
-        });
-
         editGoalButton.addEventListener('click', () => showGoalEditView(true));
         cancelGoalButton.addEventListener('click', () => {
             if(appData.dailyGoal.target > 0) {
-                showGoalEditView(false)
+                showGoalEditView(false);
             }
         });
         saveGoalButton.addEventListener('click', () => {
-            const newType = goalTypeSelect.value;
-            const newTarget = parseFloat(goalValueInput.value);
+            const settings = appData.dailyGoal.settings;
+            settings.mode = document.querySelector('input[name="goalMode"]:checked').value;
 
-            if (isNaN(newTarget) || newTarget <= 0) {
-                showToast(getText('toast_error_title'), getText('toast_goal_error'), 'error');
-                return;
-            }
+            settings.targetAll = parseInt(document.getElementById('goalValueInputAll').value) || 0;
+            settings.targetWeekday = parseInt(document.getElementById('goalValueInputWeekday').value) || 0;
+            settings.targetWeekend = parseInt(document.getElementById('goalValueInputWeekend').value) || 0;
 
-            const confirmAndSave = () => {
-                appData.dailyGoal.type = newType;
-                appData.dailyGoal.target = newTarget;
-                appData.dailyGoal.progress = 0;
-                appData.dailyGoal.completed = false;
-                appData.dailyGoal.notificationShown = false;
+            document.querySelectorAll('#goalInputsCustom input').forEach(input => {
+                const dayIndex = parseInt(input.dataset.dayIndex);
+                settings.targetsCustom[dayIndex] = parseInt(input.value) || 0;
+            });
 
-                checkGoalProgress();
-                saveData();
-                showGoalEditView(false);
-            }
-
-            if(newType !== appData.dailyGoal.type && appData.stats.goalHistory.length > 0) {
-                 showCustomAlert(
-                     getText("alert_goal_type_change_title"),
-                     getText("alert_goal_type_change_body"),
-                     "fas fa-exclamation-triangle text-yellow-400",
-                     getText("confirm_button"),
-                     getText("cancel_button"),
-                     () => {
-                         appData.stats.goalHistory = [];
-                         chartRendered = false;
-                         confirmAndSave();
-                     },
-                     () => {}
-                 );
-            } else {
-                confirmAndSave();
-            }
+            setTodaysGoal();
+            checkGoalProgress();
+            saveData();
+            showGoalEditView(false);
+            showToast(getText("toast_settings_saved_title"), "Your new daily goals have been saved.", "success");
         });
 
 
@@ -1677,6 +1537,7 @@
                     showToast(getText("toast_new_day_title"), getText("toast_new_day_body"), "info");
                     archiveGoalProgress();
                     resetDailyStats();
+                    setTodaysGoal();
                     saveData();
                     updateStatsDisplay();
                     renderAllDynamicContent();
@@ -1684,19 +1545,11 @@
             }, 60000);
         }
 
-        function renderAllDynamicContent() {
-             updateTimerDisplay();
-             updateStatsDisplay();
-             renderDailyGoal();
-             renderAchievements();
-             if (document.getElementById('dailyGoalContent').classList.contains('active')) {
-                 renderGoalHistoryChart();
-             }
-        }
-
         function initializeApp() {
             appContainer.style.display = 'block';
             loadData();
+            setTodaysGoal();
+            checkGoalProgress();
 
             const todayStrInitialize = getTodayDateString();
             if (appData.stats.general.lastStudyDate && appData.stats.general.lastStudyDate !== todayStrInitialize) {
@@ -1708,6 +1561,45 @@
                     appData.stats.general.streak = 0;
                 }
             }
+
+            const persistedState = { ...appData.timerState };
+            appData.timerState.currentMode = persistedState.currentMode || 'study';
+            appData.timerState.timeLeft = persistedState.timeLeft;
+            appData.timerState.pomodorosInCycle = persistedState.pomodorosInCycle || 0;
+            const wasRunning = persistedState.isRunning || false;
+            appData.timerState.isRunning = false;
+
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
+                timerWorker.postMessage({ command: 'setMode', mode: appData.timerState.currentMode, duration: appData.timerState.timeLeft });
+            }
+
+            applyTranslations();
+
+            if (wasRunning && appData.timerState.timeLeft > 0) {
+                appData.timerState.isRunning = true;
+                startPauseButton.querySelector('span').textContent = getText('pause_button');
+                startPauseButton.querySelector('i').className = 'fas fa-pause mr-2';
+                if (timerWorker) timerWorker.postMessage({ command: 'start' });
+            } else {
+                startPauseButton.querySelector('span').textContent = getText('start_button');
+                startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+            }
+
+            if (appData.uiState.tabsCollapsed) {
+                tabContentEl.classList.add('collapsed');
+                collapseIcon.className = 'fas fa-chevron-down';
+                setTabStyling(true);
+            } else {
+                collapseIcon.className = 'fas fa-chevron-up';
+                setTabStyling(false);
+            }
+
+            renderAllDynamicContent();
+            updateNotificationBadges();
+
+            startMidnightChecker();
+        }
 
             const persistedState = { ...appData.timerState };
             appData.timerState.currentMode = persistedState.currentMode || 'study';
