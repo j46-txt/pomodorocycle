@@ -164,6 +164,7 @@
         #statsContent {
             overflow-y: auto;
         }
+        .goal-mode-selector{display:flex;border-radius:.5rem;border:1px solid #475569;overflow:hidden;margin-bottom:1.5rem}.goal-mode-selector label{flex:1;padding:.5rem .25rem;text-align:center;cursor:pointer;transition:background-color .2s ease-in-out;font-size:.8rem;color:#cbd5e1;position:relative}.goal-mode-selector input[type=radio]{display:none}.goal-mode-selector input[type=radio]:checked+label{background-color:#38bdf8;color:#fff;font-weight:600}.goal-mode-selector label:not(:last-child){border-right:1px solid #475569}.custom-day-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(60px,1fr));gap:.75rem}.custom-day-input-group{text-align:center}.custom-day-input-group label{font-size:.75rem;color:#94a3b8}
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
@@ -305,11 +306,11 @@
                             <h3 class="text-lg font-semibold mb-4 text-sky-300 text-center" data-translate-key="set_goal_title">Set Your Daily Goal</h3>
                             <div id="goalModeSelector" class="goal-mode-selector">
                                 <input type="radio" id="goalModeAllDays" name="goalMode" value="all_days" checked>
-                                <label for="goalModeAllDays">All Days</label>
+                                <label for="goalModeAllDays" data-translate-key="goal_mode_all">All Days</label>
                                 <input type="radio" id="goalModeWeekend" name="goalMode" value="weekend">
-                                <label for="goalModeWeekend">Week/Weekend</label>
+                                <label for="goalModeWeekend" data-translate-key="goal_mode_week_weekend">Week/Weekend</label>
                                 <input type="radio" id="goalModeCustom" name="goalMode" value="custom">
-                                <label for="goalModeCustom">Custom Days</label>
+                                <label for="goalModeCustom" data-translate-key="goal_mode_custom">Custom Days</label>
                             </div>
                             <div id="goalInputsAllDays" class="space-y-4">
                                 <div>
@@ -434,61 +435,1317 @@
     </script>
 
     <script>
-        const baseAchievements = [{id:"days1",type:"totalDaysStudied",threshold:1,icon:"fas fa-seedling"},{id:"days7",type:"totalDaysStudied",threshold:7,icon:"fas fa-calendar-check"},{id:"days15",type:"totalDaysStudied",threshold:15,icon:"fas fa-medal"},{id:"days30",type:"totalDaysStudied",threshold:30,icon:"fas fa-award"},{id:"days50",type:"totalDaysStudied",threshold:50,icon:"fas fa-star"},{id:"days75",type:"totalDaysStudied",threshold:75,icon:"fas fa-running"},{id:"days100",type:"totalDaysStudied",threshold:100,icon:"fas fa-crown"},{id:"days120",type:"totalDaysStudied",threshold:120,icon:"fas fa-book-reader"},{id:"days150",type:"totalDaysStudied",threshold:150,icon:"fas fa-graduation-cap"},{id:"streak3",type:"streak",threshold:3,icon:"fas fa-fire"},{id:"streak7",type:"streak",threshold:7,icon:"fas fa-bolt"},{id:"streak14",type:"streak",threshold:14,icon:"fas fa-dumbbell"},{id:"streak30",type:"streak",threshold:30,icon:"fas fa-calendar-alt"},{id:"streak50",type:"streak",threshold:50,icon:"fas fa-shield-alt"},{id:"cycles1",type:"totalCyclesCompleted",threshold:1,icon:"fas fa-flag-checkered"},{id:"cycles10",type:"totalCyclesCompleted",threshold:10,icon:"fas fa-history"},{id:"cycles25",type:"totalCyclesCompleted",threshold:25,icon:"fas fa-cogs"},{id:"cycles50",type:"totalCyclesCompleted",threshold:50,icon:"fas fa-rocket"},{id:"cycles100",type:"totalCyclesCompleted",threshold:100,icon:"fas fa-gem"},{id:"hours1",type:"totalPureStudyHours",threshold:1,icon:"fas fa-hourglass-start"},{id:"hours10",type:"totalPureStudyHours",threshold:10,icon:"fas fa-brain"},{id:"hours50",type:"totalPureStudyHours",threshold:50,icon:"fas fa-microscope"},{id:"hours100",type:"totalPureStudyHours",threshold:100,icon:"fas fa-university"},{id:"sb_hours_1",type:"totalShortBreakSeconds",threshold:3600,icon:"fas fa-coffee"},{id:"sb_hours_5",type:"totalShortBreakSeconds",threshold:18e3,icon:"fas fa-mug-hot"},{id:"sb_hours_15",type:"totalShortBreakSeconds",threshold:54e3,icon:"fas fa-couch"},{id:"lb_hours_3",type:"totalLongBreakSeconds",threshold:10800,icon:"fas fa-bed"},{id:"lb_hours_10",type:"totalLongBreakSeconds",threshold:36e3,icon:"fas fa-battery-full"},{id:"lb_hours_25",type:"totalLongBreakSeconds",threshold:9e4,icon:"fas fa-umbrella-beach"},{id:"dailySessions5",type:"dailyFocusSessions",threshold:5,icon:"fas fa-bolt"},{id:"dailySessions10",type:"dailyFocusSessions",threshold:10,icon:"fas fa-rocket"},{id:"dailyCycles3",type:"dailyCyclesCompleted",threshold:3,icon:"fas fa-cogs"},{id:"dailyHours6",type:"dailyPureStudyHours",threshold:6,icon:"fas fa-brain"}];
-        const translations={en:{app_title:"PomodoroCycle Timer",help_tooltip:"Help / How to Use",settings_tooltip:"Settings",current_timer_label:"Current Timer:",mode_study:"Focus",mode_short_break:"Short Break",mode_long_break:"Long Break",cycle_tooltip:"Focus Sessions in Current Cycle",reset_cycle_tooltip:"Reset Cycle",skip_break_button:"Skip Break",start_button:"Start",pause_button:"Pause",resume_button:"Resume",reset_current_button:"Reset Current",tab_stats:"Statistics",tab_daily_goal:"Daily Goal",tab_achievements:"Achievements",stats_title:"Your Statistics",stats_streak:"Daily Streak",stats_daily_title:"Daily:",stats_daily_total_time:"Total Time Today",stats_daily_focus_sessions:"Focus Sessions Today",stats_daily_cycles:"Cycles Completed Today",stats_daily_study_time:"Focus Time Today",stats_general_title:"General:",stats_general_cycles:"Total Cycles Completed",stats_general_sessions:"Total Focus Sessions",stats_general_study_time:"Total Focus Time",stats_general_days:"Total Focus Days",storage_warning:"Your progress is saved in your browser's local storage. Clearing browser data may delete your progress.",donation_text:"If you'd like to support this app, you can do so {0}",donation_link_text:"here ☕",settings_title:"Timer Settings",settings_section_timer:"Timer Durations",settings_section_prefs:"Preferences",settings_study_time:"Focus Time (minutes):",settings_short_break:"Short Break (minutes):",settings_long_break:"Long Break (minutes):",settings_language:"Language:",settings_enable_sounds:"Enable Sounds:",settings_data_management:"Data Management",settings_data_info:"Save your progress to a file or load it on another device.",settings_export_button:"Export Data",settings_import_button:"Import Data",cancel_button:"Cancel",save_button:"Save Settings",save_goal_button:"Save Goal",confirm_button:"Confirm",ok_button:"OK",got_it_button:"Got it!",new_badge:"NEW!",unlocked_on_date:"Unlocked on: {0}",progress_label:"Progress",chart_target_label:"Target",daily_goal_title:"Today's Goal",edit_goal_button:"Edit Goal",set_goal_button:"Set Goal",set_goal_title:"Set Your Daily Goal",no_goal_set:"No goal set for today.",goal_type_label:"Goal Type:",goal_type_sessions:"Focus Sessions",goal_type_cycles:"Completed Cycles",goal_value_label:"Target Value:",goal_completed_toast_title:"Goal Achieved!",goal_completed_toast_body:"Congratulations! You've reached your daily goal!",toast_goal_saved_body:"Your new daily goals have been saved.",achievements_title:"Your Achievements",toast_error_title:"Error",toast_goal_error:"Please enter a valid target value (must be a number greater than 0).",toast_settings_saved_title:"Settings Saved",toast_settings_saved_body:"Your new timer durations have been applied.",toast_achievement_unlocked_title:"Achievement Unlocked!",toast_achievement_unlocked_body:'You unlocked the achievement: "{0}"!',toast_study_complete_title:"Focus Session Complete!",toast_study_complete_body:"Time for a break. Good job!",toast_break_over_title:"Break Over!",toast_break_over_body:"Time to get back to focus!",toast_long_break_over_title:"Long Break Over!",toast_long_break_over_body:"Cycle complete! Ready for a new one?",toast_cycle_complete_title:"Cycle Complete!",toast_cycle_complete_body:"Congratulations! You've completed a full Pomodoro cycle.",toast_new_day_title:"A New Day!",toast_new_day_body:"Your daily statistics have been reset.",toast_import_success_title:"Import Successful",toast_import_success_body:"Your progress has been restored. The page will now reload.",toast_import_error_title:"Import Failed",toast_import_error_body:"The selected file is not a valid backup file or is corrupted.",alert_reset_cycle_title:"Confirm Reset",alert_reset_cycle_body:"Are you sure you want to reset the current cycle? This will set the focus session to 1/4.",alert_help_title:"How This Pomodoro Timer Works",alert_help_body:'<p class="mb-3">The <strong>Pomodoro Technique</strong> is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p><p class="mb-1 font-semibold">The timer\'s cycle:</p><ul><li>1. Focus Session (e.g., 25 min)</li><li class="break-session" style="padding-left: 35px;">Short Break (e.g., 5 min)</li><li>2. Focus Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>3. Focus Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>4. Focus Session (completes 1 cycle)</li><li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li></ul><p class="mb-3">Focus sessions and breaks begin automatically. After the long break, however, you\'ll need to start the new cycle manually.</p><p class="mb-3">The daily streak only increases after completing the first session of the day.</p><p>Reset the cycle using the <i class=\'fas fa-sync-alt fa-xs\'></i> button.</p>',alert_import_title:"Import Progress?",alert_import_body:"This will overwrite all your current progress, achievements, and settings. This action cannot be undone. Are you sure you want to continue?",alert_goal_type_change_title:"Change Goal Type?",alert_goal_type_change_body:"Changing the goal type will reset your goal history chart for the past 7 days to provide a clean slate for the new metric. Are you sure you want to proceed?",today_label:"Today",achievements:{"days1":{name:"Focused Beginner",description:"Complete your first day of focus."},"days7":{name:"Weekly Commitment",description:"Focus for 7 days."},"days15":{name:"Fortnightly Focus",description:"Focus for 15 days."},"days30":{name:"Monthly Landmark",description:"Focus for 30 days."},"days50":{name:"Shooting Star",description:"Focus for 50 days."},"days75":{name:"Focus Marathoner",description:"Focus for 75 days."},"days100":{name:"Habit Master",description:"Focus for 100 days."},"days120":{name:"Focus Legend",description:"Focus for 120 days."},"days150":{name:"Focus Sage",description:"Focus for 150 days."},"streak3":{name:"3-Day Combo!",description:"Maintain a 3-day daily streak."},"streak7":{name:"A Week Streak",description:"Maintain a 7-day daily streak."},"streak14":{name:"Habit Power-Up",description:"Maintain a 14-day daily streak."},"streak30":{name:"Unstoppable",description:"Maintain a 30-day daily streak."},"streak50":{name:"True Dedication",description:"Maintain a 50-day daily streak."},"cycles1":{name:"First Full Cycle",description:"Complete 1 Pomodoro cycle."},"cycles10":{name:"Ten Cycles of Focus",description:"Complete 10 Pomodoro cycles."},"cycles25":{name:"Productivity Pro",description:"Complete 25 Pomodoro cycles."},"cycles50":{name:"To The Moon",description:"Complete 50 Pomodoro cycles."},"cycles100":{name:"Cycle Centurion",description:"Complete 100 Pomodoro cycles."},"hours1":{name:"First Hour of Focus",description:"Accumulate 1 hour of focus."},"hours10":{name:"Immersive Thinker",description:"Accumulate 10 hours of focus."},"hours50":{name:"Knowledge Fountain",description:"Accumulate 50 hours of focus."},"hours100":{name:"Focus Scholar",description:"Accumulate 100 hours of focus."},"sb_hours_1":{name:"Quick Breather",description:"Accumulate 1 hour in short breaks."},"sb_hours_5":{name:"Relaxation Adept",description:"Accumulate 5 hours in short breaks."},"sb_hours_15":{name:"Short Break Pro",description:"Accumulate 15 hours in short breaks."},"lb_hours_3":{name:"Well Deserved Rest",description:"Accumulate 3 hours in long breaks."},"lb_hours_10":{name:"Recharge Master",description:"Accumulate 10 hours in long breaks."},"lb_hours_25":{name:"Leisure Expert",description:"Accumulate 25 hours in long breaks."},"dailySessions5":{name:"Daily Sprinter",description:"5 focus sessions in one day."},"dailySessions10":{name:"Focus Machine",description:"10 focus sessions in one day."},"dailyCycles3":{name:"Tricycler",description:"3 full cycles in one day."},"dailyHours6":{name:"Deep Work",description:"6 focus hours in one day."}},goal_text:{focusSessions_one:"{0} Focus Session",focusSessions_other:"{0} Focus Sessions",completedCycles_one:"{0} Cycle",completedCycles_other:"{0} Cycles"}},"pt-BR":{app_title:"PomodoroCycle Timer",help_tooltip:"Ajuda / Como Usar",settings_tooltip:"Configurações",current_timer_label:"Timer Atual:",mode_study:"Foco",mode_short_break:"Pausa Curta",mode_long_break:"Pausa Longa",cycle_tooltip:"Sessões de foco no ciclo atual",reset_cycle_tooltip:"Reiniciar Ciclo",skip_break_button:"Pular Pausa",start_button:"Iniciar",pause_button:"Pausar",resume_button:"Retomar",reset_current_button:"Resetar Atual",tab_stats:"Estatísticas",tab_daily_goal:"Meta Diária",tab_achievements:"Conquistas",stats_title:"Suas Estatísticas",stats_streak:"Sequência Diária",stats_daily_title:"Hoje:",stats_daily_total_time:"Tempo Total Hoje",stats_daily_focus_sessions:"Sessões de Foco Hoje",stats_daily_cycles:"Ciclos Completos Hoje",stats_daily_study_time:"Tempo de Foco Hoje",stats_general_title:"Geral:",stats_general_cycles:"Total de Ciclos Completos",stats_general_sessions:"Total de Sessões de Foco",stats_general_study_time:"Total de Tempo de Foco",stats_general_days:"Total de Dias de Foco",storage_warning:"Seu progresso é salvo no armazenamento local do navegador. Limpar os dados pode apagar seu progresso.",donation_text:"Se quiser apoiar este app, você pode fazê-lo {0}",donation_link_text:"aqui ☕",settings_title:"Configurações do Timer",settings_section_timer:"Durações do Timer",settings_section_prefs:"Preferências",settings_study_time:"Tempo de Foco (minutos):",settings_short_break:"Pausa Curta (minutos):",settings_long_break:"Pausa Longa (minutos):",settings_language:"Idioma:",settings_enable_sounds:"Habilitar Sons:",settings_data_management:"Gestão de Dados",settings_data_info:"Salve seu progresso em um arquivo ou carregue-o em outro dispositivo.",settings_export_button:"Exportar Dados",settings_import_button:"Importar Dados",cancel_button:"Cancelar",save_button:"Salvar",save_goal_button:"Salvar Meta",confirm_button:"Confirmar",ok_button:"OK",got_it_button:"Entendi!",new_badge:"NOVO!",unlocked_on_date:"Desbloqueado em: {0}",progress_label:"Progresso",chart_target_label:"Meta",daily_goal_title:"Meta de Hoje",edit_goal_button:"Editar Meta",set_goal_button:"Definir Meta",set_goal_title:"Defina Sua Meta Diária",no_goal_set:"Nenhuma meta definida para hoje.",goal_type_label:"Tipo de Meta:",goal_type_sessions:"Sessões de Foco",goal_type_cycles:"Ciclos Completos",goal_value_label:"Valor Alvo:",goal_completed_toast_title:"Meta Alcançada!",goal_completed_toast_body:"Parabéns! Você atingiu sua meta diária!",toast_goal_saved_body:"Suas novas metas diárias foram salvas.",achievements_title:"Suas Conquistas",toast_error_title:"Erro",toast_goal_error:"Por favor, insira um valor alvo válido (deve ser um número maior que 0).",toast_settings_saved_title:"Configurações Salvas",toast_settings_saved_body:"As novas durações do timer foram aplicadas.",toast_achievement_unlocked_title:"Conquista Desbloqueada!",toast_achievement_unlocked_body:'Você desbloqueou a conquista: "{0}"!',toast_study_complete_title:"Sessão de Foco Completa!",toast_study_complete_body:"Hora de uma pausa. Bom trabalho!",toast_break_over_title:"Pausa Terminada!",toast_break_over_body:"Hora de voltar ao foco!",toast_long_break_over_title:"Pausa Longa Terminada!",toast_long_break_over_body:"Ciclo completo! Pronto para um novo?",toast_cycle_complete_title:"Ciclo Completo!",toast_cycle_complete_body:"Parabéns! Você completou um ciclo Pomodoro.",toast_new_day_title:"Um Novo Dia!",toast_new_day_body:"Suas estatísticas diárias foram reiniciadas.",toast_import_success_title:"Importação Concluída",toast_import_success_body:"Seu progresso foi restaurado. A página será recarregada.",toast_import_error_title:"Falha na Importação",toast_import_error_body:"O arquivo selecionado não é um backup válido ou está corrompido.",alert_reset_cycle_title:"Confirmar Reinício",alert_reset_cycle_body:"Tem certeza que quer reiniciar o ciclo atual? A sessão de foco voltará para 1/4.",alert_help_title:"Como o Timer Pomodoro Funciona",alert_help_body:'<p class="mb-3">A <strong>Técnica Pomodoro</strong> é um método de gerenciamento de tempo que usa um timer para dividir o trabalho em intervalos, tradicionalmente de 25 minutos, separados por pausas curtas.</p><p class="mb-1 font-semibold">O ciclo deste timer:</p><ul><li>1. Sessão de Foco (ex: 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Curta (ex: 5 min)</li><li>2. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>3. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>4. Sessão de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Longa (ex: 15 min)</li></ul><p class="mb-3">As sessões de foco e pausas começam automaticamente. Após a pausa longa, no entanto, você precisará iniciar o novo ciclo manualmente.</p><p class="mb-3">A sequência diária só aumenta após completar a primeira sessão de foco do dia.</p><p>Reinicie o ciclo usando o botão <i class=\'fas fa-sync-alt fa-xs\'></i>.</p>',alert_import_title:"Importar Progresso?",alert_import_body:"Isso irá sobrescrever todo o seu progresso, conquistas e configurações atuais. Esta ação não pode ser desfeita. Você tem certeza que deseja continuar?",alert_goal_type_change_title:"Mudar tipo de meta?",alert_goal_type_change_body:"Mudar o tipo da meta irá reiniciar o histórico do seu gráfico dos últimos 7 dias para uma melhor visualização da nova métrica. Tem certeza que deseja prosseguir?",today_label:"Hoje",achievements:{"days1":{name:"Iniciante Focado",description:"Complete seu primeiro dia de foco."},"days7":{name:"Compromisso Semanal",description:"Foque por 7 dias."},"days15":{name:"Foco Quinzenal",description:"Foque por 15 dias."},"days30":{name:"Marco Mensal",description:"Foque por 30 dias."},"days50":{name:"Estrela Cadente",description:"Foque por 50 dias."},"days75":{name:"Maratonista do Foco",description:"Foque por 75 dias."},"days100":{name:"Mestre do Hábito",description:"Foque por 100 dias."},"days120":{name:"Lenda do Foco",description:"Foque por 120 dias."},"days150":{name:"Sábio do Foco",description:"Foque por 150 dias."},"streak3":{name:"Combo de 3 Dias!",description:"Mantenha uma sequência de 3 dias."},"streak7":{name:"Sequência Semanal",description:"Mantenha uma sequência de 7 dias."},"streak14":{name:"Hábito Turbinado",description:"Mantenha uma sequência de 14 dias."},"streak30":{name:"Imparável",description:"Mantenha uma sequência de 30 dias."},"streak50":{name:"Dedicação Pura",description:"Mantenha uma sequência de 50 dias."},"cycles1":{name:"Primeiro Ciclo",description:"Complete 1 ciclo Pomodoro."},"cycles10":{name:"Dez Ciclos de Foco",description:"Complete 10 ciclos Pomodoro."},"cycles25":{name:"Pro da Produtividade",description:"Complete 25 ciclos Pomodoro."},"cycles50":{name:"Para a Lua",description:"Complete 50 ciclos Pomodoro."},"cycles100":{name:"Centurião de Ciclos",description:"Complete 100 ciclos Pomodoro."},"hours1":{name:"Primeira Hora de Foco",description:"Acumule 1 hora de foco."},"hours10":{name:"Pensador Imersivo",description:"Acumule 10 horas de foco."},"hours50":{name:"Fonte de Sabedoria",description:"Acumule 50 horas de foco."},"hours100":{name:"Erudito do Foco",description:"Acumule 100 horas de foco."},"sb_hours_1":{name:"Respiro Rápido",description:"Acumule 1 hora em pausas curtas."},"sb_hours_5":{name:"Mestre do Relax",description:"Acumule 5 horas em pausas curtas."},"sb_hours_15":{name:"Campeão da Pausa",description:"Acumule 15 horas em pausas curtas."},"lb_hours_3":{name:"Descanso Merecido",description:"Acumule 3 horas em pausas longas."},"lb_hours_10":{name:"Mestre da Recarga",description:"Acumule 10 horas em pausas longas."},"lb_hours_25":{name:"Expert do Lazer",description:"Acumule 25 horas em pausas longas."},"dailySessions5":{name:"Velocista Diário",description:"5 sessões de foco em um dia."},"dailySessions10":{name:"Máquina de Foco",description:"10 sessões de foco em um dia."},"dailyCycles3":{name:"Triciclista",description:"3 ciclos completos em um dia."},"dailyHours6":{name:"Trabalho Intenso",description:"6 horas de foco em um dia."}},goal_text:{focusSessions_one:"{0} Sessão de Foco",focusSessions_other:"{0} Sessões de Foco",completedCycles_one:"{0} Ciclo",completedCycles_other:"{0} Ciclos"}}};
+        const baseAchievements=[{id:"days1",type:"totalDaysStudied",threshold:1,icon:"fas fa-seedling"},{id:"days7",type:"totalDaysStudied",threshold:7,icon:"fas fa-calendar-check"},{id:"days15",type:"totalDaysStudied",threshold:15,icon:"fas fa-medal"},{id:"days30",type:"totalDaysStudied",threshold:30,icon:"fas fa-award"},{id:"days50",type:"totalDaysStudied",threshold:50,icon:"fas fa-star"},{id:"days75",type:"totalDaysStudied",threshold:75,icon:"fas fa-running"},{id:"days100",type:"totalDaysStudied",threshold:100,icon:"fas fa-crown"},{id:"days120",type:"totalDaysStudied",threshold:120,icon:"fas fa-book-reader"},{id:"days150",type:"totalDaysStudied",threshold:150,icon:"fas fa-graduation-cap"},{id:"streak3",type:"streak",threshold:3,icon:"fas fa-fire"},{id:"streak7",type:"streak",threshold:7,icon:"fas fa-bolt"},{id:"streak14",type:"streak",threshold:14,icon:"fas fa-dumbbell"},{id:"streak30",type:"streak",threshold:30,icon:"fas fa-calendar-alt"},{id:"streak50",type:"streak",threshold:50,icon:"fas fa-shield-alt"},{id:"cycles1",type:"totalCyclesCompleted",threshold:1,icon:"fas fa-flag-checkered"},{id:"cycles10",type:"totalCyclesCompleted",threshold:10,icon:"fas fa-history"},{id:"cycles25",type:"totalCyclesCompleted",threshold:25,icon:"fas fa-cogs"},{id:"cycles50",type:"totalCyclesCompleted",threshold:50,icon:"fas fa-rocket"},{id:"cycles100",type:"totalCyclesCompleted",threshold:100,icon:"fas fa-gem"},{id:"hours1",type:"totalPureStudyHours",threshold:1,icon:"fas fa-hourglass-start"},{id:"hours10",type:"totalPureStudyHours",threshold:10,icon:"fas fa-brain"},{id:"hours50",type:"totalPureStudyHours",threshold:50,icon:"fas fa-microscope"},{id:"hours100",type:"totalPureStudyHours",threshold:100,icon:"fas fa-university"},{id:"sb_hours_1",type:"totalShortBreakSeconds",threshold:3600,icon:"fas fa-coffee"},{id:"sb_hours_5",type:"totalShortBreakSeconds",threshold:18e3,icon:"fas fa-mug-hot"},{id:"sb_hours_15",type:"totalShortBreakSeconds",threshold:54e3,icon:"fas fa-couch"},{id:"lb_hours_3",type:"totalLongBreakSeconds",threshold:10800,icon:"fas fa-bed"},{id:"lb_hours_10",type:"totalLongBreakSeconds",threshold:36e3,icon:"fas fa-battery-full"},{id:"lb_hours_25",type:"totalLongBreakSeconds",threshold:9e4,icon:"fas fa-umbrella-beach"},{id:"dailySessions5",type:"dailyFocusSessions",threshold:5,icon:"fas fa-bolt"},{id:"dailySessions10",type:"dailyFocusSessions",threshold:10,icon:"fas fa-rocket"},{id:"dailyCycles3",type:"dailyCyclesCompleted",threshold:3,icon:"fas fa-cogs"},{id:"dailyHours6",type:"dailyPureStudyHours",threshold:6,icon:"fas fa-brain"}];
+        const translations={en:{app_title:"PomodoroCycle Timer",goal_mode_all:"All Days",goal_mode_week_weekend:"Week/Weekend",goal_mode_custom:"Custom Days",help_tooltip:"Help / How to Use",settings_tooltip:"Settings",current_timer_label:"Current Timer:",mode_study:"Focus",mode_short_break:"Short Break",mode_long_break:"Long Break",cycle_tooltip:"Focus Sessions in Current Cycle",reset_cycle_tooltip:"Reset Cycle",skip_break_button:"Skip Break",start_button:"Start",pause_button:"Pause",resume_button:"Resume",reset_current_button:"Reset Current",tab_stats:"Statistics",tab_daily_goal:"Daily Goal",tab_achievements:"Achievements",stats_title:"Your Statistics",stats_streak:"Daily Streak",stats_daily_title:"Daily:",stats_daily_total_time:"Total Time Today",stats_daily_focus_sessions:"Focus Sessions Today",stats_daily_cycles:"Cycles Completed Today",stats_daily_study_time:"Focus Time Today",stats_general_title:"General:",stats_general_cycles:"Total Cycles Completed",stats_general_sessions:"Total Focus Sessions",stats_general_study_time:"Total Focus Time",stats_general_days:"Total Focus Days",storage_warning:"Your progress is saved in your browser's local storage. Clearing browser data may delete your progress.",donation_text:"If you'd like to support this app, you can do so {0}",donation_link_text:"here ☕",settings_title:"Timer Settings",settings_section_timer:"Timer Durations",settings_section_prefs:"Preferences",settings_study_time:"Focus Time (minutes):",settings_short_break:"Short Break (minutes):",settings_long_break:"Long Break (minutes):",settings_language:"Language:",settings_enable_sounds:"Enable Sounds:",settings_data_management:"Data Management",settings_data_info:"Save your progress to a file or load it on another device.",settings_export_button:"Export Data",settings_import_button:"Import Data",cancel_button:"Cancel",save_button:"Save Settings",save_goal_button:"Save Goal",confirm_button:"Confirm",ok_button:"OK",got_it_button:"Got it!",new_badge:"NEW!",unlocked_on_date:"Unlocked on: {0}",progress_label:"Progress",chart_target_label:"Target",daily_goal_title:"Today's Goal",edit_goal_button:"Edit Goal",set_goal_button:"Set Goal",set_goal_title:"Set Your Daily Goal",no_goal_set:"No goal set for today.",goal_type_label:"Goal Type:",goal_type_sessions:"Focus Sessions",goal_type_cycles:"Completed Cycles",goal_value_label:"Target Value:",goal_completed_toast_title:"Goal Achieved!",goal_completed_toast_body:"Congratulations! You've reached your daily goal!",toast_goal_saved_body:"Your new daily goals have been saved.",achievements_title:"Your Achievements",toast_error_title:"Error",toast_goal_error:"Please enter a valid target value (must be a number greater than 0).",toast_settings_saved_title:"Settings Saved",toast_settings_saved_body:"Your new timer durations have been applied.",toast_achievement_unlocked_title:"Achievement Unlocked!",toast_achievement_unlocked_body:'You unlocked the achievement: "{0}"!',toast_study_complete_title:"Focus Session Complete!",toast_study_complete_body:"Time for a break. Good job!",toast_break_over_title:"Break Over!",toast_break_over_body:"Time to get back to focus!",toast_long_break_over_title:"Long Break Over!",toast_long_break_over_body:"Cycle complete! Ready for a new one?",toast_cycle_complete_title:"Cycle Complete!",toast_cycle_complete_body:"Congratulations! You've completed a full Pomodoro cycle.",toast_new_day_title:"A New Day!",toast_new_day_body:"Your daily statistics have been reset.",toast_import_success_title:"Import Successful",toast_import_success_body:"Your progress has been restored. The page will now reload.",toast_import_error_title:"Import Failed",toast_import_error_body:"The selected file is not a valid backup file or is corrupted.",alert_reset_cycle_title:"Confirm Reset",alert_reset_cycle_body:"Are you sure you want to reset the current cycle? This will set the focus session to 1/4.",alert_help_title:"How This Pomodoro Timer Works",alert_help_body:'<p class="mb-3">The <strong>Pomodoro Technique</strong> is a time management method that uses a timer to break down work into intervals, traditionally 25 minutes in length, separated by short breaks.</p><p class="mb-1 font-semibold">The timer\'s cycle:</p><ul><li>1. Focus Session (e.g., 25 min)</li><li class="break-session" style="padding-left: 35px;">Short Break (e.g., 5 min)</li><li>2. Focus Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>3. Focus Session</li><li class="break-session" style="padding-left: 35px;">Short Break</li><li>4. Focus Session (completes 1 cycle)</li><li class="break-session" style="padding-left: 35px;">Long Break (e.g., 15 min)</li></ul><p class="mb-3">Focus sessions and breaks begin automatically. After the long break, however, you\'ll need to start the new cycle manually.</p><p class="mb-3">The daily streak only increases after completing the first session of the day.</p><p>Reset the cycle using the <i class=\'fas fa-sync-alt fa-xs\'></i> button.</p>',alert_import_title:"Import Progress?",alert_import_body:"This will overwrite all your current progress, achievements, and settings. This action cannot be undone. Are you sure you want to continue?",alert_goal_type_change_title:"Change Goal Type?",alert_goal_type_change_body:"Changing the goal type will reset your goal history chart for the past 7 days to provide a clean slate for the new metric. Are you sure you want to proceed?",today_label:"Today",achievements:{"days1":{name:"Focused Beginner",description:"Complete your first day of focus."},"days7":{name:"Weekly Commitment",description:"Focus for 7 days."},"days15":{name:"Fortnightly Focus",description:"Focus for 15 days."},"days30":{name:"Monthly Landmark",description:"Focus for 30 days."},"days50":{name:"Shooting Star",description:"Focus for 50 days."},"days75":{name:"Focus Marathoner",description:"Focus for 75 days."},"days100":{name:"Habit Master",description:"Focus for 100 days."},"days120":{name:"Focus Legend",description:"Focus for 120 days."},"days150":{name:"Focus Sage",description:"Focus for 150 days."},"streak3":{name:"3-Day Combo!",description:"Maintain a 3-day daily streak."},"streak7":{name:"A Week Streak",description:"Maintain a 7-day daily streak."},"streak14":{name:"Habit Power-Up",description:"Maintain a 14-day daily streak."},"streak30":{name:"Unstoppable",description:"Maintain a 30-day daily streak."},"streak50":{name:"True Dedication",description:"Maintain a 50-day daily streak."},"cycles1":{name:"First Full Cycle",description:"Complete 1 Pomodoro cycle."},"cycles10":{name:"Ten Cycles of Focus",description:"Complete 10 Pomodoro cycles."},"cycles25":{name:"Productivity Pro",description:"Complete 25 Pomodoro cycles."},"cycles50":{name:"To The Moon",description:"Complete 50 Pomodoro cycles."},"cycles100":{name:"Cycle Centurion",description:"Complete 100 Pomodoro cycles."},"hours1":{name:"First Hour of Focus",description:"Accumulate 1 hour of focus."},"hours10":{name:"Immersive Thinker",description:"Accumulate 10 hours of focus."},"hours50":{name:"Knowledge Fountain",description:"Accumulate 50 hours of focus."},"hours100":{name:"Focus Scholar",description:"Accumulate 100 hours of focus."},"sb_hours_1":{name:"Quick Breather",description:"Accumulate 1 hour in short breaks."},"sb_hours_5":{name:"Relaxation Adept",description:"Accumulate 5 hours in short breaks."},"sb_hours_15":{name:"Short Break Pro",description:"Accumulate 15 hours in short breaks."},"lb_hours_3":{name:"Well Deserved Rest",description:"Accumulate 3 hours in long breaks."},"lb_hours_10":{name:"Recharge Master",description:"Accumulate 10 hours in long breaks."},"lb_hours_25":{name:"Leisure Expert",description:"Accumulate 25 hours in long breaks."},"dailySessions5":{name:"Daily Sprinter",description:"5 focus sessions in one day."},"dailySessions10":{name:"Focus Machine",description:"10 focus sessions in one day."},"dailyCycles3":{name:"Tricycler",description:"3 full cycles in one day."},"dailyHours6":{name:"Deep Work",description:"6 focus hours in one day."}},goal_text:{focusSessions_one:"{0} Focus Session",focusSessions_other:"{0} Focus Sessions",completedCycles_one:"{0} Cycle",completedCycles_other:"{0} Cycles"}},"pt-BR":{app_title:"PomodoroCycle Timer",goal_mode_all:"Todos os Dias",goal_mode_week_weekend:"Semana/Fim de Semana",goal_mode_custom:"Dias Customizados",help_tooltip:"Ajuda / Como Usar",settings_tooltip:"Configurações",current_timer_label:"Timer Atual:",mode_study:"Foco",mode_short_break:"Pausa Curta",mode_long_break:"Pausa Longa",cycle_tooltip:"Sessões de foco no ciclo atual",reset_cycle_tooltip:"Reiniciar Ciclo",skip_break_button:"Pular Pausa",start_button:"Iniciar",pause_button:"Pausar",resume_button:"Retomar",reset_current_button:"Resetar Atual",tab_stats:"Estatísticas",tab_daily_goal:"Meta Diária",tab_achievements:"Conquistas",stats_title:"Suas Estatísticas",stats_streak:"Sequência Diária",stats_daily_title:"Hoje:",stats_daily_total_time:"Tempo Total Hoje",stats_daily_focus_sessions:"Sessões de Foco Hoje",stats_daily_cycles:"Ciclos Completos Hoje",stats_daily_study_time:"Tempo de Foco Hoje",stats_general_title:"Geral:",stats_general_cycles:"Total de Ciclos Completos",stats_general_sessions:"Total de Sessões de Foco",stats_general_study_time:"Total de Tempo de Foco",stats_general_days:"Total de Dias de Foco",storage_warning:"Seu progresso é salvo no armazenamento local do navegador. Limpar os dados pode apagar seu progresso.",donation_text:"Se quiser apoiar este app, você pode fazê-lo {0}",donation_link_text:"aqui ☕",settings_title:"Configurações do Timer",settings_section_timer:"Durações do Timer",settings_section_prefs:"Preferências",settings_study_time:"Tempo de Foco (minutos):",settings_short_break:"Pausa Curta (minutos):",settings_long_break:"Pausa Longa (minutos):",settings_language:"Idioma:",settings_enable_sounds:"Habilitar Sons:",settings_data_management:"Gestão de Dados",settings_data_info:"Salve seu progresso em um arquivo ou carregue-o em outro dispositivo.",settings_export_button:"Exportar Dados",settings_import_button:"Importar Dados",cancel_button:"Cancelar",save_button:"Salvar",save_goal_button:"Salvar Meta",confirm_button:"Confirmar",ok_button:"OK",got_it_button:"Entendi!",new_badge:"NOVO!",unlocked_on_date:"Desbloqueado em: {0}",progress_label:"Progresso",chart_target_label:"Meta",daily_goal_title:"Meta de Hoje",edit_goal_button:"Editar Meta",set_goal_button:"Definir Meta",set_goal_title:"Defina Sua Meta Diária",no_goal_set:"Nenhuma meta definida para hoje.",goal_type_label:"Tipo de Meta:",goal_type_sessions:"Sessões de Foco",goal_type_cycles:"Ciclos Completos",goal_value_label:"Valor Alvo:",goal_completed_toast_title:"Meta Alcançada!",goal_completed_toast_body:"Parabéns! Você atingiu sua meta diária!",toast_goal_saved_body:"Suas novas metas diárias foram salvas.",achievements_title:"Suas Conquistas",toast_error_title:"Erro",toast_goal_error:"Por favor, insira um valor alvo válido (deve ser um número maior que 0).",toast_settings_saved_title:"Configurações Salvas",toast_settings_saved_body:"As novas durações do timer foram aplicadas.",toast_achievement_unlocked_title:"Conquista Desbloqueada!",toast_achievement_unlocked_body:'Você desbloqueou a conquista: "{0}"!',toast_study_complete_title:"Sessão de Foco Completa!",toast_study_complete_body:"Hora de uma pausa. Bom trabalho!",toast_break_over_title:"Pausa Terminada!",toast_break_over_body:"Hora de voltar ao foco!",toast_long_break_over_title:"Pausa Longa Terminada!",toast_long_break_over_body:"Ciclo completo! Pronto para um novo?",toast_cycle_complete_title:"Ciclo Completo!",toast_cycle_complete_body:"Parabéns! Você completou um ciclo Pomodoro.",toast_new_day_title:"Um Novo Dia!",toast_new_day_body:"Suas estatísticas diárias foram reiniciadas.",toast_import_success_title:"Importação Concluída",toast_import_success_body:"Seu progresso foi restaurado. A página será recarregada.",toast_import_error_title:"Falha na Importação",toast_import_error_body:"O arquivo selecionado não é um backup válido ou está corrompido.",alert_reset_cycle_title:"Confirmar Reinício",alert_reset_cycle_body:"Tem certeza que quer reiniciar o ciclo atual? A sessão de foco voltará para 1/4.",alert_help_title:"Como o Timer Pomodoro Funciona",alert_help_body:'<p class="mb-3">A <strong>Técnica Pomodoro</strong> é um método de gerenciamento de tempo que usa um timer para dividir o trabalho em intervalos, tradicionalmente de 25 minutos, separados por pausas curtas.</p><p class="mb-1 font-semibold">O ciclo deste timer:</p><ul><li>1. Sessão de Foco (ex: 25 min)</li><li class="break-session" style="padding-left: 35px;">Pausa Curta (ex: 5 min)</li><li>2. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>3. Sessão de Foco</li><li class="break-session" style="padding-left: 35px;">Pausa Curta</li><li>4. Sessão de Foco (completa 1 ciclo)</li><li class="break-session" style="padding-left: 35px;">Pausa Longa (ex: 15 min)</li></ul><p class="mb-3">As sessões de foco e pausas começam automaticamente. Após a pausa longa, no entanto, você precisará iniciar o novo ciclo manualmente.</p><p class="mb-3">A sequência diária só aumenta após completar a primeira sessão de foco do dia.</p><p>Reinicie o ciclo usando o botão <i class=\'fas fa-sync-alt fa-xs\'></i>.</p>',alert_import_title:"Importar Progresso?",alert_import_body:"Isso irá sobrescrever todo o seu progresso, conquistas e configurações atuais. Esta ação não pode ser desfeita. Você tem certeza que deseja continuar?",alert_goal_type_change_title:"Mudar tipo de meta?",alert_goal_type_change_body:"Mudar o tipo da meta irá reiniciar o histórico do seu gráfico dos últimos 7 dias para uma melhor visualização da nova métrica. Tem certeza que deseja prosseguir?",today_label:"Hoje",achievements:{"days1":{name:"Iniciante Focado",description:"Complete seu primeiro dia de foco."},"days7":{name:"Compromisso Semanal",description:"Foque por 7 dias."},"days15":{name:"Foco Quinzenal",description:"Foque por 15 dias."},"days30":{name:"Marco Mensal",description:"Foque por 30 dias."},"days50":{name:"Estrela Cadente",description:"Foque por 50 dias."},"days75":{name:"Maratonista do Foco",description:"Foque por 75 dias."},"days100":{name:"Mestre do Hábito",description:"Foque por 100 dias."},"days120":{name:"Lenda do Foco",description:"Foque por 120 dias."},"days150":{name:"Sábio do Foco",description:"Foque por 150 dias."},"streak3":{name:"Combo de 3 Dias!",description:"Mantenha uma sequência de 3 dias."},"streak7":{name:"Sequência Semanal",description:"Mantenha uma sequência de 7 dias."},"streak14":{name:"Hábito Turbinado",description:"Mantenha uma sequência de 14 dias."},"streak30":{name:"Imparável",description:"Mantenha uma sequência de 30 dias."},"streak50":{name:"Dedicação Pura",description:"Mantenha uma sequência de 50 dias."},"cycles1":{name:"Primeiro Ciclo",description:"Complete 1 ciclo Pomodoro."},"cycles10":{name:"Dez Ciclos de Foco",description:"Complete 10 ciclos Pomodoro."},"cycles25":{name:"Pro da Produtividade",description:"Complete 25 ciclos Pomodoro."},"cycles50":{name:"Para a Lua",description:"Complete 50 ciclos Pomodoro."},"cycles100":{name:"Centurião de Ciclos",description:"Complete 100 ciclos Pomodoro."},"hours1":{name:"Primeira Hora de Foco",description:"Acumule 1 hora de foco."},"hours10":{name:"Pensador Imersivo",description:"Acumule 10 horas de foco."},"hours50":{name:"Fonte de Sabedoria",description:"Acumule 50 horas de foco."},"hours100":{name:"Erudito do Foco",description:"Acumule 100 horas de foco."},"sb_hours_1":{name:"Respiro Rápido",description:"Acumule 1 hora em pausas curtas."},"sb_hours_5":{name:"Mestre do Relax",description:"Acumule 5 horas em pausas curtas."},"sb_hours_15":{name:"Campeão da Pausa",description:"Acumule 15 horas em pausas curtas."},"lb_hours_3":{name:"Descanso Merecido",description:"Acumule 3 horas em pausas longas."},"lb_hours_10":{name:"Mestre da Recarga",description:"Acumule 10 horas em pausas longas."},"lb_hours_25":{name:"Expert do Lazer",description:"Acumule 25 horas em pausas longas."},"dailySessions5":{name:"Velocista Diário",description:"5 sessões de foco em um dia."},"dailySessions10":{name:"Máquina de Foco",description:"10 sessões de foco em um dia."},"dailyCycles3":{name:"Triciclista",description:"3 ciclos completos em um dia."},"dailyHours6":{name:"Trabalho Intenso",description:"6 horas de foco em um dia."}},goal_text:{focusSessions_one:"{0} Sessão de Foco",focusSessions_other:"{0} Sessões de Foco",completedCycles_one:"{0} Ciclo",completedCycles_other:"{0} Ciclos"}}};
+        const timerTextEl = document.getElementById('timerText');
+        const modePillEl = document.getElementById('modePill');
+        const cycleDotsContainerEl = document.getElementById('cycleDotsContainer');
+        const resetButton = document.getElementById('resetButton');
+        const resetCycleCountButtonEl = document.getElementById('resetCycleCountButton');
+        const startPauseButton = document.getElementById('startPauseButton');
+        const skipBreakButton = document.getElementById('skipBreakButton');
+        const settingsButton = document.getElementById('settingsButton');
+        const helpButton = document.getElementById('helpButton');
+        const settingsModal = document.getElementById('settingsModal');
+        const saveSettingsButton = document.getElementById('saveSettingsButton');
+        const cancelSettingsButton = document.getElementById('cancelSettingsButton');
+        const studyTimeInput = document.getElementById('studyTimeInput');
+        const shortBreakTimeInput = document.getElementById('shortBreakTimeInput');
+        const longBreakTimeInput = document.getElementById('longBreakTimeInput');
+        const languageSelect = document.getElementById('languageSelect');
+        const soundToggle = document.getElementById('soundToggle');
+        const exportDataButton = document.getElementById('exportDataButton');
+        const importDataButton = document.getElementById('importDataButton');
+        const importFileInput = document.getElementById('importFileInput');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanes = document.querySelectorAll('.tab-pane');
+        const tabContentEl = document.getElementById('tabContent');
+        const collapseTabsButton = document.getElementById('collapseTabsButton');
+        const collapseIcon = document.getElementById('collapseIcon');
+        const dailyFocusSessionsEl = document.getElementById('dailyFocusSessions');
+        const dailyCyclesEl = document.getElementById('dailyCycles');
+        const dailyStudyTimeEl = document.getElementById('dailyStudyTime');
+        const dailyTotalTimeEl = document.getElementById('dailyTotalTime');
+        const totalFocusSessionsEl = document.getElementById('totalFocusSessions');
+        const totalDaysStudiedEl = document.getElementById('totalDaysStudied');
+        const totalCyclesEl = document.getElementById('totalCycles');
+        const totalStudyTimeEl = document.getElementById('totalStudyTime');
+        const streakCounterHeaderEl = document.getElementById('streakCounterHeader');
+        const streakFireIconContainerEl = document.getElementById('streakFireIconContainer');
+        const achievementsListEl = document.getElementById('achievementsList');
+        const customAlertModal = document.getElementById('customAlertModal');
+        const customAlertContentEl = document.getElementById('customAlertContent');
+        const customAlertIconEl = document.getElementById('customAlertIcon');
+        const customAlertTitleEl = document.getElementById('customAlertTitle');
+        const customAlertMessageEl = document.getElementById('customAlertMessage');
+        const customAlertConfirmButton = document.getElementById('customAlertConfirmButton');
+        const customAlertCancelButton = document.getElementById('customAlertCancelButton');
+        const customAlertButtonsContainer = document.getElementById('customAlertButtons');
+        const faviconEl = document.getElementById('favicon');
+        const toastNotificationEl = document.getElementById('toastNotification');
+        const toastTitleEl = document.getElementById('toastTitle');
+        const toastBodyEl = document.getElementById('toastBody');
+        const rewardsTabBadgeEl = document.getElementById('rewardsTabBadge');
+        const achievementsTabBadgeEl = document.getElementById('achievementsTabBadge');
+        const languageModal = document.getElementById('languageModal');
+        const languageButtonsContainer = document.getElementById('languageButtonsContainer');
+        const appContainer = document.getElementById('app-container');
+        const goalDisplayView = document.getElementById('goalDisplayView');
+        const goalEditView = document.getElementById('goalEditView');
+        const editGoalButton = document.getElementById('editGoalButton');
+        const saveGoalButton = document.getElementById('saveGoalButton');
+        const cancelGoalButton = document.getElementById('cancelGoalButton');
+        const goalProgressContainer = document.getElementById('goalProgressContainer');
+        const goalTextEl = document.getElementById('goalText');
+        const goalProgressTextEl = document.getElementById('goalProgressText');
+        const goalProgressBarEl = document.getElementById('goalProgressBar');
+        const goalHistoryChartCanvas = document.getElementById('goalHistoryChart');
 
-        const timerTextEl=document.getElementById("timerText"),modePillEl=document.getElementById("modePill"),cycleDotsContainerEl=document.getElementById("cycleDotsContainer"),resetButton=document.getElementById("resetButton"),resetCycleCountButtonEl=document.getElementById("resetCycleCountButton"),startPauseButton=document.getElementById("startPauseButton"),skipBreakButton=document.getElementById("skipBreakButton"),settingsButton=document.getElementById("settingsButton"),helpButton=document.getElementById("helpButton"),settingsModal=document.getElementById("settingsModal"),saveSettingsButton=document.getElementById("saveSettingsButton"),cancelSettingsButton=document.getElementById("cancelSettingsButton"),studyTimeInput=document.getElementById("studyTimeInput"),shortBreakTimeInput=document.getElementById("shortBreakTimeInput"),longBreakTimeInput=document.getElementById("longBreakTimeInput"),languageSelect=document.getElementById("languageSelect"),soundToggle=document.getElementById("soundToggle"),exportDataButton=document.getElementById("exportDataButton"),importDataButton=document.getElementById("importDataButton"),importFileInput=document.getElementById("importFileInput"),tabButtons=document.querySelectorAll(".tab-button"),tabPanes=document.querySelectorAll(".tab-pane"),tabContentEl=document.getElementById("tabContent"),collapseTabsButton=document.getElementById("collapseTabsButton"),collapseIcon=document.getElementById("collapseIcon"),dailyFocusSessionsEl=document.getElementById("dailyFocusSessions"),dailyCyclesEl=document.getElementById("dailyCycles"),dailyStudyTimeEl=document.getElementById("dailyStudyTime"),dailyTotalTimeEl=document.getElementById("dailyTotalTime"),totalFocusSessionsEl=document.getElementById("totalFocusSessions"),totalDaysStudiedEl=document.getElementById("totalDaysStudied"),totalCyclesEl=document.getElementById("totalCycles"),totalStudyTimeEl=document.getElementById("totalStudyTime"),streakCounterHeaderEl=document.getElementById("streakCounterHeader"),streakFireIconContainerEl=document.getElementById("streakFireIconContainer"),achievementsListEl=document.getElementById("achievementsList"),customAlertModal=document.getElementById("customAlertModal"),customAlertContentEl=document.getElementById("customAlertContent"),customAlertIconEl=document.getElementById("customAlertIcon"),customAlertTitleEl=document.getElementById("customAlertTitle"),customAlertMessageEl=document.getElementById("customAlertMessage"),customAlertConfirmButton=document.getElementById("customAlertConfirmButton"),customAlertCancelButton=document.getElementById("customAlertCancelButton"),customAlertButtonsContainer=document.getElementById("customAlertButtons"),faviconEl=document.getElementById("favicon"),toastNotificationEl=document.getElementById("toastNotification"),toastTitleEl=document.getElementById("toastTitle"),toastBodyEl=document.getElementById("toastBody"),rewardsTabBadgeEl=document.getElementById("rewardsTabBadge"),achievementsTabBadgeEl=document.getElementById("achievementsTabBadge"),languageModal=document.getElementById("languageModal"),languageButtonsContainer=document.getElementById("languageButtonsContainer"),appContainer=document.getElementById("app-container"),goalDisplayView=document.getElementById("goalDisplayView"),goalEditView=document.getElementById("goalEditView"),editGoalButton=document.getElementById("editGoalButton"),saveGoalButton=document.getElementById("saveGoalButton"),cancelGoalButton=document.getElementById("cancelGoalButton"),goalProgressContainer=document.getElementById("goalProgressContainer"),goalTextEl=document.getElementById("goalText"),goalProgressTextEl=document.getElementById("goalProgressText"),goalProgressBarEl=document.getElementById("goalProgressBar"),goalHistoryChartCanvas=document.getElementById("goalHistoryChart");
-        let goalHistoryChart,lastSoundScheduledTime=0,justSeenAchievementIds=[],blockUnloadSave=!1,currentTimerInitialDuration=0,activeTabId="stats";const POMODOROS_PER_CYCLE=4,MIN_SOUND_INTERVAL=.05,SOUND_BASE_DELAY=.05;
-        function getTodayDateString(){const e=new Date;return`${e.getFullYear()}-${String(e.getMonth()+1).padStart(2,"0")}-${String(e.getDate()).padStart(2,"0")}`}
-        function getDefaultAppData(){return{settings:{studyTime:25,shortBreakTime:5,longBreakTime:15,soundEnabled:!0,language:"en"},timerState:{currentMode:"study",timeLeft:1500,isRunning:!1,pomodorosInCycle:0,lastTimerUsed:null},stats:{daily:{date:getTodayDateString(),focusSessions:0,cyclesCompleted:0,pureStudySeconds:0,totalTimeSeconds:0,firstStudySessionCompletedToday:!1},general:{totalDaysStudied:0,totalCyclesCompleted:0,totalFocusSessions:0,totalPureStudySeconds:0,streak:0,lastStudyDate:null,totalShortBreakSeconds:0,totalLongBreakSeconds:0},goalHistory:[]},dailyGoal:{settings:{mode:"all_days",targetAll:4,targetWeekday:4,targetWeekend:2,targetsCustom:[2,4,4,4,4,4,2]},target:0,progress:0,completed:!1,notificationShown:!1},achievements:[],uiState:{newAchievementsCount:0,tabsCollapsed:!1},appVersion:"3.5.4"}}
-        let appData=getDefaultAppData(),synth;
-        "undefined"!=typeof Tone?synth=new Tone.Synth().toDestination():console.warn("Tone.js not loaded. Sound effects will be disabled.");
-        function playSound(e="C4",t="8n",a="timerComplete"){if(!appData.settings.soundEnabled||!synth)return;"running"!==Tone.context.state&&Tone.context.resume().catch(e=>console.error("Error resuming AudioContext:",e)),"started"!==Tone.Transport.state&&Tone.Transport.start();try{let o=e,s=t,n=0;"achievement"===a?(o="C5",s="4n",n=-6):"goal"===a&&(o="E5",s="4n",n=-6);const l=Tone.now(),c=Math.max(l+SOUND_BASE_DELAY,lastSoundScheduledTime+MIN_SOUND_INTERVAL);lastSoundScheduledTime=c,synth.volume.setValueAtTime(n,c),synth.triggerAttackRelease(o,s,c)}catch(e){console.error(`Error playing sound (type: ${a}):`,e)}}
-        function formatTime(e){const t=Math.floor(e/60),a=e%60;return`${String(t).padStart(2,"0")}:${String(a).padStart(2,"0")}`}
-        function formatHoursMinutes(e){const t=Math.floor(e/3600);return`${t}h ${Math.floor(e%3600/60)}m`}
-        function getText(e,...t){const a=appData.settings.language||"en";let o=translations[a]?.[e]||translations.en[e];return o?(t.length>0&&t.forEach((t,a)=>{o=o.replace(`{${a}}`,t)}),o):e}
-        function getPluralText(e,t){const a=appData.settings.language||"en",o=new Intl.PluralRules(a).select(t),s=`${e}_${o}`;let n=translations[a]?.goal_text?.[s]||translations.en?.goal_text?.[s];return n||(n=translations[a]?.goal_text?.[`${e}_other`]||translations.en?.goal_text?.[`${e}_other`]),n?n.replace("{0}",t):`${t} ${e}`}
-        function applyTranslations(){const e=appData.settings.language||"en";document.documentElement.lang=e,document.title=getText("app_title"),document.querySelectorAll("[data-translate-key]").forEach(e=>{const t=e.dataset.translateKey,a=getText(t);"INPUT"===e.tagName||"TEXTAREA"===e.tagName?e.placeholder&&(e.placeholder=a):e.title?e.title=a:(()=>{const o=e.querySelector("span")||e;o&&o.innerHTML!==a&&(o.innerHTML=a)})()});const t=document.querySelector('[data-translate-key="donation_text"]');t&&(t.innerHTML=getText("donation_text",`<a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank" class="donation-section-link">${getText("donation_link_text")}</a>`))}
-        const STORAGE_KEY="pomodoroGamifiedAppData_v3";
-        function buildAchievements(e,t=[]){const a=translations[e]?.achievements||translations.en.achievements;return baseAchievements.map(e=>{const o=t.find(t=>t.id===e.id)||{},s=a[e.id];return{...e,name:s.name,description:s.description,unlocked:o.unlocked||!1,unlockedDate:o.unlockedDate||null,seen:o.seen||o.unlocked||!1}})}
-        function isObject(e){return e&&"object"==typeof e&&!Array.isArray(e)}
-        function mergeDeep(e,...t){if(!t.length)return e;const a=t.shift();return isObject(e)&&isObject(a)&&Object.keys(a).forEach(t=>{isObject(a[t])?(e[t]||Object.assign(e,{[t]:{}}),mergeDeep(e[t],a[t])):Object.assign(e,{[t]:a[t]})}),mergeDeep(e,...t)}
-        function sanitizeLoadedData(e){const t=e.stats;return t.daily.focusSessions=parseInt(t.daily.focusSessions)||0,t.daily.cyclesCompleted=parseInt(t.daily.cyclesCompleted)||0,t.daily.pureStudySeconds=parseFloat(t.daily.pureStudySeconds)||0,t.daily.totalTimeSeconds=parseFloat(t.daily.totalTimeSeconds)||0,t.general.totalDaysStudied=parseInt(t.general.totalDaysStudied)||0,t.general.totalCyclesCompleted=parseInt(t.general.totalCyclesCompleted)||0,t.general.totalFocusSessions=parseInt(t.general.totalFocusSessions)||0,t.general.totalPureStudySeconds=parseFloat(t.general.totalPureStudySeconds)||0,t.general.streak=parseInt(t.general.streak)||0,t.general.totalShortBreakSeconds=parseFloat(t.general.totalShortBreakSeconds)||0,t.general.totalLongBreakSeconds=parseFloat(t.general.totalLongBreakSeconds)||0,e.timerState.pomodorosInCycle=parseInt(e.timerState.pomodorosInCycle)||0,e.timerState.timeLeft=parseFloat(e.timerState.timeLeft)||60*e.settings.studyTime,e.stats.goalHistory||(e.stats.goalHistory=[]),void 0===e.dailyGoal.target&&(e.dailyGoal.target=0),e}
-        function loadData(){const e=localStorage.getItem(STORAGE_KEY),t=getDefaultAppData();if(e)try{const a=JSON.parse(e);appData=mergeDeep(t,a),appData=sanitizeLoadedData(appData),appData.dailyGoal.settings||(()=>{const e=appData.dailyGoal.target||4;appData.dailyGoal.settings={mode:"all_days",targetAll:e,targetWeekday:e,targetWeekend:2,targetsCustom:[2,e,e,e,e,e,2]}})();const o=appData.settings.language||"en";appData.achievements=buildAchievements(o,a.achievements||[])}catch(e){appData=getDefaultAppData(),appData.achievements=buildAchievements(appData.settings.language)}else appData=t,appData.achievements=buildAchievements(appData.settings.language);appData.stats.daily.date!==getTodayDateString()&&(archiveGoalProgress(),resetDailyStats()),studyTimeInput.value=appData.settings.studyTime,shortBreakTimeInput.value=appData.settings.shortBreakTime,longBreakTimeInput.value=appData.settings.longBreakTime,soundToggle.checked=appData.settings.soundEnabled,languageSelect.value=appData.settings.language,updateNotificationBadges()}
-        function saveData(){const e=appData.achievements.map(e=>({id:e.id,unlocked:e.unlocked,unlockedDate:e.unlockedDate,seen:e.seen})),t={...appData,achievements:e};localStorage.setItem(STORAGE_KEY,JSON.stringify(t))}
+        let goalHistoryChart;
+        const POMODOROS_PER_CYCLE = 4;
+        let lastSoundScheduledTime = 0;
+        const MIN_SOUND_INTERVAL = 0.05, SOUND_BASE_DELAY = 0.05;
+        let justSeenAchievementIds = [];
+        let blockUnloadSave = false;
+        let currentTimerInitialDuration = 0;
+        let activeTabId = 'stats';
+        
+        function getTodayDateString() {
+            const today = new Date();
+            return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        }
+
+        function getDefaultAppData() {
+            return {
+                settings: { studyTime: 25, shortBreakTime: 5, longBreakTime: 15, soundEnabled: true, language: 'en' },
+                timerState: {
+                    currentMode: "study",
+                    timeLeft: 25 * 60,
+                    isRunning: false,
+                    pomodorosInCycle: 0,
+                    lastTimerUsed: null
+                },
+                stats: {
+                    daily: { date: getTodayDateString(), focusSessions: 0, cyclesCompleted: 0, pureStudySeconds: 0, totalTimeSeconds: 0, firstStudySessionCompletedToday: false },
+                    general: { totalDaysStudied: 0, totalCyclesCompleted: 0, totalFocusSessions: 0, totalPureStudySeconds: 0, streak: 0, lastStudyDate: null, totalShortBreakSeconds: 0, totalLongBreakSeconds: 0 },
+                    goalHistory: []
+                },
+                dailyGoal: {
+                    settings: {
+                        mode: 'all_days',
+                        targetAll: 4,
+                        targetWeekday: 4,
+                        targetWeekend: 2,
+                        targetsCustom: [2, 4, 4, 4, 4, 4, 2],
+                    },
+                    target: 0,
+                    progress: 0,
+                    completed: false,
+                    notificationShown: false
+                },
+                achievements: [],
+                uiState: { newAchievementsCount: 0, tabsCollapsed: false },
+                appVersion: "3.5.5"
+            };
+        }
+
+        let appData = getDefaultAppData();
+        let synth;
+        if (typeof Tone !== 'undefined') {
+            synth = new Tone.Synth().toDestination();
+        } else {
+            console.warn("Tone.js not loaded. Sound effects will be disabled.");
+        }
+        
+        function playSound(note = 'C4', duration = '8n', type = 'timerComplete') {
+            if (!appData.settings.soundEnabled || !synth) return;
+            if (Tone.context.state !== 'running') {
+                Tone.context.resume().catch(e => console.error("Error resuming AudioContext:", e));
+            }
+            if (Tone.Transport.state !== "started") {
+                Tone.Transport.start();
+            }
+            try {
+                let soundNote = note, soundDuration = duration, soundVolume = 0;
+                if (type === 'achievement') { soundNote = "C5"; soundDuration = "4n"; soundVolume = -6; }
+                else if (type === 'goal') { soundNote = "E5"; soundDuration = "4n"; soundVolume = -6; }
+                const currentTime = Tone.now();
+                const scheduledTime = Math.max(currentTime + SOUND_BASE_DELAY, lastSoundScheduledTime + MIN_SOUND_INTERVAL);
+                lastSoundScheduledTime = scheduledTime;
+                synth.volume.setValueAtTime(soundVolume, scheduledTime);
+                synth.triggerAttackRelease(soundNote, soundDuration, scheduledTime);
+            } catch (error) {
+                console.error(`Error playing sound (type: ${type}):`, error);
+            }
+        }
+        
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+        
+        function formatHoursMinutes(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            return `${hours}h ${minutes}m`;
+        }
+        
+        function getText(key, ...args) {
+            const lang = appData.settings.language || 'en';
+            let text = translations[lang]?.[key] || translations['en'][key];
+            if (!text) return key;
+            if (args.length > 0) {
+                args.forEach((arg, index) => {
+                    text = text.replace(`{${index}}`, arg);
+                });
+            }
+            return text;
+        }
+        
+        function getPluralText(key, count) {
+            const lang = appData.settings.language || 'en';
+            const rules = new Intl.PluralRules(lang);
+            const pluralCategory = rules.select(count);
+            const keyToUse = `${key}_${pluralCategory}`;
+            let text = translations[lang]?.goal_text?.[keyToUse] || translations['en']?.goal_text?.[keyToUse];
+            if (!text) text = translations[lang]?.goal_text?.[`${key}_other`] || translations['en']?.goal_text?.[`${key}_other`];
+            if (!text) return `${count} ${key}`;
+            return text.replace(`{0}`, count);
+        }
+        
+        function applyTranslations() {
+            const lang = appData.settings.language || 'en';
+            document.documentElement.lang = lang;
+            document.title = getText('app_title');
+            document.querySelectorAll('[data-translate-key]').forEach(el => {
+                const key = el.dataset.translateKey;
+                const translation = getText(key);
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    if (el.placeholder) el.placeholder = translation;
+                } else if (el.title) {
+                    el.title = translation;
+                } else {
+                    const targetEl = el.querySelector('span') || el;
+                    if(targetEl && targetEl.innerHTML !== translation) {
+                        targetEl.innerHTML = translation;
+                    }
+                }
+            });
+            const donationEl = document.querySelector('[data-translate-key="donation_text"]');
+            if(donationEl) {
+                const linkHtml = `<a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank" class="donation-section-link">${getText('donation_link_text')}</a>`;
+                donationEl.innerHTML = getText('donation_text', linkHtml);
+            }
+        }
+        
+        const STORAGE_KEY = 'pomodoroGamifiedAppData_v3';
+        function buildAchievements(lang, savedAchievements = []) {
+           const achievementTexts = translations[lang]?.achievements || translations['en'].achievements;
+           return baseAchievements.map(baseAch => {
+               const userAchData = savedAchievements.find(ua => ua.id === baseAch.id) || {};
+               const translatedText = achievementTexts[baseAch.id];
+               return {
+                   ...baseAch,
+                   name: translatedText.name,
+                   description: translatedText.description,
+                   unlocked: userAchData.unlocked || false,
+                   unlockedDate: userAchData.unlockedDate || null,
+                   seen: userAchData.seen || (userAchData.unlocked || false)
+               };
+           });
+        }
+        
+        function isObject(item) {
+            return (item && typeof item === 'object' && !Array.isArray(item));
+        }
+        
+        function mergeDeep(target, ...sources) {
+            if (!sources.length) return target;
+            const source = sources.shift();
+            if (isObject(target) && isObject(source)) {
+                for (const key in source) {
+                    if (isObject(source[key])) {
+                        if (!target[key]) Object.assign(target, { [key]: {} });
+                        mergeDeep(target[key], source[key]);
+                    } else {
+                        Object.assign(target, { [key]: source[key] });
+                    }
+                }
+            }
+            return mergeDeep(target, ...sources);
+        }
+        
+        function sanitizeLoadedData(data) {
+            const stats = data.stats;
+            stats.daily.focusSessions = parseInt(stats.daily.focusSessions) || 0;
+            stats.daily.cyclesCompleted = parseInt(stats.daily.cyclesCompleted) || 0;
+            stats.daily.pureStudySeconds = parseFloat(stats.daily.pureStudySeconds) || 0;
+            stats.daily.totalTimeSeconds = parseFloat(stats.daily.totalTimeSeconds) || 0;
+            stats.general.totalDaysStudied = parseInt(stats.general.totalDaysStudied) || 0;
+            stats.general.totalCyclesCompleted = parseInt(stats.general.totalCyclesCompleted) || 0;
+            stats.general.totalFocusSessions = parseInt(stats.general.totalFocusSessions) || 0;
+            stats.general.totalPureStudySeconds = parseFloat(stats.general.totalPureStudySeconds) || 0;
+            stats.general.streak = parseInt(stats.general.streak) || 0;
+            stats.general.totalShortBreakSeconds = parseFloat(stats.general.totalShortBreakSeconds) || 0;
+            stats.general.totalLongBreakSeconds = parseFloat(stats.general.totalLongBreakSeconds) || 0;
+            data.timerState.pomodorosInCycle = parseInt(data.timerState.pomodorosInCycle) || 0;
+            data.timerState.timeLeft = parseFloat(data.timerState.timeLeft) || (data.settings.studyTime * 60);
+            if (!data.stats.goalHistory) data.stats.goalHistory = [];
+            if (data.dailyGoal.target === undefined) data.dailyGoal.target = 0;
+            return data;
+        }
+        
+        function loadData() {
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            const defaultData = getDefaultAppData();
+            if (storedData) {
+                try {
+                    const parsedData = JSON.parse(storedData);
+                    appData = mergeDeep(defaultData, parsedData);
+                    appData = sanitizeLoadedData(appData);
+                    if (!appData.dailyGoal.settings) {
+                        const oldTarget = appData.dailyGoal.target || 4;
+                        appData.dailyGoal.settings = {
+                            mode: 'all_days',
+                            targetAll: oldTarget,
+                            targetWeekday: oldTarget,
+                            targetWeekend: 2,
+                            targetsCustom: [2, oldTarget, oldTarget, oldTarget, oldTarget, oldTarget, 2]
+                        };
+                    }
+                    const lang = appData.settings.language || 'en';
+                    appData.achievements = buildAchievements(lang, parsedData.achievements || []);
+                } catch (e) {
+                    appData = getDefaultAppData();
+                    appData.achievements = buildAchievements(appData.settings.language);
+                }
+            } else {
+                 appData = defaultData;
+                 appData.achievements = buildAchievements(appData.settings.language);
+            }
+            if (appData.stats.daily.date !== getTodayDateString()) {
+                archiveGoalProgress();
+                resetDailyStats();
+            }
+            studyTimeInput.value = appData.settings.studyTime;
+            shortBreakTimeInput.value = appData.settings.shortBreakTime;
+            longBreakTimeInput.value = appData.settings.longBreakTime;
+            soundToggle.checked = appData.settings.soundEnabled;
+            languageSelect.value = appData.settings.language;
+            updateNotificationBadges();
+        }
+        
+        function saveData() {
+            const achievementsToSave = appData.achievements.map(ach => ({
+                id: ach.id,
+                unlocked: ach.unlocked,
+                unlockedDate: ach.unlockedDate,
+                seen: ach.seen
+            }));
+            const dataToSave = { ...appData, achievements: achievementsToSave };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+        }
+        
         let toastTimeout;
-        function showToast(e,t,a="info",o=4e3){clearTimeout(toastTimeout),toastTitleEl.textContent=e,toastBodyEl.textContent=t,toastNotificationEl.className="fixed top-5 right-5 p-4 rounded-md text-white z-[1000] transition-all duration-500 max-w-xs shadow-lg";switch(a){case"success":toastNotificationEl.classList.add("bg-green-500","show");break;case"error":toastNotificationEl.classList.add("bg-red-500","show");break;case"warning":toastNotificationEl.classList.add("bg-yellow-500","show");break;default:toastNotificationEl.classList.add("bg-sky-500","show")}toastTimeout=setTimeout(()=>{toastNotificationEl.classList.remove("show")},o)}
-        function updateNotificationBadges(){const e=appData.achievements.filter(e=>e.unlocked&&!e.seen).length;achievementsTabBadgeEl.style.display=e>0?"inline-block":"none",achievementsTabBadgeEl.textContent="",rewardsTabBadgeEl.style.display=appData.dailyGoal.completed&&!appData.dailyGoal.notificationShown?"inline-block":"none",rewardsTabBadgeEl.textContent=""}
-        let currentConfirmCallback=null,currentCancelCallback=null;
-        function showCustomAlert(e,t,a="fas fa-info-circle text-sky-400",o="OK",s=null,n=null,l=null,c=!1){customAlertTitleEl.textContent=e,customAlertMessageEl.innerHTML=t,customAlertIconEl.className=`text-3xl mr-4 mt-1 ${a}`,customAlertConfirmButton.textContent=o,currentConfirmCallback=n,c?(customAlertContentEl.classList.remove("max-w-md"),customAlertContentEl.classList.add("max-w-lg")):(customAlertContentEl.classList.remove("max-w-lg"),customAlertContentEl.classList.add("max-w-md")),s&&"function"==typeof l?(customAlertCancelButton.textContent=s,customAlertCancelButton.classList.remove("hidden"),currentCancelCallback=l):(customAlertCancelButton.classList.add("hidden"),currentCancelCallback=null),customAlertModal.classList.add("show")}
-        function updateTimerDisplay(){timerTextEl.textContent=formatTime(appData.timerState.timeLeft);let e,t="bg-slate-900",a="text-sky-400",o="bg-sky-400/10 text-sky-400";switch(appData.timerState.currentMode){case"study":e="mode_study",t="bg-slate-900",a="text-sky-400",o="bg-sky-400/10 text-sky-400",skipBreakButton.classList.add("hidden");break;case"shortBreak":e="mode_short_break",t="bg-green-900",a="text-green-400",o="bg-green-400/10 text-green-400",skipBreakButton.classList.remove("hidden");break;case"longBreak":e="mode_long_break",t="bg-purple-900",a="text-purple-400",o="bg-purple-400/10 text-purple-400",skipBreakButton.classList.remove("hidden")}modePillEl.textContent=getText(e),modePillEl.className=`py-1 px-3 rounded-full text-sm font-semibold transition-all duration-500 ${o}`,timerTextEl.className=`timer-text transition-colors duration-500 ${a}`,document.body.className=document.body.className.replace(/bg-(slate|green|purple)-900/g,"")+` ${t}`,document.title=`${formatTime(appData.timerState.timeLeft)} - ${getText(e)}`,updateCycleInfo()}
-        function updateCycleInfo(){const e=cycleDotsContainerEl.children,t=appData.timerState.currentMode,a=appData.timerState.pomodorosInCycle;for(let o=0;o<e.length;o++){const s=e[o];s.className="cycle-dot";let n="border-sky-400";"shortBreak"===t?n="border-green-400":"longBreak"===t&&(n="border-purple-400"),o<a?s.classList.add("bg-sky-500"):o!==a||"study"!==t?s.classList.add("bg-slate-600"):s.classList.add("bg-transparent","border-2",n)}}
-        function updateStatsDisplay(){dailyFocusSessionsEl.textContent=appData.stats.daily.focusSessions,dailyCyclesEl.textContent=appData.stats.daily.cyclesCompleted,dailyStudyTimeEl.textContent=formatHoursMinutes(appData.stats.daily.pureStudySeconds),dailyTotalTimeEl.textContent=formatHoursMinutes(appData.stats.daily.totalTimeSeconds),totalFocusSessionsEl.textContent=appData.stats.general.totalFocusSessions,totalDaysStudiedEl.textContent=appData.stats.general.totalDaysStudied,totalCyclesEl.textContent=appData.stats.general.totalCyclesCompleted,totalStudyTimeEl.textContent=formatHoursMinutes(appData.stats.general.totalPureStudySeconds),streakCounterHeaderEl&&(streakCounterHeaderEl.textContent=appData.stats.general.streak),streakFireIconContainerEl&&(()=>{const e=appData.stats.general.streak;let t="text-slate-400";e>=50?t="text-yellow-400":e>=40?t="text-teal-400":e>=35?t="text-sky-400":e>=30?t="text-blue-500":e>=25?t="text-indigo-500":e>=20?t="text-purple-500":e>=15?t="text-red-600":e>=10?t="text-red-500":e>=5?t="text-red-400":e>=1&&(t="text-orange-400"),streakFireIconContainerEl.className="",streakFireIconContainerEl.classList.add(t),streakFireIconContainerEl.innerHTML='<i class="fas fa-fire"></i>'})()}
-        function renderAchievements(){achievementsListEl.innerHTML="",appData.achievements.sort((e,t)=>{const a=justSeenAchievementIds.includes(e.id),o=justSeenAchievementIds.includes(t.id);if(a&&!o)return-1;if(!a&&o)return 1;const s=e.unlocked,n=t.unlocked;if(!s&&!n){let a=getAchievementProgress(e.type).current;const o=e.threshold>0?a/e.threshold:-1;let s=getAchievementProgress(t.type).current;const l=t.threshold>0?s/t.threshold:-1;return o>l?-1:o<l?1:e.threshold<t.threshold?-1:e.threshold>t.threshold?1:0}return!s&&n&&!o?-1:s&&!a&&!n?1:s&&!a&&n&&!o?new Date(t.unlockedDate)-new Date(e.unlockedDate):0}),appData.achievements.forEach(e=>{const t=justSeenAchievementIds.includes(e.id),a=t?`<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">${getText("new_badge")}</span>`:"",o=document.createElement("div");o.className=`achievement-item p-3 rounded-lg shadow-md transition-all ${e.unlocked?"unlocked bg-sky-600":"locked bg-slate-600"} ${t?"ring-1 ring-yellow-400 ring-inset":""}`;let s=`<div class="flex items-start mb-1"><i class="${e.icon||"fas fa-question-circle"} text-xl ${e.unlocked?"text-yellow-300":"text-slate-400"} mr-2 mt-1"></i><div class="flex-grow overflow-hidden"><div class="flex items-baseline"><h4 class="font-semibold text-sm ${e.unlocked?"text-white":"text-sky-300"} truncate mr-1">${e.name}</h4>${a}</div><p class="text-xs ${e.unlocked?"text-sky-100":"text-slate-300"} leading-tight">${e.description}</p></div></div>`;let n='<div class="mt-auto">';e.unlocked?n+=`<p class="text-xs text-yellow-200 font-semibold mt-1"><i class="fas fa-check-circle mr-1"></i>${getText("unlocked_on_date",new Date(e.unlockedDate).toLocaleDateString(appData.settings.language.replace("_","-")))}</p>`:(()=>{const{current:t,displayCurrent:a,displayTarget:o}=getAchievementProgress(e.type,e.threshold),s=e.threshold>0?Math.min(100,t/e.threshold*100):0;n+=`<div class="progress-bar-container mt-2"><div class="progress-bar bg-sky-400" style="width: ${s.toFixed(2)}%;"></div></div><p class="text-xs text-slate-400 mt-1">${a} / ${o}</p>`})(),n+="</div>",o.innerHTML=s+n,achievementsListEl.appendChild(o)})}
-        function getAchievementProgress(e,t){let a=0;switch(e){case"totalDaysStudied":a=appData.stats.general.totalDaysStudied;break;case"totalCyclesCompleted":a=appData.stats.general.totalCyclesCompleted;break;case"totalPureStudyHours":a=appData.stats.general.totalPureStudySeconds/3600;break;case"totalFocusSessions":a=appData.stats.general.totalFocusSessions;break;case"streak":a=appData.stats.general.streak;break;case"totalShortBreakSeconds":a=appData.stats.general.totalShortBreakSeconds;break;case"totalLongBreakSeconds":a=appData.stats.general.totalLongBreakSeconds;break;case"dailyFocusSessions":a=appData.stats.daily.focusSessions;break;case"dailyCyclesCompleted":a=appData.stats.daily.cyclesCompleted;break;case"dailyPureStudyHours":a=appData.stats.daily.pureStudySeconds/3600}let o=t,s=a;return"totalShortBreakSeconds"===e||"totalLongBreakSeconds"===e?t>=3600?(s=(a/3600).toFixed(1),o=(t/3600).toFixed(1)+"h"):(s=(a/60).toFixed(0),o=(t/60).toFixed(0)+"m"):"totalPureStudyHours"===e||"dailyPureStudyHours"===e?(s=a.toFixed(1),o=t+"h"):(s=Math.floor(a),o=t),{current:a,displayCurrent:s,displayTarget:o}}
-        function setTimer(e){appData.timerState.currentMode=e,appData.timerState.isRunning=!1,startPauseButton.querySelector("span").textContent=getText("start_button"),startPauseButton.querySelector("i").className="fas fa-play mr-2",timerWorker&&timerWorker.postMessage({command:"pause"});let t;switch(e){case"study":t=60*appData.settings.studyTime;break;case"shortBreak":t=60*appData.settings.shortBreakTime;break;case"longBreak":t=60*appData.settings.longBreakTime;break;default:t=60*appData.settings.studyTime,appData.timerState.currentMode="study"}appData.timerState.timeLeft=t,timerWorker&&timerWorker.postMessage({command:"setMode",mode:appData.timerState.currentMode,duration:appData.timerState.timeLeft}),updateTimerDisplay(),saveData()}
-        function startTimer(){appData.timerState.timeLeft<=0&&(setTimer(appData.timerState.currentMode),appData.timerState.timeLeft<=0)?(startPauseButton.querySelector("span").textContent=getText("start_button"),startPauseButton.querySelector("i").className="fas fa-play mr-2",appData.timerState.isRunning=!1):appData.timerState.isRunning?(pauseTimer(),startTimer()):(appData.timerState.isRunning=!0,currentTimerInitialDuration=appData.timerState.timeLeft,startPauseButton.querySelector("span").textContent=getText("pause_button"),startPauseButton.querySelector("i").className="fas fa-pause mr-2",timerWorker&&timerWorker.postMessage({command:"start"}),saveData())}
-        function pauseTimer(){appData.timerState.isRunning=!1,startPauseButton.querySelector("span").textContent=getText("resume_button"),startPauseButton.querySelector("i").className="fas fa-play mr-2",timerWorker&&timerWorker.postMessage({command:"pause"}),saveData()}
-        function handleTimerEnd(e){appData.timerState.isRunning=!1;const t=appData.timerState.currentMode;appData.timerState.lastTimerUsed=t;let a,o,s="C4",n=null,l=!1,c=!0;if(appData.stats.daily.totalTimeSeconds+=e,"study"===t){if(appData.stats.daily.focusSessions++,appData.stats.general.totalFocusSessions++,appData.stats.daily.pureStudySeconds+=e,appData.stats.general.totalPureStudySeconds+=e,appData.timerState.pomodorosInCycle++,a="toast_study_complete_title",o="toast_study_complete_body",s="C5",!appData.stats.daily.firstStudySessionCompletedToday){appData.stats.daily.firstStudySessionCompletedToday=!0;const e=getTodayDateString();if(appData.stats.general.lastStudyDate!==e){appData.stats.general.totalDaysStudied++;const t=new Date;t.setDate(t.getDate()-1);const a=`${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,"0")}-${String(t.getDate()).padStart(2,"0")}`;appData.stats.general.streak=appData.stats.general.lastStudyDate===a?appData.stats.general.streak+1:1,appData.stats.general.lastStudyDate=e}}appData.timerState.pomodorosInCycle>=POMODOROS_PER_CYCLE?(n="longBreak",appData.stats.daily.cyclesCompleted++,appData.stats.general.totalCyclesCompleted++,l=!0):n="shortBreak"}else"shortBreak"===t?(appData.stats.general.totalShortBreakSeconds+=e,a="toast_break_over_title",o="toast_break_over_body",s="E4",n="study"):"longBreak"===t&&(appData.stats.general.totalLongBreakSeconds+=e,a="toast_long_break_over_title",o="toast_long_break_over_body",s="E4",appData.timerState.pomodorosInCycle=0,n="study",c=!1);checkGoalProgress(),checkAchievements(),updateStatsDisplay(),saveData(),playSound(s,"4n","timerComplete"),showToast(getText(a),getText(o),"info"),l&&showToast(getText("toast_cycle_complete_title"),getText("toast_cycle_complete_body"),"success",5e3),n?(setTimer(n),c&&startTimer()):(startPauseButton.querySelector("span").textContent=getText("start_button"),startPauseButton.querySelector("i").className="fas fa-play mr-2")}
-        function resetCurrentTimer(){appData.timerState.isRunning&&timerWorker&&timerWorker.postMessage({command:"pause"}),appData.timerState.isRunning=!1;let e;switch(appData.timerState.currentMode){case"study":e=60*appData.settings.studyTime;break;case"shortBreak":e=60*appData.settings.shortBreakTime;break;case"longBreak":e=60*appData.settings.longBreakTime;break;default:e=60*appData.settings.studyTime}appData.timerState.timeLeft=e,timerWorker&&timerWorker.postMessage({command:"setMode",mode:appData.timerState.currentMode,duration:appData.timerState.timeLeft}),startPauseButton.querySelector("span").textContent=getText("start_button"),startPauseButton.querySelector("i").className="fas fa-play mr-2",updateTimerDisplay(),saveData()}
-        function archiveGoalProgress(){const e=appData.stats.goalHistory||[],t=new Date;t.setDate(t.getDate()-7);const a=e.filter(e=>new Date(e.date)>=t),o=appData.stats.daily.date;if(appData.dailyGoal.target>0){const e={date:o,target:appData.dailyGoal.target,progress:appData.dailyGoal.progress,completed:appData.dailyGoal.completed},t=a.findIndex(e=>e.date===o);t>-1?a[t]=e:a.push(e)}appData.stats.goalHistory=a.slice(-7)}
-        function resetDailyStats(){appData.stats.daily={date:getTodayDateString(),focusSessions:0,cyclesCompleted:0,pureStudySeconds:0,totalTimeSeconds:0,firstStudySessionCompletedToday:!1},appData.dailyGoal.progress=0,appData.dailyGoal.completed=!1,appData.dailyGoal.notificationShown=!1}
-        function setTabStyling(e){tabButtons.forEach(t=>{t.classList.remove("active","text-sky-400","border-sky-400"),t.classList.add("text-slate-400","border-transparent"),!e&&t.dataset.tab===activeTabId&&(t.classList.add("active","text-sky-400","border-sky-400"),t.classList.remove("text-slate-400","border-transparent"))})}
-        function showTab(e){activeTabId=e,setTabStyling(!1),tabPanes.forEach(t=>{const a=t.id===`${e}Content`;t.style.display=a?"flex":"none",t.classList.toggle("active",a)}),"achievements"===e?(justSeenAchievementIds=[],appData.achievements.forEach(e=>{e.unlocked&&!e.seen&&justSeenAchievementIds.push(e.id),e.unlocked&&(e.seen=!0)}),appData.uiState.newAchievementsCount=0,updateNotificationBadges(),saveData(),renderAchievements()):"dailyGoal"===e&&(requestAnimationFrame(()=>{renderGoalHistoryChart()}),appData.dailyGoal.target<=0?showGoalEditView(!0):showGoalEditView(!1))}
-        function setTodaysGoal(){const e=appData.dailyGoal.settings,t=(new Date).getDay();let a=0;switch(e.mode){case"weekend":a=0===t||6===t?e.targetWeekend:e.targetWeekday;break;case"custom":a=e.targetsCustom[t];break;case"all_days":default:a=e.targetAll}appData.dailyGoal.target=a||0}
-        function checkGoalProgress(){const e=appData.dailyGoal;if(e.target<=0)return void renderDailyGoal();if(e.completed)return renderDailyGoal(),void(goalHistoryChart&&renderGoalHistoryChart());const t=appData.stats.daily.focusSessions;e.progress=t,t>=e.target&&(e.completed=!0,e.notificationShown||(showToast(getText("goal_completed_toast_title"),getText("goal_completed_toast_body"),"success"),playSound("G5","2n","goal"))),renderDailyGoal(),goalHistoryChart&&renderGoalHistoryChart()}
-        function renderDailyGoal(){const e=appData.dailyGoal;goalProgressContainer.style.display=e.target>0?"block":"none",e.target<=0?(goalTextEl.textContent=getText("no_goal_set"),editGoalButton.querySelector("span").textContent=getText("set_goal_button"),goalProgressBarEl.style.width="0%",goalProgressTextEl.textContent=""):(editGoalButton.querySelector("span").textContent=getText("edit_goal_button"),goalTextEl.textContent=getPluralText("focusSessions",e.target),goalProgressTextEl.textContent=`${Math.floor(e.progress)} / ${e.target}`,goalProgressBarEl.style.width=`${Math.min(100,e.progress/e.target*100)}%`,e.completed?goalProgressBarEl.classList.add("completed"):goalProgressBarEl.classList.remove("completed"))}
-        function renderGoalHistoryChart(){goalHistoryChart&&goalHistoryChart.destroy();const e=appData.stats.goalHistory||[],t=[],a=[],o=[],s=appData.settings.language.replace("_","-");let n=0;const l=new Date;for(let c=6;c>=0;c--){const r=new Date(l);r.setDate(l.getDate()-c);const d=`${r.getFullYear()}-${String(r.getMonth()+1).padStart(2,"0")}-${String(r.getDate()).padStart(2,"0")}`,i=r.toLocaleDateString(s,{weekday:"short"}),p=`${String(r.getDate()).padStart(2,"0")}/${String(r.getMonth()+1).padStart(2,"0")}`;t.push([i,p]);const u=e.find(e=>e.date===d);0===c?(a.push(appData.dailyGoal.progress),o.push(appData.dailyGoal.target),n=Math.max(n,appData.dailyGoal.progress,appData.dailyGoal.target)):u?(a.push(u.progress),o.push(u.target),n=Math.max(n,u.progress,u.target)):(a.push(0),o.push(0))}const c=Math.max(4,Math.ceil(n)+1),r=goalHistoryChartCanvas.getContext("2d");goalHistoryChart=new Chart(r,{type:"bar",data:{labels:t,datasets:[{label:getText("progress_label"),data:a,backgroundColor:e=>6===e.index?"rgba(56, 189, 248, 1)":"rgba(56, 189, 248, 0.6)",borderColor:"rgba(56, 189, 248, 1)",borderWidth:1,borderRadius:2},{label:getText("chart_target_label"),data:o,type:"line",borderColor:"rgba(239, 68, 68, 0.7)",backgroundColor:"transparent",pointBackgroundColor:"rgba(239, 68, 68, 1)",borderDash:[5,5],fill:!1}]},options:{responsive:!0,maintainAspectRatio:!1,scales:{y:{beginAtZero:!0,max:c,ticks:{color:"#94a3b8",stepSize:1},grid:{color:"rgba(255, 255, 255, 0.1)"}},x:{ticks:{color:e=>6===e.index?"#38bdf8":"#94a3b8"},grid:{display:!1}}},plugins:{legend:{display:!0,position:"top",align:"end",labels:{color:"#cbd5e1",boxWidth:12,padding:20,font:{size:10}}},tooltip:{callbacks:{label:function(e){let t=e.dataset.label||"";return t&&(t+=": "),null!==e.parsed.y&&(t+=Math.floor(e.parsed.y)),t}}}}}})}
-        function showGoalEditView(e){if(e){goalDisplayView.classList.add("hidden"),goalEditView.classList.remove("hidden");const e=appData.dailyGoal.settings;document.querySelector(`input[name="goalMode"][value="${e.mode}"]`).checked=!0,document.getElementById("goalValueInputAll").value=e.targetAll,document.getElementById("goalValueInputWeekday").value=e.targetWeekday,document.getElementById("goalValueInputWeekend").value=e.targetWeekend;const t=document.querySelector("#goalInputsCustom .custom-day-grid");t.innerHTML="";const a=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];e.targetsCustom.forEach((e,o)=>{const s=a[o],n=`\n <div class="custom-day-input-group">\n <label for="goalDay${o}" class="block">${s}</label>\n <input type="number" id="goalDay${o}" data-day-index="${o}" min="0" value="${e}" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500">\n </div>\n `;t.insertAdjacentHTML("beforeend",n)}),document.querySelectorAll('input[name="goalMode"]').forEach(e=>{e.addEventListener("change",e=>{document.getElementById("goalInputsAllDays").classList.toggle("hidden","all_days"!==e.target.value),document.getElementById("goalInputsWeekend").classList.toggle("hidden","weekend"!==e.target.value),document.getElementById("goalInputsCustom").classList.toggle("hidden","custom"!==e.target.value)}),e.checked&&e.dispatchEvent(new Event("change"))})}else goalDisplayView.classList.remove("hidden"),goalEditView.classList.add("hidden")}
-        function checkAchievements(){const e=[];appData.achievements.forEach(t=>{if(!t.unlocked){const a=getAchievementProgress(t.type,t.threshold);a.current>=t.threshold&&(t.unlocked=!0,t.unlockedDate=(new Date).toISOString(),t.seen=!1,e.push(t))}}),e.length>0&&(e.forEach((e,t)=>{setTimeout(()=>{const a=getText(`achievements.${e.id}.name`);showToast(getText("toast_achievement_unlocked_title"),getText("toast_achievement_unlocked_body",a),"success",5e3),playSound("C5","4n","achievement")},600*t)}),appData.uiState.newAchievementsCount+=e.length,updateNotificationBadges(),"achievements"===activeTabId&&renderAchievements())}
+        function showToast(title, body, type = 'info', duration = 4000) {
+            clearTimeout(toastTimeout);
+            toastTitleEl.textContent = title;
+            toastBodyEl.textContent = body;
+            toastNotificationEl.className = 'fixed top-5 right-5 p-4 rounded-md text-white z-[1000] transition-all duration-500 max-w-xs shadow-lg';
+            switch (type) {
+                case 'success': toastNotificationEl.classList.add('bg-green-500', 'show'); break;
+                case 'error': toastNotificationEl.classList.add('bg-red-500', 'show'); break;
+                case 'warning': toastNotificationEl.classList.add('bg-yellow-500', 'show'); break;
+                default: toastNotificationEl.classList.add('bg-sky-500', 'show');
+            }
+            toastTimeout = setTimeout(() => { toastNotificationEl.classList.remove('show'); }, duration);
+        }
+        
+        function updateNotificationBadges() {
+            const unseenAchievements = appData.achievements.filter(ach => ach.unlocked && !ach.seen).length;
+            achievementsTabBadgeEl.style.display = unseenAchievements > 0 ? 'inline-block' : 'none';
+            achievementsTabBadgeEl.textContent = '';
+            rewardsTabBadgeEl.style.display = (appData.dailyGoal.completed && !appData.dailyGoal.notificationShown) ? 'inline-block' : 'none';
+            rewardsTabBadgeEl.textContent = '';
+        }
+        
+        let currentConfirmCallback = null, currentCancelCallback = null;
+        function showCustomAlert(title, message, iconClass = "fas fa-info-circle text-sky-400", confirmText = "OK", cancelText = null, confirmCallback = null, cancelCallback = null, isHelp = false) {
+            customAlertTitleEl.textContent = title;
+            customAlertMessageEl.innerHTML = message;
+            customAlertIconEl.className = `text-3xl mr-4 mt-1 ${iconClass}`;
+            customAlertConfirmButton.textContent = confirmText;
+            currentConfirmCallback = confirmCallback;
+            if (isHelp) {
+                customAlertContentEl.classList.remove('max-w-md');
+                customAlertContentEl.classList.add('max-w-lg');
+            } else {
+                customAlertContentEl.classList.remove('max-w-lg');
+                customAlertContentEl.classList.add('max-w-md');
+            }
+            if (cancelText && typeof cancelCallback === 'function') {
+                customAlertCancelButton.textContent = cancelText;
+                customAlertCancelButton.classList.remove('hidden');
+                currentCancelCallback = cancelCallback;
+            } else {
+                customAlertCancelButton.classList.add('hidden');
+                currentCancelCallback = null;
+            }
+            customAlertModal.classList.add('show');
+        }
+        
+        function updateTimerDisplay() {
+            timerTextEl.textContent = formatTime(appData.timerState.timeLeft);
+            let modeKey = '', bodyClass = 'bg-slate-900', timerColorClass = 'text-sky-400', pillClass = 'bg-sky-400/10 text-sky-400';
+            switch (appData.timerState.currentMode) {
+                case 'study':
+                    modeKey = 'mode_study';
+                    bodyClass = 'bg-slate-900';
+                    timerColorClass = 'text-sky-400';
+                    pillClass = 'bg-sky-400/10 text-sky-400';
+                    skipBreakButton.classList.add('hidden');
+                    break;
+                case 'shortBreak':
+                    modeKey = 'mode_short_break';
+                    bodyClass = 'bg-green-900';
+                    timerColorClass = 'text-green-400';
+                    pillClass = 'bg-green-400/10 text-green-400';
+                    skipBreakButton.classList.remove('hidden');
+                    break;
+                case 'longBreak':
+                    modeKey = 'mode_long_break';
+                    bodyClass = 'bg-purple-900';
+                    timerColorClass = 'text-purple-400';
+                    pillClass = 'bg-purple-400/10 text-purple-400';
+                    skipBreakButton.classList.remove('hidden');
+                    break;
+            }
+            modePillEl.textContent = getText(modeKey);
+            modePillEl.className = `py-1 px-3 rounded-full text-sm font-semibold transition-all duration-500 ${pillClass}`;
+            timerTextEl.className = `timer-text transition-colors duration-500 ${timerColorClass}`;
+            document.body.className = document.body.className.replace(/bg-(slate|green|purple)-900/g, '') + ` ${bodyClass}`;
+            document.title = `${formatTime(appData.timerState.timeLeft)} - ${getText(modeKey)}`;
+            updateCycleInfo();
+        }
+        
+        function updateCycleInfo() {
+            const dots = cycleDotsContainerEl.children;
+            const currentMode = appData.timerState.currentMode;
+            const pomodorosInCycle = appData.timerState.pomodorosInCycle;
+            for (let i = 0; i < dots.length; i++) {
+                const dot = dots[i];
+                dot.className = 'cycle-dot';
+                let borderColorClass = 'border-sky-400';
+                if(currentMode === 'shortBreak') borderColorClass = 'border-green-400';
+                else if(currentMode === 'longBreak') borderColorClass = 'border-purple-400';
+                if (i < pomodorosInCycle) {
+                    dot.classList.add('bg-sky-500');
+                } else if (i === pomodorosInCycle && currentMode === 'study') {
+                    dot.classList.add('bg-transparent', 'border-2', borderColorClass);
+                } else {
+                    dot.classList.add('bg-slate-600');
+                }
+            }
+        }
+        
+        function updateStatsDisplay() {
+            dailyFocusSessionsEl.textContent = appData.stats.daily.focusSessions;
+            dailyCyclesEl.textContent = appData.stats.daily.cyclesCompleted;
+            dailyStudyTimeEl.textContent = formatHoursMinutes(appData.stats.daily.pureStudySeconds);
+            dailyTotalTimeEl.textContent = formatHoursMinutes(appData.stats.daily.totalTimeSeconds);
+            totalFocusSessionsEl.textContent = appData.stats.general.totalFocusSessions;
+            totalDaysStudiedEl.textContent = appData.stats.general.totalDaysStudied;
+            totalCyclesEl.textContent = appData.stats.general.totalCyclesCompleted;
+            totalStudyTimeEl.textContent = formatHoursMinutes(appData.stats.general.totalPureStudySeconds);
+            if (streakCounterHeaderEl) streakCounterHeaderEl.textContent = appData.stats.general.streak;
+            if (streakFireIconContainerEl) {
+                const streak = appData.stats.general.streak;
+                let fireColorClass = 'text-slate-400';
+                if (streak >= 50) fireColorClass = 'text-yellow-400';
+                else if (streak >= 40) fireColorClass = 'text-teal-400';
+                else if (streak >= 35) fireColorClass = 'text-sky-400';
+                else if (streak >= 30) fireColorClass = 'text-blue-500';
+                else if (streak >= 25) fireColorClass = 'text-indigo-500';
+                else if (streak >= 20) fireColorClass = 'text-purple-500';
+                else if (streak >= 15) fireColorClass = 'text-red-600';
+                else if (streak >= 10) fireColorClass = 'text-red-500';
+                else if (streak >= 5) fireColorClass = 'text-red-400';
+                else if (streak >= 1) fireColorClass = 'text-orange-400';
+                streakFireIconContainerEl.className = '';
+                streakFireIconContainerEl.classList.add(fireColorClass);
+                streakFireIconContainerEl.innerHTML = '<i class="fas fa-fire"></i>';
+            }
+        }
+        
+        function renderAchievements() {
+            achievementsListEl.innerHTML = "";
+            appData.achievements.sort((a, b) => {
+                const aIsNewlyUnlocked = justSeenAchievementIds.includes(a.id), bIsNewlyUnlocked = justSeenAchievementIds.includes(b.id);
+                if (aIsNewlyUnlocked && !bIsNewlyUnlocked) return -1;
+                if (!aIsNewlyUnlocked && bIsNewlyUnlocked) return 1;
+                const aIsUnlocked = a.unlocked, bIsUnlocked = b.unlocked;
+                if (!aIsUnlocked && !bIsUnlocked) {
+                    let currentValueA = getAchievementProgress(a.type).current;
+                    const progressA = a.threshold > 0 ? (currentValueA / a.threshold) : -1;
+                    let currentValueB = getAchievementProgress(b.type).current;
+                    const progressB = b.threshold > 0 ? (currentValueB / b.threshold) : -1;
+                    if (progressA > progressB) return -1;
+                    if (progressA < progressB) return 1;
+                    if (a.threshold < b.threshold) return -1;
+                    if (a.threshold > b.threshold) return 1;
+                    return 0;
+                }
+                if (!aIsUnlocked && bIsUnlocked && !bIsNewlyUnlocked) return -1;
+                if (aIsUnlocked && !aIsNewlyUnlocked && !bIsUnlocked) return 1;
+                if (aIsUnlocked && !aIsNewlyUnlocked && bIsUnlocked && !bIsNewlyUnlocked) {
+                    return new Date(b.unlockedDate) - new Date(a.unlockedDate);
+                }
+                return 0;
+            });
+            appData.achievements.forEach(ach => {
+                const isNew = justSeenAchievementIds.includes(ach.id);
+                const newIndicatorHTML = isNew ? `<span class="ml-1 text-xs font-bold text-yellow-300 animate-pulse new-indicator">${getText('new_badge')}</span>` : '';
+                const achEl = document.createElement('div');
+                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-yellow-400 ring-inset' : ''}`;
+                let mainContentHTML = `<div class="flex items-start mb-1"><i class="${ach.icon || 'fas fa-question-circle'} text-xl ${ach.unlocked ? 'text-yellow-300' : 'text-slate-400'} mr-2 mt-1"></i><div class="flex-grow overflow-hidden"><div class="flex items-baseline"><h4 class="font-semibold text-sm ${ach.unlocked ? 'text-white' : 'text-sky-300'} truncate mr-1">${ach.name}</h4>${newIndicatorHTML}</div><p class="text-xs ${ach.unlocked ? 'text-sky-100' : 'text-slate-300'} leading-tight">${ach.description}</p></div></div>`;
+                let progressSectionHTML = '<div class="mt-auto">';
+                if (ach.unlocked) {
+                    const unlockedDate = new Date(ach.unlockedDate).toLocaleDateString(appData.settings.language.replace('_', '-'));
+                    progressSectionHTML += `<p class="text-xs text-yellow-200 font-semibold mt-1"><i class="fas fa-check-circle mr-1"></i>${getText('unlocked_on_date', unlockedDate)}</p>`;
+                } else {
+                    const { current, displayCurrent, displayTarget } = getAchievementProgress(ach.type, ach.threshold);
+                    const progressPercent = ach.threshold > 0 ? Math.min(100, (current / ach.threshold) * 100) : 0;
+                    progressSectionHTML += `<div class="progress-bar-container mt-2"><div class="progress-bar bg-sky-400" style="width: ${progressPercent.toFixed(2)}%;"></div></div><p class="text-xs text-slate-400 mt-1">${displayCurrent} / ${displayTarget}</p>`;
+                }
+                progressSectionHTML += '</div>';
+                achEl.innerHTML = mainContentHTML + progressSectionHTML;
+                achievementsListEl.appendChild(achEl);
+            });
+        }
+        
+        function getAchievementProgress(type, threshold) {
+            let currentValue = 0;
+            switch (type) {
+                case 'totalDaysStudied': currentValue = appData.stats.general.totalDaysStudied; break;
+                case 'totalCyclesCompleted': currentValue = appData.stats.general.totalCyclesCompleted; break;
+                case 'totalPureStudyHours': currentValue = appData.stats.general.totalPureStudySeconds / 3600; break;
+                case 'totalFocusSessions': currentValue = appData.stats.general.totalFocusSessions; break;
+                case 'streak': currentValue = appData.stats.general.streak; break;
+                case 'totalShortBreakSeconds': currentValue = appData.stats.general.totalShortBreakSeconds; break;
+                case 'totalLongBreakSeconds': currentValue = appData.stats.general.totalLongBreakSeconds; break;
+                case 'dailyFocusSessions': currentValue = appData.stats.daily.focusSessions; break;
+                case 'dailyCyclesCompleted': currentValue = appData.stats.daily.cyclesCompleted; break;
+                case 'dailyPureStudyHours': currentValue = appData.stats.daily.pureStudySeconds / 3600; break;
+            }
+            let displayThreshold = threshold, displayCurrentValue = currentValue;
+            if (type === 'totalShortBreakSeconds' || type === 'totalLongBreakSeconds') {
+                if (threshold >= 3600) { displayCurrentValue = (currentValue / 3600).toFixed(1); displayThreshold = (threshold / 3600).toFixed(1) + "h"; }
+                else { displayCurrentValue = (currentValue / 60).toFixed(0); displayThreshold = (threshold / 60).toFixed(0) + "m"; }
+            } else if (type === 'totalPureStudyHours' || type === 'dailyPureStudyHours') {
+                displayCurrentValue = currentValue.toFixed(1); displayThreshold = threshold + "h";
+            } else {
+                displayCurrentValue = Math.floor(currentValue); displayThreshold = threshold;
+            }
+            return { current: currentValue, displayCurrent: displayCurrentValue, displayTarget: displayThreshold };
+        }
+        
+        function setTimer(mode) {
+            appData.timerState.currentMode = mode;
+            appData.timerState.isRunning = false;
+            startPauseButton.querySelector('span').textContent = getText('start_button');
+            startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+            if (timerWorker) timerWorker.postMessage({ command: 'pause' });
+            let newTimeLeft;
+            switch (mode) {
+                case 'study': newTimeLeft = appData.settings.studyTime * 60; break;
+                case 'shortBreak': newTimeLeft = appData.settings.shortBreakTime * 60; break;
+                case 'longBreak': newTimeLeft = appData.settings.longBreakTime * 60; break;
+                default:
+                    newTimeLeft = appData.settings.studyTime * 60;
+                    appData.timerState.currentMode = 'study';
+            }
+            appData.timerState.timeLeft = newTimeLeft;
+            if (timerWorker) timerWorker.postMessage({ command: 'setMode', mode: appData.timerState.currentMode, duration: appData.timerState.timeLeft });
+            updateTimerDisplay();
+            saveData();
+        }
+        
+        function startTimer() {
+            if (appData.timerState.timeLeft <= 0) {
+                setTimer(appData.timerState.currentMode);
+                if (appData.timerState.timeLeft <= 0) {
+                    startPauseButton.querySelector('span').textContent = getText('start_button');
+                    startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+                    appData.timerState.isRunning = false;
+                    return;
+                }
+            }
+            appData.timerState.isRunning = true;
+            currentTimerInitialDuration = appData.timerState.timeLeft;
+            startPauseButton.querySelector('span').textContent = getText('pause_button');
+            startPauseButton.querySelector('i').className = 'fas fa-pause mr-2';
+            if (timerWorker) timerWorker.postMessage({ command: 'start' });
+            saveData();
+        }
+        
+        function pauseTimer() {
+            appData.timerState.isRunning = false;
+            startPauseButton.querySelector('span').textContent = getText('resume_button');
+            startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+            if (timerWorker) timerWorker.postMessage({ command: 'pause' });
+            saveData();
+        }
+        
+        function handleTimerEnd(completedDurationInSeconds) {
+            appData.timerState.isRunning = false;
+            const endedMode = appData.timerState.currentMode;
+            appData.timerState.lastTimerUsed = endedMode;
+            let notificationTitleKey = "", notificationBodyKey = "", soundNoteForEndedMode = 'C4';
+            let nextModeToTransitionTo = null, showCycleCompleteNotification = false, shouldAutoStart = true;
+            appData.stats.daily.totalTimeSeconds += completedDurationInSeconds;
+            if (endedMode === 'study') {
+                appData.stats.daily.focusSessions++;
+                appData.stats.general.totalFocusSessions++;
+                appData.stats.daily.pureStudySeconds += completedDurationInSeconds;
+                appData.stats.general.totalPureStudySeconds += completedDurationInSeconds;
+                appData.timerState.pomodorosInCycle++;
+                notificationTitleKey = "toast_study_complete_title";
+                notificationBodyKey = "toast_study_complete_body";
+                soundNoteForEndedMode = 'C5';
+                if (!appData.stats.daily.firstStudySessionCompletedToday) {
+                    appData.stats.daily.firstStudySessionCompletedToday = true;
+                    const todayStr = getTodayDateString();
+                    if (appData.stats.general.lastStudyDate !== todayStr) {
+                        appData.stats.general.totalDaysStudied++;
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yesterdayStr = `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
+                        appData.stats.general.streak = appData.stats.general.lastStudyDate === yesterdayStr ? appData.stats.general.streak + 1 : 1;
+                        appData.stats.general.lastStudyDate = todayStr;
+                    }
+                }
+                if (appData.timerState.pomodorosInCycle >= POMODOROS_PER_CYCLE) {
+                    nextModeToTransitionTo = 'longBreak';
+                    appData.stats.daily.cyclesCompleted++;
+                    appData.stats.general.totalCyclesCompleted++;
+                    showCycleCompleteNotification = true;
+                } else {
+                    nextModeToTransitionTo = 'shortBreak';
+                }
+            } else if (endedMode === 'shortBreak') {
+                appData.stats.general.totalShortBreakSeconds += completedDurationInSeconds;
+                notificationTitleKey = "toast_break_over_title";
+                notificationBodyKey = "toast_break_over_body";
+                soundNoteForEndedMode = 'E4';
+                nextModeToTransitionTo = 'study';
+            } else if (endedMode === 'longBreak') {
+                appData.stats.general.totalLongBreakSeconds += completedDurationInSeconds;
+                notificationTitleKey = "toast_long_break_over_title";
+                notificationBodyKey = "toast_long_break_over_body";
+                soundNoteForEndedMode = 'E4';
+                appData.timerState.pomodorosInCycle = 0;
+                nextModeToTransitionTo = 'study';
+                shouldAutoStart = false;
+            }
+            checkGoalProgress();
+            checkAchievements();
+            updateStatsDisplay();
+            saveData();
+            playSound(soundNoteForEndedMode, '4n', 'timerComplete');
+            showToast(getText(notificationTitleKey), getText(notificationBodyKey), 'info');
+            if (showCycleCompleteNotification) {
+                showToast(getText("toast_cycle_complete_title"), getText("toast_cycle_complete_body"), 'success', 5000);
+            }
+            if (nextModeToTransitionTo) {
+                setTimer(nextModeToTransitionTo);
+                if (shouldAutoStart) startTimer();
+            } else {
+                startPauseButton.querySelector('span').textContent = getText('start_button');
+                startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+            }
+        }
+        
+        function resetCurrentTimer() {
+            if (appData.timerState.isRunning && timerWorker) timerWorker.postMessage({ command: 'pause' });
+            appData.timerState.isRunning = false;
+            let newTimeLeft;
+            switch(appData.timerState.currentMode) {
+                case 'study': newTimeLeft = appData.settings.studyTime * 60; break;
+                case 'shortBreak': newTimeLeft = appData.settings.shortBreakTime * 60; break;
+                case 'longBreak': newTimeLeft = appData.settings.longBreakTime * 60; break;
+                default: newTimeLeft = appData.settings.studyTime * 60;
+            }
+            appData.timerState.timeLeft = newTimeLeft;
+            if (timerWorker) timerWorker.postMessage({ command: 'setMode', mode: appData.timerState.currentMode, duration: appData.timerState.timeLeft });
+            startPauseButton.querySelector('span').textContent = getText('start_button');
+            startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+            updateTimerDisplay();
+            saveData();
+        }
+        
+        function archiveGoalProgress() {
+            const history = appData.stats.goalHistory || [];
+            const sevenDaysAgo = new Date();
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+            const recentHistory = history.filter(entry => new Date(entry.date) >= sevenDaysAgo);
+            const todayStr = appData.stats.daily.date;
+            if (appData.dailyGoal.target > 0) {
+                const existingEntryIndex = recentHistory.findIndex(e => e.date === todayStr);
+                const entry = {
+                    date: todayStr,
+                    target: appData.dailyGoal.target,
+                    progress: appData.dailyGoal.progress,
+                    completed: appData.dailyGoal.completed
+                };
+                if (existingEntryIndex > -1) {
+                    recentHistory[existingEntryIndex] = entry;
+                } else {
+                    recentHistory.push(entry);
+                }
+            }
+            appData.stats.goalHistory = recentHistory.slice(-7);
+        }
+        
+        function resetDailyStats() {
+            appData.stats.daily = { date: getTodayDateString(), focusSessions: 0, cyclesCompleted: 0, pureStudySeconds: 0, totalTimeSeconds: 0, firstStudySessionCompletedToday: false };
+            appData.dailyGoal.progress = 0;
+            appData.dailyGoal.completed = false;
+            appData.dailyGoal.notificationShown = false;
+        }
+        
+        function setTabStyling(isCollapsed) {
+            tabButtons.forEach(btn => {
+                btn.classList.remove('active', 'text-sky-400', 'border-sky-400');
+                btn.classList.add('text-slate-400', 'border-transparent');
+                if (!isCollapsed && btn.dataset.tab === activeTabId) {
+                    btn.classList.add('active', 'text-sky-400', 'border-sky-400');
+                    btn.classList.remove('text-slate-400', 'border-transparent');
+                }
+            });
+        }
+        
+        function showTab(tabId) {
+            activeTabId = tabId;
+            setTabStyling(false);
+            tabPanes.forEach(pane => {
+                const isTargetPane = pane.id === `${tabId}Content`;
+                pane.style.display = isTargetPane ? 'flex' : 'none';
+                pane.classList.toggle('active', isTargetPane);
+            });
+            if (tabId === 'achievements') {
+                justSeenAchievementIds = [];
+                appData.achievements.forEach(ach => {
+                    if (ach.unlocked && !ach.seen) justSeenAchievementIds.push(ach.id);
+                    if (ach.unlocked) ach.seen = true;
+                });
+                appData.uiState.newAchievementsCount = 0;
+                updateNotificationBadges();
+                saveData();
+                renderAchievements();
+            } else if (tabId === 'dailyGoal') {
+                requestAnimationFrame(() => {
+                    renderGoalHistoryChart();
+                });
+                if (appData.dailyGoal.target <= 0) {
+                    showGoalEditView(true);
+                } else {
+                    showGoalEditView(false);
+                }
+            }
+        }
+        
+        function setTodaysGoal() {
+            const settings = appData.dailyGoal.settings;
+            const today = new Date().getDay();
+            let newTarget = 0;
+            switch (settings.mode) {
+                case 'weekend':
+                    newTarget = (today === 0 || today === 6) ? settings.targetWeekend : settings.targetWeekday;
+                    break;
+                case 'custom':
+                    newTarget = settings.targetsCustom[today];
+                    break;
+                case 'all_days':
+                default:
+                    newTarget = settings.targetAll;
+                    break;
+            }
+            appData.dailyGoal.target = newTarget || 0;
+        }
+        
+        function checkGoalProgress() {
+            const goal = appData.dailyGoal;
+            if (goal.target <= 0) {
+                renderDailyGoal();
+                return;
+            };
+            if(goal.completed) {
+                renderDailyGoal();
+                if(goalHistoryChart) renderGoalHistoryChart();
+                return;
+            }
+            const currentProgress = appData.stats.daily.focusSessions;
+            goal.progress = currentProgress;
+            if (currentProgress >= goal.target) {
+                goal.completed = true;
+                if (!goal.notificationShown) {
+                    showToast(getText('goal_completed_toast_title'), getText('goal_completed_toast_body'), 'success');
+                    playSound('G5', '2n', 'goal');
+                }
+            }
+            renderDailyGoal();
+            if(goalHistoryChart) renderGoalHistoryChart();
+        }
+        
+        function renderDailyGoal() {
+            const goal = appData.dailyGoal;
+            goalProgressContainer.style.display = goal.target > 0 ? 'block' : 'none';
+            if (goal.target <= 0) {
+                goalTextEl.textContent = getText('no_goal_set');
+                editGoalButton.querySelector('span').textContent = getText('set_goal_button');
+                goalProgressBarEl.style.width = '0%';
+                goalProgressTextEl.textContent = '';
+                return;
+            }
+            editGoalButton.querySelector('span').textContent = getText('edit_goal_button');
+            goalTextEl.textContent = getPluralText('focusSessions', goal.target);
+            const progressValue = Math.floor(goal.progress);
+            goalProgressTextEl.textContent = `${progressValue} / ${goal.target}`;
+            const progressPercent = Math.min(100, (goal.progress / goal.target) * 100);
+            goalProgressBarEl.style.width = `${progressPercent}%`;
+            if (goal.completed) {
+                goalProgressBarEl.classList.add('completed');
+            } else {
+                goalProgressBarEl.classList.remove('completed');
+            }
+        }
+        
+        function renderGoalHistoryChart() {
+            if (goalHistoryChart) {
+                goalHistoryChart.destroy();
+            }
+            const history = appData.stats.goalHistory || [];
+            const labels = [];
+            const progressData = [];
+            const targetData = [];
+            let maxVal = 0;
+            const today = new Date();
+            const langCode = appData.settings.language.replace('_', '-');
+
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                
+                const dayOfWeek = date.toLocaleDateString(langCode, { weekday: 'short' });
+                const dayMonth = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
+                labels.push([dayOfWeek, dayMonth]);
+
+                const entry = history.find(e => e.date === dateStr);
+                if (i === 0) {
+                    progressData.push(appData.dailyGoal.progress);
+                    targetData.push(appData.dailyGoal.target);
+                    maxVal = Math.max(maxVal, appData.dailyGoal.progress, appData.dailyGoal.target);
+                } else if (entry) {
+                    progressData.push(entry.progress);
+                    targetData.push(entry.target);
+                    maxVal = Math.max(maxVal, entry.progress, entry.target);
+                } else {
+                    progressData.push(0);
+                    targetData.push(0);
+                }
+            }
+            
+            const suggestedMax = Math.max(4, Math.ceil(maxVal) + 1);
+            const ctx = goalHistoryChartCanvas.getContext('2d');
+            goalHistoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: getText('progress_label'),
+                        data: progressData,
+                        backgroundColor: (context) => context.index === 6 ? 'rgba(56, 189, 248, 1)' : 'rgba(56, 189, 248, 0.6)',
+                        borderColor: 'rgba(56, 189, 248, 1)',
+                        borderWidth: 1,
+                        borderRadius: 2,
+                    }, {
+                        label: getText('chart_target_label'),
+                        data: targetData,
+                        type: 'line',
+                        borderColor: 'rgba(239, 68, 68, 0.7)',
+                        backgroundColor: 'transparent',
+                        pointBackgroundColor: 'rgba(239, 68, 68, 1)',
+                        borderDash: [5, 5],
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: suggestedMax,
+                            ticks: { color: '#94a3b8', stepSize: 1 },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: {
+                                color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8'
+                            },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: {
+                                color: '#cbd5e1',
+                                boxWidth: 12,
+                                padding: 20,
+                                font: { size: 10 }
+                            }
+                        },
+                        tooltip: {
+                             callbacks: {
+                                 label: function(context) {
+                                     let label = context.dataset.label || '';
+                                     if (label) label += ': ';
+                                     if (context.parsed.y !== null) {
+                                         label += Math.floor(context.parsed.y);
+                                     }
+                                     return label;
+                                 }
+                             }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showGoalEditView(show) {
+            if (show) {
+                goalDisplayView.classList.add('hidden');
+                goalEditView.classList.remove('hidden');
+                const settings = appData.dailyGoal.settings;
+                document.querySelector(`input[name="goalMode"][value="${settings.mode}"]`).checked = true;
+                document.getElementById('goalValueInputAll').value = settings.targetAll;
+                document.getElementById('goalValueInputWeekday').value = settings.targetWeekday;
+                document.getElementById('goalValueInputWeekend').value = settings.targetWeekend;
+                const customContainer = document.querySelector('#goalInputsCustom .custom-day-grid');
+                customContainer.innerHTML = '';
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                settings.targetsCustom.forEach((val, i) => {
+                    const dayName = dayNames[i];
+                    const inputHtml = `
+                        <div class="custom-day-input-group">
+                            <label for="goalDay${i}" class="block">${dayName}</label>
+                            <input type="number" id="goalDay${i}" data-day-index="${i}" min="0" value="${val}" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500">
+                        </div>
+                    `;
+                    customContainer.insertAdjacentHTML('beforeend', inputHtml);
+                });
+                document.querySelectorAll('input[name="goalMode"]').forEach(radio => {
+                    radio.dispatchEvent(new Event('change'));
+                });
+            } else {
+                goalDisplayView.classList.remove('hidden');
+                goalEditView.classList.add('hidden');
+            }
+        }
+        
+        function checkAchievements() {
+            const unlockedAchievements = [];
+            appData.achievements.forEach(ach => {
+                if (!ach.unlocked) {
+                    const progress = getAchievementProgress(ach.type, ach.threshold);
+                    if (progress.current >= ach.threshold) {
+                        ach.unlocked = true;
+                        ach.unlockedDate = new Date().toISOString();
+                        ach.seen = false;
+                        unlockedAchievements.push(ach);
+                    }
+                }
+            });
+
+            if (unlockedAchievements.length > 0) {
+                unlockedAchievements.forEach((ach, index) => {
+                    setTimeout(() => {
+                        const achievementName = getText(`achievements.${ach.id}.name`);
+                        showToast(
+                            getText('toast_achievement_unlocked_title'),
+                            getText('toast_achievement_unlocked_body', achievementName),
+                            'success',
+                            5000
+                        );
+                        playSound('C5', '4n', 'achievement');
+                    }, index * 600);
+                });
+                appData.uiState.newAchievementsCount += unlockedAchievements.length;
+                updateNotificationBadges();
+                if (activeTabId === 'achievements') {
+                    renderAchievements();
+                }
+            }
+        }
+        
         let timerWorker;
-        window.Worker&&(timerWorker=new Worker(URL.createObjectURL(new Blob([document.getElementById("timerWorkerScript").textContent],{type:"application/javascript"}))),timerWorker.onmessage=function(e){const{type:t,timeLeft:a,mode:o}=e.data;"tick"===t?(appData.timerState.timeLeft=a,appData.timerState.currentMode===o&&updateTimerDisplay()):"end"===t?appData.timerState.currentMode===o&&handleTimerEnd(currentTimerInitialDuration):"modeSet"===t&&(appData.timerState.timeLeft=a,updateTimerDisplay())},timerWorker.onerror=function(e){timerWorker=null});
-        function startMidnightChecker(){setInterval(()=>{getTodayDateString()!==appData.stats.daily.date&&(showToast(getText("toast_new_day_title"),getText("toast_new_day_body"),"info"),archiveGoalProgress(),resetDailyStats(),setTodaysGoal(),saveData(),updateStatsDisplay(),renderAllDynamicContent())},6e4)}
-        function renderAllDynamicContent(){updateTimerDisplay(),updateStatsDisplay(),renderDailyGoal(),renderAchievements(),document.getElementById("dailyGoalContent").classList.contains("active")&&renderGoalHistoryChart()}
-        function initializeApp(){appContainer.style.display="block",appContainer.classList.remove("hidden"),loadData(),setTodaysGoal(),checkGoalProgress();const e=getTodayDateString();if(appData.stats.general.lastStudyDate&&appData.stats.general.lastStudyDate!==e){const t=new Date(appData.stats.general.lastStudyDate),a=new Date(e),o=new Date(a);o.setDate(a.getDate()-1),t.setHours(0,0,0,0),o.setHours(0,0,0,0),t.getTime()<o.getTime()&&(appData.stats.general.streak=0)}const t={...appData.timerState};appData.timerState.currentMode=t.currentMode||"study",appData.timerState.timeLeft=t.timeLeft,appData.timerState.pomodorosInCycle=t.pomodorosInCycle||0;const a=t.isRunning||!1;appData.timerState.isRunning=!1,timerWorker&&(timerWorker.postMessage({command:"updateSettings",settings:appData.settings}),timerWorker.postMessage({command:"setMode",mode:appData.timerState.currentMode,duration:appData.timerState.timeLeft})),applyTranslations(),a&&appData.timerState.timeLeft>0?(appData.timerState.isRunning=!0,startPauseButton.querySelector("span").textContent=getText("pause_button"),startPauseButton.querySelector("i").className="fas fa-pause mr-2",timerWorker&&timerWorker.postMessage({command:"start"})):(startPauseButton.querySelector("span").textContent=getText("start_button"),startPauseButton.querySelector("i").className="fas fa-play mr-2"),appData.uiState.tabsCollapsed?(tabContentEl.classList.add("collapsed"),collapseIcon.className="fas fa-chevron-down",setTabStyling(!0)):(collapseIcon.className="fas fa-chevron-up",setTabStyling(!1)),renderAllDynamicContent(),updateNotificationBadges(),startMidnightChecker()}
-        function setupLanguageChoices(){const e={en:"English","pt-BR":"Português",es:"Español",fr:"Français",de:"Deutsch",ja:"日本語",ru:"Русский","zh-CN":"中文","hi-IN":"हिन्दी"};Object.entries(e).forEach(([e,t])=>{const a=document.createElement("option");a.value=e,a.textContent=t,languageSelect.appendChild(a);const o=document.createElement("button");o.textContent=t,o.dataset.lang=e,o.className="w-full px-4 py-3 bg-slate-700 hover:bg-sky-500 rounded-lg transition-colors font-semibold text-sm",languageButtonsContainer.appendChild(o)})}
-        function handleFirstVisit(){languageModal.classList.add("show"),languageButtonsContainer.addEventListener("click",e=>{if("BUTTON"===e.target.tagName&&e.target.dataset.lang){const t=e.target.dataset.lang;appData.settings.language=t,saveData(),languageModal.classList.remove("show"),initializeApp()}})}
-        window.addEventListener("beforeunload",()=>{blockUnloadSave||(archiveGoalProgress(),saveData())}),document.addEventListener("DOMContentLoaded",()=>{setupLanguageChoices(),localStorage.getItem(STORAGE_KEY)?initializeApp():handleFirstVisit(),startPauseButton.addEventListener("click",()=>{"running"!==Tone.context.state&&Tone.start(),appData.timerState.isRunning?pauseTimer():startTimer()}),resetButton.addEventListener("click",resetCurrentTimer),resetCycleCountButtonEl.addEventListener("click",()=>{showCustomAlert(getText("alert_reset_cycle_title"),getText("alert_reset_cycle_body"),"fas fa-sync-alt text-sky-400",getText("confirm_button"),getText("cancel_button"),()=>{appData.timerState.pomodorosInCycle=0,"study"!==appData.timerState.currentMode&&setTimer("study"),updateCycleInfo(),saveData()})}),skipBreakButton.addEventListener("click",()=>{"shortBreak"!==appData.timerState.currentMode&&"longBreak"!==appData.timerState.currentMode||handleTimerEnd(0)}),settingsButton.addEventListener("click",()=>{studyTimeInput.value=appData.settings.studyTime,shortBreakTimeInput.value=appData.settings.shortBreakTime,longBreakTimeInput.value=appData.settings.longBreakTime,soundToggle.checked=appData.settings.soundEnabled,languageSelect.value=appData.settings.language,settingsModal.classList.add("show")}),helpButton.addEventListener("click",()=>{showCustomAlert(getText("alert_help_title"),getText("alert_help_body"),"fas fa-question-circle text-sky-400",getText("got_it_button"),null,null,null,!0)}),cancelSettingsButton.addEventListener("click",()=>{settingsModal.classList.remove("show")}),saveSettingsButton.addEventListener("click",()=>{const e=parseInt(studyTimeInput.value),t=parseInt(shortBreakTimeInput.value),a=parseInt(longBreakTimeInput.value),o=languageSelect.value,s=soundToggle.checked,n=appData.settings.language;e>0&&(appData.settings.studyTime=e),t>0&&(appData.settings.shortBreakTime=t),a>0&&(appData.settings.longBreakTime=a),appData.settings.language=o,appData.settings.soundEnabled=s,o!==n&&(appData.achievements=buildAchievements(o,appData.achievements),applyTranslations(),renderAllDynamicContent()),timerWorker&&timerWorker.postMessage({command:"updateSettings",settings:appData.settings}),appData.timerState.isRunning||(appData.timerState.lastTimerUsed!==appData.timerState.currentMode&&null!==appData.timerState.lastTimerUsed||setTimer(appData.timerState.currentMode)),saveData(),settingsModal.classList.remove("show"),showToast(getText("toast_settings_saved_title"),getText("toast_settings_saved_body"),"success")}),tabButtons.forEach(e=>{e.addEventListener("click",()=>{const t=e.dataset.tab;tabContentEl.classList.contains("collapsed")?(tabContentEl.classList.remove("collapsed"),appData.uiState.tabsCollapsed=!1,collapseIcon.className="fas fa-chevron-up"):activeTabId=t,showTab(activeTabId)})}),collapseTabsButton.addEventListener("click",()=>{const e=tabContentEl.classList.contains("collapsed");appData.uiState.tabsCollapsed=!e,e?(tabContentEl.classList.remove("collapsed"),collapseIcon.className="fas fa-chevron-up",showTab(activeTabId)):(tabContentEl.classList.add("collapsed"),collapseIcon.className="fas fa-chevron-down"),saveData()}),editGoalButton.addEventListener("click",()=>showGoalEditView(!0)),cancelGoalButton.addEventListener("click",()=>{!appData.dailyGoal.target>0&&!Object.values(appData.dailyGoal.settings).some(e=>Array.isArray(e)?e.some(e=>e>0):e>0)||showGoalEditView(!1)}),saveGoalButton.addEventListener("click",()=>{const e=appData.dailyGoal.settings;e.mode=document.querySelector('input[name="goalMode"]:checked').value,e.targetAll=parseInt(document.getElementById("goalValueInputAll").value)||0,e.targetWeekday=parseInt(document.getElementById("goalValueInputWeekday").value)||0,e.targetWeekend=parseInt(document.getElementById("goalValueInputWeekend").value)||0,document.querySelectorAll("#goalInputsCustom input").forEach(t=>{const a=parseInt(t.dataset.dayIndex);e.targetsCustom[a]=parseInt(t.value)||0}),setTodaysGoal(),checkGoalProgress(),saveData(),showGoalEditView(!1),showToast(getText("toast_settings_saved_title"),getText("toast_goal_saved_body"),"success")}),exportDataButton.addEventListener("click",()=>{try{const e=JSON.stringify(appData,null,2),t=new Blob([e],{type:"application/json"}),a=URL.createObjectURL(t),o=document.createElement("a");o.href=a,o.download=`PomodoroCycle_Backup_${getTodayDateString()}.json`,document.body.appendChild(o),o.click(),document.body.removeChild(o),URL.revokeObjectURL(a)}catch(e){showToast(getText("toast_error_title"),"Could not export data.","error")}}),importDataButton.addEventListener("click",()=>{importFileInput.click()}),importFileInput.addEventListener("change",e=>{const t=e.target.files[0];if(!t)return void(e.target.value="");const a=new FileReader;a.onload=t=>{try{const a=t.target.result,o=JSON.parse(a);if(!o.settings||!o.stats||!o.achievements)throw new Error("Invalid backup file structure.");showCustomAlert(getText("alert_import_title"),getText("alert_import_body"),"fas fa-exclamation-triangle text-yellow-400",getText("confirm_button"),getText("cancel_button"),()=>{localStorage.setItem(STORAGE_KEY,a),blockUnloadSave=!0,settingsModal.classList.remove("show"),location.reload()},()=>{e.target.value=""})}catch(t){showToast(getText("toast_import_error_title"),getText("toast_import_error_body"),"error"),e.target.value=""}},a.onerror=()=>{showToast(getText("toast_import_error_title"),"Could not read the selected file.","error"),e.target.value=""},a.readAsText(t)}),customAlertConfirmButton.addEventListener("click",()=>{"function"==typeof currentConfirmCallback&&currentConfirmCallback(),customAlertModal.classList.remove("show"),currentConfirmCallback=null,currentCancelCallback=null}),customAlertCancelButton.addEventListener("click",()=>{"function"==typeof currentCancelCallback&&currentCancelCallback(),customAlertModal.classList.remove("show"),currentConfirmCallback=null,currentCancelCallback=null})});
+        if (window.Worker) {
+            try {
+                const workerScript = document.getElementById('timerWorkerScript').textContent;
+                const blob = new Blob([workerScript], { type: 'application/javascript' });
+                timerWorker = new Worker(URL.createObjectURL(blob));
+                timerWorker.onmessage = function(e) {
+                    const { type, timeLeft: workerTimeLeftUpdate, mode: workerMode } = e.data;
+                    if (type === 'tick') {
+                        appData.timerState.timeLeft = workerTimeLeftUpdate;
+                        if (appData.timerState.currentMode === workerMode) updateTimerDisplay();
+                    } else if (type === 'end') {
+                        if (appData.timerState.currentMode === workerMode) handleTimerEnd(currentTimerInitialDuration);
+                    } else if (type === 'modeSet') {
+                        appData.timerState.timeLeft = workerTimeLeftUpdate;
+                        updateTimerDisplay();
+                    }
+                };
+                timerWorker.onerror = function(error) { timerWorker = null; };
+            } catch (e) {
+                timerWorker = null;
+            }
+        }
+        
+        function startMidnightChecker() {
+            setInterval(() => {
+                const todayString = getTodayDateString();
+                if (appData.stats.daily.date !== todayString) {
+                    showToast(getText("toast_new_day_title"), getText("toast_new_day_body"), "info");
+                    archiveGoalProgress();
+                    resetDailyStats();
+                    setTodaysGoal();
+                    saveData();
+                    updateStatsDisplay();
+                    renderAllDynamicContent();
+                }
+            }, 60000);
+        }
+        
+        function renderAllDynamicContent() {
+             updateTimerDisplay();
+             updateStatsDisplay();
+             renderDailyGoal();
+             renderAchievements();
+             if (document.getElementById('dailyGoalContent').classList.contains('active')) {
+                 renderGoalHistoryChart();
+             }
+        }
+        
+        function initializeApp() {
+            appContainer.style.display = 'block';
+            appContainer.classList.remove('hidden');
+            loadData();
+            setTodaysGoal();
+            checkGoalProgress();
+            const todayStrInitialize = getTodayDateString();
+            if (appData.stats.general.lastStudyDate && appData.stats.general.lastStudyDate !== todayStrInitialize) {
+                const lastStudy = new Date(appData.stats.general.lastStudyDate), today = new Date(todayStrInitialize), yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+                lastStudy.setHours(0, 0, 0, 0);
+                yesterday.setHours(0, 0, 0, 0);
+                if (lastStudy.getTime() < yesterday.getTime()) {
+                    appData.stats.general.streak = 0;
+                }
+            }
+            const persistedState = { ...appData.timerState };
+            appData.timerState.currentMode = persistedState.currentMode || 'study';
+            appData.timerState.timeLeft = persistedState.timeLeft;
+            appData.timerState.pomodorosInCycle = persistedState.pomodorosInCycle || 0;
+            const wasRunning = persistedState.isRunning || false;
+            appData.timerState.isRunning = false;
+            if (timerWorker) {
+                timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
+                timerWorker.postMessage({ command: 'setMode', mode: appData.timerState.currentMode, duration: appData.timerState.timeLeft });
+            }
+            applyTranslations();
+            if (wasRunning && appData.timerState.timeLeft > 0) {
+                appData.timerState.isRunning = true;
+                startPauseButton.querySelector('span').textContent = getText('pause_button');
+                startPauseButton.querySelector('i').className = 'fas fa-pause mr-2';
+                if (timerWorker) timerWorker.postMessage({ command: 'start' });
+            } else {
+                startPauseButton.querySelector('span').textContent = getText('start_button');
+                startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+            }
+            if (appData.uiState.tabsCollapsed) {
+                tabContentEl.classList.add('collapsed');
+                collapseIcon.className = 'fas fa-chevron-down';
+                setTabStyling(true);
+            } else {
+                collapseIcon.className = 'fas fa-chevron-up';
+                setTabStyling(false);
+            }
+            renderAllDynamicContent();
+            updateNotificationBadges();
+            startMidnightChecker();
+        }
+        
+        function setupLanguageChoices() {
+            const languageDisplayNames = { 'en': 'English', 'pt-BR': 'Português', 'es': 'Español', 'fr': 'Français', 'de': 'Deutsch', 'ja': '日本語', 'ru': 'Русский', 'zh-CN': '中文', 'hi-IN': 'हिन्दी' };
+            Object.entries(languageDisplayNames).forEach(([code, name]) => {
+                const option = document.createElement('option');
+                option.value = code;
+                option.textContent = name;
+                languageSelect.appendChild(option);
+                const button = document.createElement('button');
+                button.textContent = name;
+                button.dataset.lang = code;
+                button.className = "w-full px-4 py-3 bg-slate-700 hover:bg-sky-500 rounded-lg transition-colors font-semibold text-sm";
+                languageButtonsContainer.appendChild(button);
+            });
+        }
+        
+        function handleFirstVisit() {
+            languageModal.classList.add('show');
+            languageButtonsContainer.addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' && e.target.dataset.lang) {
+                    const selectedLang = e.target.dataset.lang;
+                    appData.settings.language = selectedLang;
+                    saveData();
+                    languageModal.classList.remove('show');
+                    initializeApp();
+                }
+            });
+        }
+        
+        window.addEventListener('beforeunload', () => {
+            if (!blockUnloadSave) {
+                archiveGoalProgress();
+                saveData();
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setupLanguageChoices();
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                handleFirstVisit();
+            } else {
+                initializeApp();
+            }
+        
+            startPauseButton.addEventListener('click', () => {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                if (appData.timerState.isRunning) {
+                    pauseTimer();
+                } else {
+                    startTimer();
+                }
+            });
+        
+            resetButton.addEventListener('click', resetCurrentTimer);
+        
+            resetCycleCountButtonEl.addEventListener('click', () => {
+                showCustomAlert(
+                    getText('alert_reset_cycle_title'),
+                    getText('alert_reset_cycle_body'),
+                    'fas fa-sync-alt text-sky-400',
+                    getText('confirm_button'),
+                    getText('cancel_button'),
+                    () => {
+                        appData.timerState.pomodorosInCycle = 0;
+                        if(appData.timerState.currentMode !== 'study') {
+                            setTimer('study');
+                        }
+                        updateCycleInfo();
+                        saveData();
+                    }
+                );
+            });
+        
+            skipBreakButton.addEventListener('click', () => {
+                if (appData.timerState.currentMode === 'shortBreak' || appData.timerState.currentMode === 'longBreak') {
+                    handleTimerEnd(0);
+                }
+            });
+        
+            settingsButton.addEventListener('click', () => {
+                studyTimeInput.value = appData.settings.studyTime;
+                shortBreakTimeInput.value = appData.settings.shortBreakTime;
+                longBreakTimeInput.value = appData.settings.longBreakTime;
+                soundToggle.checked = appData.settings.soundEnabled;
+                languageSelect.value = appData.settings.language;
+                settingsModal.classList.add('show');
+            });
+        
+            helpButton.addEventListener('click', () => {
+                showCustomAlert(
+                    getText('alert_help_title'),
+                    getText('alert_help_body'),
+                    'fas fa-question-circle text-sky-400',
+                    getText('got_it_button'),
+                    null, null, null, true
+                );
+            });
+        
+            cancelSettingsButton.addEventListener('click', () => {
+                settingsModal.classList.remove('show');
+            });
+        
+            saveSettingsButton.addEventListener('click', () => {
+                const newStudyTime = parseInt(studyTimeInput.value);
+                const newShortBreakTime = parseInt(shortBreakTimeInput.value);
+                const newLongBreakTime = parseInt(longBreakTimeInput.value);
+                const newLang = languageSelect.value;
+                const soundEnabled = soundToggle.checked;
+        
+                const oldLang = appData.settings.language;
+        
+                if (newStudyTime > 0) appData.settings.studyTime = newStudyTime;
+                if (newShortBreakTime > 0) appData.settings.shortBreakTime = newShortBreakTime;
+                if (newLongBreakTime > 0) appData.settings.longBreakTime = newLongBreakTime;
+                appData.settings.language = newLang;
+                appData.settings.soundEnabled = soundEnabled;
+        
+                if (newLang !== oldLang) {
+                    appData.achievements = buildAchievements(newLang, appData.achievements);
+                    applyTranslations();
+                    renderAllDynamicContent();
+                }
+        
+                if (timerWorker) {
+                    timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
+                }
+                
+                if (!appData.timerState.isRunning) {
+                    resetCurrentTimer();
+                }
+        
+                saveData();
+                settingsModal.classList.remove('show');
+                showToast(getText('toast_settings_saved_title'), getText('toast_settings_saved_body'), 'success');
+            });
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const targetTab = button.dataset.tab;
+                    if (tabContentEl.classList.contains('collapsed')) {
+                        tabContentEl.classList.remove('collapsed');
+                        appData.uiState.tabsCollapsed = false;
+                        collapseIcon.className = 'fas fa-chevron-up';
+                    }
+                    activeTabId = targetTab;
+                    showTab(activeTabId);
+                });
+            });
+
+            collapseTabsButton.addEventListener('click', () => {
+                const isCollapsed = tabContentEl.classList.contains('collapsed');
+                appData.uiState.tabsCollapsed = !isCollapsed;
+                if (isCollapsed) {
+                    tabContentEl.classList.remove('collapsed');
+                    collapseIcon.className = 'fas fa-chevron-up';
+                    showTab(activeTabId);
+                } else {
+                    tabContentEl.classList.add('collapsed');
+                    collapseIcon.className = 'fas fa-chevron-down';
+                }
+                saveData();
+            });
+
+            editGoalButton.addEventListener('click', () => showGoalEditView(true));
+            
+            cancelGoalButton.addEventListener('click', () => {
+                if(appData.dailyGoal.target > 0 || Object.values(appData.dailyGoal.settings).some(v => Array.isArray(v) ? v.some(n => n > 0) : v > 0)) {
+                    showGoalEditView(false);
+                }
+            });
+
+            saveGoalButton.addEventListener('click', () => {
+                const settings = appData.dailyGoal.settings;
+                settings.mode = document.querySelector('input[name="goalMode"]:checked').value;
+                settings.targetAll = parseInt(document.getElementById('goalValueInputAll').value) || 0;
+                settings.targetWeekday = parseInt(document.getElementById('goalValueInputWeekday').value) || 0;
+                settings.targetWeekend = parseInt(document.getElementById('goalValueInputWeekend').value) || 0;
+                document.querySelectorAll('#goalInputsCustom input').forEach(input => {
+                    const dayIndex = parseInt(input.dataset.dayIndex);
+                    settings.targetsCustom[dayIndex] = parseInt(input.value) || 0;
+                });
+                setTodaysGoal();
+                checkGoalProgress();
+                saveData();
+                showGoalEditView(false);
+                showToast(getText("toast_settings_saved_title"), getText("toast_goal_saved_body"), "success");
+            });
+
+            importDataButton.addEventListener('click', () => {
+                importFileInput.click();
+            });
+
+            importFileInput.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (!file) {
+                    event.target.value = '';
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedFileContent = e.target.result;
+                        const importedData = JSON.parse(importedFileContent);
+                        if (!importedData.settings || !importedData.stats || !importedData.achievements) {
+                             throw new Error("Invalid backup file structure.");
+                        }
+                        showCustomAlert(
+                            getText("alert_import_title"),
+                            getText("alert_import_body"),
+                            "fas fa-exclamation-triangle text-yellow-400",
+                            getText("confirm_button"),
+                            getText("cancel_button"),
+                            () => {
+                                localStorage.setItem(STORAGE_KEY, importedFileContent);
+                                blockUnloadSave = true;
+                                settingsModal.classList.remove('show');
+                                location.reload();
+                            },
+                            () => {
+                               event.target.value = '';
+                            }
+                        );
+                    } catch (error) {
+                        showToast(getText('toast_import_error_title'), getText('toast_import_error_body'), 'error');
+                        event.target.value = '';
+                    }
+                };
+                reader.onerror = () => {
+                    showToast(getText('toast_import_error_title'), 'Could not read the selected file.', 'error');
+                    event.target.value = '';
+                };
+                reader.readAsText(file);
+            });
+            
+            customAlertConfirmButton.addEventListener('click', () => {
+                if (typeof currentConfirmCallback === 'function') currentConfirmCallback();
+                customAlertModal.classList.remove('show');
+                currentConfirmCallback = null; currentCancelCallback = null;
+            });
+            
+            customAlertCancelButton.addEventListener('click', () => {
+                if (typeof currentCancelCallback === 'function') currentCancelCallback();
+                customAlertModal.classList.remove('show');
+                currentConfirmCallback = null; currentCancelCallback = null;
+            });
+
+             document.querySelectorAll('input[name="goalMode"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    document.getElementById('goalInputsAllDays').classList.toggle('hidden', e.target.value !== 'all_days');
+                    document.getElementById('goalInputsWeekend').classList.toggle('hidden', e.target.value !== 'weekend');
+                    document.getElementById('goalInputsCustom').classList.toggle('hidden', e.target.value !== 'custom');
+                });
+            });
+        });
     </script>
 </body>
 </html>
