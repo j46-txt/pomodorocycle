@@ -34,7 +34,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
         @keyframes gradient-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         #goalProgressBar { background: linear-gradient(90deg, #06b6d4, #38bdf8, #06b6d4); background-size: 200% 200%; animation: gradient-flow 3s ease infinite; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        #goalProgressBar.completed { box-shadow: 0 0 15px #38bdf8, 0 0 5px #06b6d4; }
+        #goalProgressBar.completed { animation: none; }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
         .help-content li.break-session { color: #a0aec0; }
@@ -620,8 +620,8 @@
                     appData.achievements = buildAchievements(appData.settings.language);
                 }
             } else {
-               appData = defaultData;
-               appData.achievements = buildAchievements(appData.settings.language);
+              appData = defaultData;
+              appData.achievements = buildAchievements(appData.settings.language);
             }
             if (appData.stats.daily.date !== getTodayDateString()) {
                 archiveGoalProgress();
@@ -862,7 +862,7 @@
             }
             if (nextModeToTransitionTo) {
                 setTimer(nextModeToTransitionTo);
-                if (shouldAutoStart) startTimer();
+                if (shouldAutoStart && completedDurationInSeconds > 0) startTimer();
             } else {
                 startPauseButton.querySelector('span').textContent = getText('start_button');
                 startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
@@ -940,6 +940,11 @@
                 saveData();
                 renderAchievements();
             } else if (tabId === 'dailyGoal') {
+                if (appData.dailyGoal.completed) {
+                    appData.dailyGoal.notificationShown = true;
+                    updateNotificationBadges();
+                    saveData();
+                }
                 requestAnimationFrame(() => {
                     renderGoalHistoryChart();
                 });
@@ -1333,8 +1338,7 @@
                 showCustomAlert(getText('alert_reset_cycle_title'), getText('alert_reset_cycle_body'), 'fas fa-sync-alt text-sky-400', getText('confirm_button'), getText('cancel_button'),
                     () => {
                         appData.timerState.pomodorosInCycle = 0;
-                        if(appData.timerState.currentMode !== 'study') { setTimer('study'); }
-                        updateCycleInfo();
+                        setTimer('study');
                         saveData();
                     }
                 );
