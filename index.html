@@ -1070,8 +1070,7 @@
                         borderColor: 'rgba(124, 58, 237, 0.7)', backgroundColor: 'transparent',
                         pointBackgroundColor: 'rgba(124, 58, 237, 1)', borderDash: [5, 5], fill: false,
                         pointRadius: 3,
-                        order: 2,
-                        events: []
+                        order: 2
                     }]
                 },
                 options: {
@@ -1082,7 +1081,7 @@
                     },
                     plugins: {
                         legend: { display: true, position: 'top', align: 'end', labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } } },
-                        tooltip: { callbacks: { label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += Math.floor(context.parsed.y); } return label; } } }
+                        tooltip: {filter: function(tooltipItem) {return tooltipItem.datasetIndex === 0; }, callbacks: { label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += Math.floor(context.parsed.y); } return label; } } }
                     }
                 }
             });
