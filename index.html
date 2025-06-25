@@ -1105,9 +1105,9 @@
                 document.getElementById('goalValueInputWeekday').value = settings.targetWeekday > 0 ? settings.targetWeekday : '';
                 document.getElementById('goalValueInputWeekend').value = settings.targetWeekend > 0 ? settings.targetWeekend : '';
                 
-                document.getElementById('goalValueInputAll').placeholder = 'ex. 4';
-                document.getElementById('goalValueInputWeekday').placeholder = 'ex. 4';
-                document.getElementById('goalValueInputWeekend').placeholder = 'ex. 2';
+                document.getElementById('goalValueInputAll').placeholder = '4';
+                document.getElementById('goalValueInputWeekday').placeholder = '4';
+                document.getElementById('goalValueInputWeekend').placeholder = '2';
 
                 const customContainer = document.querySelector('#goalInputsCustom .custom-day-grid');
                 customContainer.innerHTML = '';
@@ -1131,7 +1131,7 @@
                                 data-day-index="${jsDayIndex}" 
                                 min="0" 
                                 value="${savedVal > 0 ? savedVal : ''}" 
-                                placeholder="ex. ${placeholderVal}" 
+                                placeholder="${placeholderVal}" 
                                 class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500">
                         </div>`;
                     customContainer.insertAdjacentHTML('beforeend', inputHtml);
@@ -1499,8 +1499,17 @@
             customAlertConfirmButton.addEventListener('click', () => { if (typeof currentConfirmCallback === 'function') currentConfirmCallback(); customAlertModal.classList.remove('show'); currentConfirmCallback = null; currentCancelCallback = null; });
             customAlertCancelButton.addEventListener('click', () => { if (typeof currentCancelCallback === 'function') currentCancelCallback(); customAlertModal.classList.remove('show'); currentConfirmCallback = null; currentCancelCallback = null; });
 
+            // CORREÇÃO: Listener unificado para os botões de rádio para evitar conflitos.
             document.querySelectorAll('input[name="goalMode"]').forEach(radio => {
-                radio.addEventListener('change', validateGoalInputs);
+                radio.addEventListener('change', (e) => {
+                    // 1. Troca a visualização das abas
+                    document.getElementById('goalInputsAllDays').classList.toggle('hidden', e.target.value !== 'all_days');
+                    document.getElementById('goalInputsWeekend').classList.toggle('hidden', e.target.value !== 'weekend');
+                    document.getElementById('goalInputsCustom').classList.toggle('hidden', e.target.value !== 'custom');
+                    
+                    // 2. Roda a validação do botão
+                    validateGoalInputs();
+                });
             });
         });
     </script>
