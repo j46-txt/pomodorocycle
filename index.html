@@ -63,7 +63,6 @@
         #goalProgressText { font-family: 'Inter', sans-serif; }
         #statsContent { overflow-y: auto; overflow-x: hidden; }
         #goalEditView { overflow-y: auto; padding-bottom: 0.5rem; }
-        /* CORREÇÃO: Margem inferior do seletor de modo reduzida */
         .goal-mode-selector { display: flex; border-radius: 0.5rem; border: 1px solid #475569; overflow: hidden; margin-bottom: 1rem; }
         .goal-mode-selector label { flex: 1; padding: 0.75rem 0.5rem; text-align: center; cursor: pointer; transition: background-color 0.2s ease-in-out; font-size: 0.8rem; color: #cbd5e1; position: relative; line-height: 1.2; }
         .goal-mode-selector input[type=radio] { display: none; }
@@ -236,7 +235,7 @@
                                 <div class="custom-day-grid">
                                 </div>
                             </div>
-                             <div class="flex justify-end space-x-2 pt-4">
+                            <div class="flex justify-end space-x-2 pt-4">
                                 <button id="cancelGoalButton" class="bg-slate-600 hover:bg-slate-500 text-slate-300 font-bold py-2 px-4 rounded transition-colors" data-translate-key="cancel_button">Cancel</button>
                                 <button id="saveGoalButton" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded transition-colors" data-translate-key="save_goal_button">Save Goal</button>
                             </div>
@@ -425,6 +424,7 @@
             return `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         }
 
+        // CORREÇÃO: Valores padrão de meta zerados para novos usuários
         function getDefaultAppData() {
             return {
                 settings: { studyTime: 25, shortBreakTime: 5, longBreakTime: 15, soundEnabled: true, language: 'en' },
@@ -435,7 +435,7 @@
                     goalHistory: []
                 },
                 dailyGoal: {
-                    settings: { mode: 'all_days', targetAll: 4, targetWeekday: 4, targetWeekend: 2, targetsCustom: [2, 4, 4, 4, 4, 4, 2] },
+                    settings: { mode: 'all_days', targetAll: 0, targetWeekday: 0, targetWeekend: 0, targetsCustom: [0, 0, 0, 0, 0, 0, 0] },
                     target: 0, progress: 0, completed: false, notificationShown: false
                 },
                 achievements: [],
@@ -1063,13 +1063,28 @@
                 goalDisplayView.classList.add('hidden'); goalEditView.classList.remove('hidden');
                 const settings = appData.dailyGoal.settings;
                 document.querySelector(`input[name="goalMode"][value="${settings.mode}"]`).checked = true;
-                document.getElementById('goalValueInputAll').value=settings.targetAll;
-                document.getElementById('goalValueInputWeekday').value=settings.targetWeekday;
-                document.getElementById('goalValueInputWeekend').value=settings.targetWeekend;
+                
+                // Preenche os campos com os valores salvos, ou com sugestões se estiverem zerados
+                document.getElementById('goalValueInputAll').value = settings.targetAll > 0 ? settings.targetAll : '';
+                document.getElementById('goalValueInputWeekday').value = settings.targetWeekday > 0 ? settings.targetWeekday : '';
+                document.getElementById('goalValueInputWeekend').value = settings.targetWeekend > 0 ? settings.targetWeekend : '';
+
+                // Coloca placeholders para guiar o usuário
+                document.getElementById('goalValueInputAll').placeholder = 'e.g., 4';
+                document.getElementById('goalValueInputWeekday').placeholder = 'e.g., 4';
+                document.getElementById('goalValueInputWeekend').placeholder = 'e.g., 2';
+
                 const customContainer=document.querySelector('#goalInputsCustom .custom-day-grid');
                 customContainer.innerHTML='';
                 const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-                settings.targetsCustom.forEach((val,i)=>{const dayName=dayNames[i];const inputHtml=`<div class="custom-day-input-group"><label for="goalDay${i}" class="block">${dayName}</label><input type="number" id="goalDay${i}" data-day-index="${i}" min="0" value="${val}" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500"></div>`;customContainer.insertAdjacentHTML('beforeend',inputHtml);});
+                const customTargets = settings.targetsCustom.every(t => t === 0) ? [2,4,4,4,4,4,2] : settings.targetsCustom;
+
+                customTargets.forEach((val,i)=>{
+                    const dayName=dayNames[i];
+                    const savedVal = settings.targetsCustom[i];
+                    const inputHtml=`<div class="custom-day-input-group"><label for="goalDay${i}" class="block">${dayName}</label><input type="number" id="goalDay${i}" data-day-index="${i}" min="0" value="${savedVal > 0 ? savedVal : ''}" placeholder="${val}" class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500"></div>`;
+                    customContainer.insertAdjacentHTML('beforeend',inputHtml);
+                });
                 document.querySelectorAll('input[name="goalMode"]').forEach(radio=>radio.dispatchEvent(new Event('change')));
             } else {
                 goalDisplayView.classList.remove('hidden'); goalEditView.classList.add('hidden');
@@ -1338,9 +1353,14 @@
 
             editGoalButton.addEventListener('click', () => showGoalEditView(true));
             
+            // CORREÇÃO: Lógica do botão "Cancelar" aprimorada
             cancelGoalButton.addEventListener('click', () => {
-                if(appData.dailyGoal.target > 0 || Object.values(appData.dailyGoal.settings).some(v => Array.isArray(v) ? v.some(n => n > 0) : v > 0)) {
+                const isGoalEverSet = Object.values(appData.dailyGoal.settings).some(v => Array.isArray(v) ? v.some(n => n > 0) : v > 0);
+
+                if (isGoalEverSet) {
                     showGoalEditView(false);
+                } else {
+                    showTab('stats');
                 }
             });
 
@@ -1385,14 +1405,12 @@
                             throw new Error("Invalid backup file structure.");
                         }
 
-                        // Legacy data migration: Calculate totalFocusSessions from totalCyclesCompleted
                         if (importedData.stats && importedData.stats.general &&
                             (!importedData.stats.general.totalFocusSessions || importedData.stats.general.totalFocusSessions === 0) &&
                             importedData.stats.general.totalCyclesCompleted > 0) {
                             importedData.stats.general.totalFocusSessions = importedData.stats.general.totalCyclesCompleted * POMODOROS_PER_CYCLE;
                         }
                         
-                        // Ensure achievements array exists for merging
                         if (!importedData.achievements) {
                             importedData.achievements = [];
                         }
