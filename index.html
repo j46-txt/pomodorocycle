@@ -967,10 +967,8 @@
         function checkGoalProgress() {
             const goal = appData.dailyGoal;
             
-            // Always update progress from the source of truth, regardless of completion status.
             goal.progress = appData.stats.daily.focusSessions;
             
-            // If there's a goal, check if it has just been completed.
             if (goal.target > 0 && !goal.completed && goal.progress >= goal.target) {
                 goal.completed = true;
                 if (!goal.notificationShown) {
@@ -979,7 +977,6 @@
                 }
             }
             
-            // Always re-render the UI with the latest data.
             renderDailyGoal();
             if (goalHistoryChart) {
                 renderGoalHistoryChart();
@@ -1070,7 +1067,11 @@
                         borderColor: 'rgba(124, 58, 237, 0.7)', backgroundColor: 'transparent',
                         pointBackgroundColor: 'rgba(124, 58, 237, 1)', borderDash: [5, 5], fill: false,
                         pointRadius: 3,
-                        order: 2
+                        order: 2,
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgba(124, 58, 237, 1)',
+                        pointHoverRadius: 3,
+                        pointHoverBackgroundColor: 'rgba(124, 58, 237, 1)'
                     }]
                 },
                 options: {
@@ -1144,7 +1145,7 @@
                 const lang = appData.settings.language || 'en';
                 const displayDayNames = (translations[lang] && translations[lang].day_names_short) || translations['en'].day_names_short;
                 
-                const suggestedCustomTargets = [4, 4, 4, 4, 4, 2, 2]; // Mon-Sun
+                const suggestedCustomTargets = [4, 4, 4, 4, 4, 2, 2];
 
                 displayDayNames.forEach((dayName, index) => {
                     const jsDayIndex = (index < 6) ? index + 1 : 0;
