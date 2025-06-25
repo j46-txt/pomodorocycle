@@ -1057,29 +1057,68 @@
                 type: 'bar',
                 data: {
                     labels: labels,
-                    datasets: [{
-                        label: getText('progress_label'), data: progressData,
-                        backgroundColor: (context) => context.index === 6 ? 'rgba(56, 189, 248, 1)' : 'rgba(56, 189, 248, 0.6)',
-                        borderColor: 'rgba(56, 189, 248, 1)', borderWidth: 1, borderRadius: 2,
-                        order: 1
-                    }, {
-                        label: getText('chart_target_label'), data: targetData, type: 'line',
-                        borderColor: 'rgba(124, 58, 237, 0.7)', backgroundColor: 'transparent',
-                        pointBackgroundColor: 'rgba(124, 58, 237, 1)', borderDash: [5, 5], fill: false,
+                    datasets: [
+                    {
+                        type: 'line',
+                        label: getText('chart_target_label'),
+                        data: targetData,
+                        borderColor: 'rgba(124, 58, 237, 0.9)',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false,
                         pointRadius: 3,
+                        pointBackgroundColor: 'rgba(124, 58, 237, 1)',
                         order: 2
+                    },
+                    {
+                        label: getText('progress_label'),
+                        data: progressData,
+                        backgroundColor: (context) => context.index === 6 ? 'rgba(56, 189, 248, 1)' : 'rgba(56, 189, 248, 0.6)',
+                        borderColor: 'rgba(56, 189, 248, 1)',
+                        borderWidth: 1,
+                        borderRadius: 2,
+                        order: 1
                     }]
                 },
                 options: {
-                    responsive: true, maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: false,
                     events: ['click', 'mouseout', 'touchstart', 'touchmove'],
                     scales: {
-                        y: { beginAtZero: true, max: suggestedMax, ticks: { color: '#94a3b8', stepSize: 1, precision: 0 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-                        x: { ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' }, grid: { display: false } }
+                        y: {
+                            beginAtZero: true,
+                            max: suggestedMax,
+                            ticks: { color: '#94a3b8', stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' },
+                            grid: { display: false }
+                        }
                     },
                     plugins: {
-                        legend: { display: true, position: 'top', align: 'end', labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } } },
-                        tooltip: {filter: function(tooltipItem) {return tooltipItem.datasetIndex === 0; }, callbacks: { label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += Math.floor(context.parsed.y); } return label; } } }
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } }
+                        },
+                        tooltip: {
+                            filter: function(tooltipItem) {
+                                return tooltipItem.datasetIndex === 1;
+                            },
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += Math.floor(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
                     }
                 }
             });
