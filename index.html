@@ -1499,15 +1499,12 @@
             customAlertConfirmButton.addEventListener('click', () => { if (typeof currentConfirmCallback === 'function') currentConfirmCallback(); customAlertModal.classList.remove('show'); currentConfirmCallback = null; currentCancelCallback = null; });
             customAlertCancelButton.addEventListener('click', () => { if (typeof currentCancelCallback === 'function') currentCancelCallback(); customAlertModal.classList.remove('show'); currentConfirmCallback = null; currentCancelCallback = null; });
 
-            // CORREÇÃO: Listener unificado para os botões de rádio para evitar conflitos.
             document.querySelectorAll('input[name="goalMode"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
-                    // 1. Troca a visualização das abas
                     document.getElementById('goalInputsAllDays').classList.toggle('hidden', e.target.value !== 'all_days');
                     document.getElementById('goalInputsWeekend').classList.toggle('hidden', e.target.value !== 'weekend');
                     document.getElementById('goalInputsCustom').classList.toggle('hidden', e.target.value !== 'custom');
                     
-                    // 2. Roda a validação do botão
                     validateGoalInputs();
                 });
             });
