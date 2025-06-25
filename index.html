@@ -32,8 +32,8 @@
         ::-webkit-scrollbar-track { background: #475569; border-radius: 10px; }
         ::-webkit-scrollbar-thumb { background: #94a3b8; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
-        @keyframes gradient-flow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        #goalProgressBar { background: linear-gradient(90deg, #8b5cf6, #38bdf8, #8b5cf6); background-size: 200% 200%; animation: gradient-flow 3s ease infinite; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
+        @keyframes gradient-flow-right { 0% { background-position: 200% 50%; } 100% { background-position: 0% 50%; } }
+        #goalProgressBar { background: linear-gradient(90deg, #8b5cf6, #38bdf8, #8b5cf6); background-size: 200% 200%; animation: gradient-flow-right 3s linear infinite; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
         #goalProgressBar.completed { background: linear-gradient(90deg, #38bdf8, #8b5cf6); animation: none; }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
