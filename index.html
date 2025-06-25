@@ -194,7 +194,7 @@
                         </div>
                         <div id="goalProgressContainer" class="bg-slate-600 p-4 rounded-lg mb-4">
                             <div class="flex items-center justify-between mb-2">
-                                <p id="goalText" class="font-semibold text-base leading-tight"><i class="fas fa-crosshairs mr-2"></i></p>
+                                <p id="goalText" class="font-semibold text-base leading-tight"></p>
                                 <p id="goalProgressText" class="text-sm text-slate-300"></p>
                             </div>
                             <div class="w-full bg-slate-800/70 rounded-full h-3 shadow-inner">
@@ -980,14 +980,14 @@
             const goal = appData.dailyGoal;
             goalProgressContainer.style.display = goal.target > 0 ? 'block' : 'none';
             if (goal.target <= 0) {
-                goalTextEl.textContent = getText('no_goal_set');
+                goalTextEl.textContent = '<i class="fas fa-crosshairs mr-2"></i>' + getText('no_goal_set');
                 editGoalButton.querySelector('span').textContent = getText('set_goal_button');
                 goalProgressBarEl.style.width = '0%';
                 goalProgressTextEl.textContent = '';
                 return;
             }
             editGoalButton.querySelector('span').textContent = getText('edit_goal_button');
-            goalTextEl.textContent = getPluralText('focusSessions', goal.target);
+            goalTextEl.textContent = '<i class="fas fa-crosshairs mr-2"></i>' + getPluralText('focusSessions', goal.target);
             const progressValue = Math.floor(goal.progress);
             goalProgressTextEl.textContent = `${progressValue} / ${goal.target}`;
             const progressPercent = Math.min(100, (goal.progress / goal.target) * 100);
