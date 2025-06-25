@@ -68,11 +68,11 @@
         .goal-mode-selector input[type=radio] { display: none; }
         .goal-mode-selector input[type=radio]:checked+label { background-color: #38bdf8; color: #fff; font-weight: 600; }
         .goal-mode-selector label:not(:last-child) { border-right: 1px solid #475569; }
-    @media (min-width: 768px) {
-        .custom-day-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: .75rem; justify-content: center; }
+        .custom-day-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: .75rem; }
         .custom-day-input-group { text-align: center; }
         .custom-day-input-group label { font-size: .75rem; color: #94a3b8; }
-    }
+        @media (min-width: 768px) { .custom-day-grid { grid-template-columns: repeat(7, 65px); justify-content: center; }
+            
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
