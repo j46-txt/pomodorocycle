@@ -980,14 +980,14 @@
             const goal = appData.dailyGoal;
             goalProgressContainer.style.display = goal.target > 0 ? 'block' : 'none';
             if (goal.target <= 0) {
-                goalTextEl.textContent = '<i class="fas fa-crosshairs mr-2"></i>' + getText('no_goal_set');
+                goalTextEl.innerHTML = '<i class="fas fa-crosshairs mr-2"></i>' + getText('no_goal_set');
                 editGoalButton.querySelector('span').textContent = getText('set_goal_button');
                 goalProgressBarEl.style.width = '0%';
                 goalProgressTextEl.textContent = '';
                 return;
             }
             editGoalButton.querySelector('span').textContent = getText('edit_goal_button');
-            goalTextEl.textContent = '<i class="fas fa-crosshairs mr-2"></i>' + getPluralText('focusSessions', goal.target);
+            goalTextEl.innerHTML = '<i class="fas fa-crosshairs mr-2"></i>' + getPluralText('focusSessions', goal.target);
             const progressValue = Math.floor(goal.progress);
             goalProgressTextEl.textContent = `${progressValue} / ${goal.target}`;
             const progressPercent = Math.min(100, (goal.progress / goal.target) * 100);
