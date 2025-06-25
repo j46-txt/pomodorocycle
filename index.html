@@ -447,7 +447,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "3.7.0"
+                appVersion: "3.8.0"
             };
         }
 
@@ -966,35 +966,49 @@
         
         function checkGoalProgress() {
             const goal = appData.dailyGoal;
-            if (goal.target <= 0) { renderDailyGoal(); return; }
-            if(goal.completed) { renderDailyGoal(); if(goalHistoryChart) renderGoalHistoryChart(); return; }
-            const currentProgress = appData.stats.daily.focusSessions;
-            goal.progress = currentProgress;
-            if (currentProgress >= goal.target) {
+            
+            // Always update progress from the source of truth, regardless of completion status.
+            goal.progress = appData.stats.daily.focusSessions;
+            
+            // If there's a goal, check if it has just been completed.
+            if (goal.target > 0 && !goal.completed && goal.progress >= goal.target) {
                 goal.completed = true;
                 if (!goal.notificationShown) {
                     showToast(getText('goal_completed_toast_title'), getText('goal_completed_toast_body'), 'success');
                     playSound('G5', '2n', 'goal');
                 }
             }
+            
+            // Always re-render the UI with the latest data.
             renderDailyGoal();
-            if(goalHistoryChart) renderGoalHistoryChart();
+            if (goalHistoryChart) {
+                renderGoalHistoryChart();
+            }
         }
         
         function renderDailyGoal() {
             const goal = appData.dailyGoal;
             goalProgressContainer.style.display = goal.target > 0 ? 'block' : 'none';
+            
             if (goal.target <= 0) {
                 goalTextEl.innerHTML = '<i class="fas fa-crosshairs mr-2"></i>' + getText('no_goal_set');
                 editGoalButton.querySelector('span').textContent = getText('set_goal_button');
                 goalProgressBarEl.style.width = '0%';
                 goalProgressTextEl.textContent = '';
+                goalProgressBarEl.classList.remove('completed');
                 return;
             }
+            
             editGoalButton.querySelector('span').textContent = getText('edit_goal_button');
             goalTextEl.innerHTML = '<i class="fas fa-crosshairs mr-2"></i>' + getPluralText('focusSessions', goal.target);
-            const progressValue = Math.floor(goal.progress);
-            goalProgressTextEl.textContent = `${progressValue} / ${goal.target}`;
+            
+            if (goal.completed) {
+                goalProgressTextEl.innerHTML = `<i class="fas fa-check-circle text-sky-400 fa-lg"></i>`;
+            } else {
+                const progressValue = Math.floor(goal.progress);
+                goalProgressTextEl.textContent = `${progressValue} / ${goal.target}`;
+            }
+            
             const progressPercent = Math.min(100, (goal.progress / goal.target) * 100);
             goalProgressBarEl.style.width = `${progressPercent}%`;
             goalProgressBarEl.classList.toggle('completed', goal.completed);
@@ -1221,7 +1235,7 @@
         function renderAllDynamicContent() {
              updateTimerDisplay(); updateStatsDisplay(); renderDailyGoal(); renderAchievements();
              if (document.getElementById('dailyGoalContent').classList.contains('active')) {
-                 renderGoalHistoryChart();
+                  renderGoalHistoryChart();
              }
         }
         
