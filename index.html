@@ -68,11 +68,10 @@
         .goal-mode-selector input[type=radio] { display: none; }
         .goal-mode-selector input[type=radio]:checked+label { background-color: #38bdf8; color: #fff; font-weight: 600; }
         .goal-mode-selector label:not(:last-child) { border-right: 1px solid #475569; }
-        .custom-day-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(65px, 1fr)); gap: .75rem; }
+        .custom-day-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(55px, 1fr)); gap: .75rem; }
         .custom-day-input-group { text-align: center; }
         .custom-day-input-group label { font-size: .75rem; color: #94a3b8; }
-        @media (min-width: 768px) { .custom-day-grid { grid-template-columns: repeat(7, 65px); justify-content: center; }
-            
+        @media (min-width: 768px) { .custom-day-grid { grid-template-columns: repeat(7, 65px); justify-content: center; } }
     </style>
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
@@ -1058,6 +1057,41 @@
                 }
             });
         }
+
+        function validateGoalInputs() {
+            const mode = document.querySelector('input[name="goalMode"]:checked').value;
+            let isValid = false;
+
+            switch (mode) {
+                case 'all_days':
+                    const allDaysValue = parseInt(document.getElementById('goalValueInputAll').value);
+                    if (allDaysValue > 0) isValid = true;
+                    break;
+                case 'weekend':
+                    const weekdayValue = parseInt(document.getElementById('goalValueInputWeekday').value);
+                    const weekendValue = parseInt(document.getElementById('goalValueInputWeekend').value);
+                    if (weekdayValue > 0 || weekendValue > 0) isValid = true;
+                    break;
+                case 'custom':
+                    const customInputs = document.querySelectorAll('#goalInputsCustom input');
+                    for (const input of customInputs) {
+                        if (parseInt(input.value) > 0) {
+                            isValid = true;
+                            break;
+                        }
+                    }
+                    break;
+            }
+
+            const saveButton = document.getElementById('saveGoalButton');
+            if (isValid) {
+                saveButton.disabled = false;
+                saveButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                saveButton.disabled = true;
+                saveButton.classList.add('opacity-50', 'cursor-not-allowed');
+            }
+        }
         
         function showGoalEditView(show) {
             if (show) {
@@ -1071,9 +1105,9 @@
                 document.getElementById('goalValueInputWeekday').value = settings.targetWeekday > 0 ? settings.targetWeekday : '';
                 document.getElementById('goalValueInputWeekend').value = settings.targetWeekend > 0 ? settings.targetWeekend : '';
                 
-                document.getElementById('goalValueInputAll').placeholder = '4';
-                document.getElementById('goalValueInputWeekday').placeholder = '4';
-                document.getElementById('goalValueInputWeekend').placeholder = '2';
+                document.getElementById('goalValueInputAll').placeholder = 'ex. 4';
+                document.getElementById('goalValueInputWeekday').placeholder = 'ex. 4';
+                document.getElementById('goalValueInputWeekend').placeholder = 'ex. 2';
 
                 const customContainer = document.querySelector('#goalInputsCustom .custom-day-grid');
                 customContainer.innerHTML = '';
@@ -1084,7 +1118,7 @@
                 const suggestedCustomTargets = [4, 4, 4, 4, 4, 2, 2]; // Mon-Sun
 
                 displayDayNames.forEach((dayName, index) => {
-                    const jsDayIndex = (index < 6) ? index + 1 : 0; // Mon=1..Sun=0
+                    const jsDayIndex = (index < 6) ? index + 1 : 0;
                     const savedVal = settings.targetsCustom[jsDayIndex];
                     const placeholderVal = suggestedCustomTargets[index];
                     
@@ -1097,15 +1131,19 @@
                                 data-day-index="${jsDayIndex}" 
                                 min="0" 
                                 value="${savedVal > 0 ? savedVal : ''}" 
-                                placeholder="${placeholderVal}" 
+                                placeholder="ex. ${placeholderVal}" 
                                 class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500">
                         </div>`;
                     customContainer.insertAdjacentHTML('beforeend', inputHtml);
                 });
                 
-                // CORREÇÃO: Dispara o evento change para garantir que a UI seja atualizada no primeiro load.
                 document.querySelector('input[name="goalMode"]:checked').dispatchEvent(new Event('change'));
-
+                
+                document.querySelectorAll('#goalEditView input[type="number"]').forEach(input => {
+                    input.addEventListener('input', validateGoalInputs);
+                });
+                
+                validateGoalInputs();
             } else {
                 goalDisplayView.classList.remove('hidden');
                 goalEditView.classList.add('hidden');
@@ -1462,11 +1500,7 @@
             customAlertCancelButton.addEventListener('click', () => { if (typeof currentCancelCallback === 'function') currentCancelCallback(); customAlertModal.classList.remove('show'); currentConfirmCallback = null; currentCancelCallback = null; });
 
             document.querySelectorAll('input[name="goalMode"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    document.getElementById('goalInputsAllDays').classList.toggle('hidden', e.target.value !== 'all_days');
-                    document.getElementById('goalInputsWeekend').classList.toggle('hidden', e.target.value !== 'weekend');
-                    document.getElementById('goalInputsCustom').classList.toggle('hidden', e.target.value !== 'custom');
-                });
+                radio.addEventListener('change', validateGoalInputs);
             });
         });
     </script>
