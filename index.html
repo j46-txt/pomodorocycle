@@ -1064,6 +1064,7 @@
 		                borderColor: 'rgba(56, 189, 248, 1)',
 		                borderWidth: 1,
 		                borderRadius: 2,
+                        yAxisID: 'y'
 		                order: 0
 		            }, {
 		                type: 'line',
@@ -1076,6 +1077,7 @@
 		                fill: false,
 		                pointRadius: 3,
 		                pointBackgroundColor: 'rgba(124, 58, 237, 1)',
+                        yAxisID: 'y_line'
 		                order: 1,
                         clip: false
 		            }]
@@ -1088,8 +1090,17 @@
 		                    beginAtZero: true,
 		                    max: suggestedMax,
 		                    ticks: { color: '#94a3b8', stepSize: 1, precision: 0 },
-		                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+		                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            stack: false,
+                            position: 'left'
 		                },
+                        y_line: {
+                            beginAtZero: true,
+                            max: suggestedMax,
+                            display: false,
+                            grid: { display: false },
+                            stack: false
+                        },
 		                x: {
 		                    ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' },
 		                    grid: { display: false }
