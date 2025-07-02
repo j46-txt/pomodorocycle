@@ -153,7 +153,7 @@
                     <div class="w-full flex flex-col h-full">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
                             <h3 class="text-base sm:text-lg font-semibold text-sky-300 mb-2 sm:mb-0" data-translate-key="stats_title">Your Statistics</h3>
-                            <p id="streakContainerHeader" class="text-sm text-slate-300">
+                            <p id="streakContainerHeader" class="text-base text-slate-300">
                                 <span data-translate-key="stats_streak">Daily Streak</span>: <span id="streakCounterHeader" class="font-semibold">0</span> <span id="streakFireIconContainer"><i class="fas fa-fire"></i></span>
                             </p>
                         </div>
@@ -736,33 +736,7 @@
         
         function renderAchievements() {
             achievementsListEl.innerHTML = "";
-            appData.achievements.sort((a, b) => {
-                const aIsNew = justSeenAchievementIds.includes(a.id);
-                const bIsNew = justSeenAchievementIds.includes(b.id);
-                if (aIsNew && !bIsNew) return -1;
-                if (!aIsNew && bIsNew) return 1;
-
-                const aIsUnlocked = a.unlocked;
-                const bIsUnlocked = b.unlocked;
-
-                if (!aIsUnlocked && bIsUnlocked) return -1;
-                if (aIsUnlocked && !bIsUnlocked) return 1;
-
-                if (!aIsUnlocked && !bIsUnlocked) {
-                    const aProgress = a.threshold > 0 ? (getAchievementProgress(a.type).current / a.threshold) : 0;
-                    const bProgress = b.threshold > 0 ? (getAchievementProgress(b.type).current / b.threshold) : 0;
-                    if (aProgress !== bProgress) {
-                        return bProgress - aProgress;
-                    }
-                    return a.threshold - b.threshold;
-                }
-
-                if (aIsUnlocked && bIsUnlocked) {
-                    return new Date(b.unlockedDate) - new Date(a.unlockedDate);
-                }
-                
-                return 0;
-            });
+            appData.achievements.sort((a,b)=>{const c=justSeenAchievementIds.includes(a.id),d=justSeenAchievementIds.includes(b.id);if(c&&!d)return-1;if(!c&&d)return 1;const e=a.unlocked,f=b.unlocked;if(!e&&!f){let c=getAchievementProgress(a.type).current,d=a.threshold>0?c/a.threshold:-1,e=getAchievementProgress(b.type).current,g=b.threshold>0?e/b.threshold:-1;return d>g?-1:d<g?1:a.threshold<b.threshold?-1:a.threshold>b.threshold?1:0}return!e&&f&&!d?-1:e&&!c&&!f?1:e&&!c&&f&&!d?new Date(b.unlockedDate)-new Date(a.unlockedDate):0});
             appData.achievements.forEach(ach => {
                 const isNew = justSeenAchievementIds.includes(ach.id);
                 const newIndicatorHTML = isNew ? `<span class="ml-1 text-xs font-bold text-green-400 animate-pulse new-indicator">${getText('new_badge')}</span>` : '';
@@ -916,7 +890,13 @@
             const todayStr = appData.stats.daily.date;
             if (appData.dailyGoal.target > 0) {
                 const existingEntryIndex = recentHistory.findIndex(e => e.date === todayStr);
-                const entry = { date: todayStr, target: appData.dailyGoal.target, progress: appData.dailyGoal.progress, completed: appData.dailyGoal.completed };
+                const entry = {
+                    date: todayStr,
+                    target: appData.dailyGoal.target,
+                    progress: appData.dailyGoal.progress,
+                    completed: appData.dailyGoal.completed,
+                    settings: JSON.parse(JSON.stringify(appData.dailyGoal.settings)) // Salva as configurações do dia
+                };
                 if (existingEntryIndex > -1) {
                     recentHistory[existingEntryIndex] = entry;
                 } else {
@@ -1036,8 +1016,7 @@
             goalProgressBarEl.classList.toggle('completed', goal.completed);
         }
 
-        function getHistoricalGoalTarget(date) {
-            const settings = appData.dailyGoal.settings;
+        function getHistoricalGoalTarget(date, settings) {
             const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
             let historicalTarget = 0;
 
@@ -1055,12 +1034,22 @@
             }
             return historicalTarget || 0;
         }
+
+        function getSettingsForPastDate(date, history) {
+            const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+            const lastRelevantEntry = [...history]
+                .filter(entry => entry.settings && entry.date <= dateStr)
+                .pop();
+
+            return lastRelevantEntry ? lastRelevantEntry.settings : appData.dailyGoal.settings;
+        }
         
         function renderGoalHistoryChart() {
             if (goalHistoryChart) {
                 goalHistoryChart.destroy();
             }
             if (!goalHistoryChartCanvas) return;
+            
             const history = appData.stats.goalHistory || [];
             const labels = [];
             const progressData = [];
@@ -1068,35 +1057,37 @@
             let maxVal = 0;
             const today = new Date();
             const langCode = appData.settings.language.replace('_', '-');
-        
+
             for (let i = 6; i >= 0; i--) {
-                const date = new Date(today);
+                const date = new Date();
                 date.setDate(today.getDate() - i);
                 const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-                
+
                 const dayOfWeek = date.toLocaleDateString(langCode, { weekday: 'short' });
-                const dayMonth = `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
+                const dayMonth = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
                 labels.push([dayOfWeek, dayMonth]);
-        
+
                 const entry = history.find(e => e.date === dateStr);
                 let currentDayTarget = 0;
-        
-                if (i === 0) {
-                    progressData.push(appData.dailyGoal.progress);
+                let currentDayProgress = 0;
+
+                if (i === 0) { // Today
+                    currentDayProgress = appData.dailyGoal.progress;
                     currentDayTarget = appData.dailyGoal.target;
-                    targetData.push(currentDayTarget);
-                } else if (entry) {
-                    progressData.push(entry.progress);
+                } else if (entry) { // Past day with a record
+                    currentDayProgress = entry.progress;
                     currentDayTarget = entry.target;
-                    targetData.push(currentDayTarget);
-                } else {
-                    progressData.push(0);
-                    currentDayTarget = getHistoricalGoalTarget(date);
-                    targetData.push(currentDayTarget);
+                } else { // Past day with no record (app not opened)
+                    currentDayProgress = 0;
+                    const historicalSettings = getSettingsForPastDate(date, history);
+                    currentDayTarget = getHistoricalGoalTarget(date, historicalSettings);
                 }
-                maxVal = Math.max(maxVal, progressData[progressData.length - 1], currentDayTarget);
+
+                progressData.push(currentDayProgress);
+                targetData.push(currentDayTarget);
+                maxVal = Math.max(maxVal, currentDayProgress, currentDayTarget);
             }
-            
+
             const suggestedMax = Math.max(4, Math.ceil(maxVal) + 1);
             const ctx = goalHistoryChartCanvas.getContext('2d');
             goalHistoryChart = new Chart(ctx, {
@@ -1130,32 +1121,17 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: suggestedMax,
-                            ticks: { color: '#94a3b8', stepSize: 1, precision: 0 },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
-                        },
-                        x: {
-                            ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' },
-                            grid: { display: false }
-                        }
+                        y: { beginAtZero: true, max: suggestedMax, ticks: { color: '#94a3b8', stepSize: 1, precision: 0 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
+                        x: { ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' }, grid: { display: false } }
                     },
                     plugins: {
-                        legend: {
-                            display: true,
-                            position: 'top',
-                            align: 'end',
-                            labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } }
-                        },
+                        legend: { display: true, position: 'top', align: 'end', labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } } },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
                                     let label = context.dataset.label || '';
                                     if (label) { label += ': '; }
-                                    if (context.parsed.y !== null) {
-                                        label += Math.floor(context.parsed.y);
-                                    }
+                                    if (context.parsed.y !== null) { label += Math.floor(context.parsed.y); }
                                     return label;
                                 }
                             }
