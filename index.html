@@ -741,12 +741,14 @@
                 const bIsNew = justSeenAchievementIds.includes(b.id);
                 if (aIsNew && !bIsNew) return -1;
                 if (!aIsNew && bIsNew) return 1;
-                if (a.unlocked && !b.unlocked) return -1;
-                if (!a.unlocked && b.unlocked) return 1;
-                if (a.unlocked && b.unlocked) {
-                    return new Date(b.unlockedDate) - new Date(a.unlockedDate);
-                }
-                if (!a.unlocked && !b.unlocked) {
+
+                const aIsUnlocked = a.unlocked;
+                const bIsUnlocked = b.unlocked;
+
+                if (!aIsUnlocked && bIsUnlocked) return -1;
+                if (aIsUnlocked && !bIsUnlocked) return 1;
+
+                if (!aIsUnlocked && !bIsUnlocked) {
                     const aProgress = a.threshold > 0 ? (getAchievementProgress(a.type).current / a.threshold) : 0;
                     const bProgress = b.threshold > 0 ? (getAchievementProgress(b.type).current / b.threshold) : 0;
                     if (aProgress !== bProgress) {
@@ -754,6 +756,11 @@
                     }
                     return a.threshold - b.threshold;
                 }
+
+                if (aIsUnlocked && bIsUnlocked) {
+                    return new Date(b.unlockedDate) - new Date(a.unlockedDate);
+                }
+                
                 return 0;
             });
             appData.achievements.forEach(ach => {
@@ -1028,6 +1035,26 @@
             goalProgressBarEl.style.width = `${progressPercent}%`;
             goalProgressBarEl.classList.toggle('completed', goal.completed);
         }
+
+        function getHistoricalGoalTarget(date) {
+            const settings = appData.dailyGoal.settings;
+            const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            let historicalTarget = 0;
+
+            switch (settings.mode) {
+                case 'weekend':
+                    historicalTarget = (dayOfWeek === 0 || dayOfWeek === 6) ? settings.targetWeekend : settings.targetWeekday;
+                    break;
+                case 'custom':
+                    historicalTarget = settings.targetsCustom[dayOfWeek];
+                    break;
+                case 'all_days':
+                default:
+                    historicalTarget = settings.targetAll;
+                    break;
+            }
+            return historicalTarget || 0;
+        }
         
         function renderGoalHistoryChart() {
             if (goalHistoryChart) {
@@ -1064,7 +1091,8 @@
                     targetData.push(currentDayTarget);
                 } else {
                     progressData.push(0);
-                    targetData.push(0);
+                    currentDayTarget = getHistoricalGoalTarget(date);
+                    targetData.push(currentDayTarget);
                 }
                 maxVal = Math.max(maxVal, progressData[progressData.length - 1], currentDayTarget);
             }
@@ -1197,7 +1225,7 @@
                 const suggestedCustomTargets = [4, 4, 4, 4, 4, 2, 2];
 
                 displayDayNames.forEach((dayName, index) => {
-                    const jsDayIndex = (index < 6) ? index + 1 : 0; // JS Date: Sun=0, Mon=1...
+                    const jsDayIndex = (index < 6) ? index + 1 : 0;
                     const savedVal = settings.targetsCustom[jsDayIndex];
                     const placeholderVal = suggestedCustomTargets[index];
                     
