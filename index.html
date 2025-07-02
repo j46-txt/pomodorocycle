@@ -34,7 +34,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
         @keyframes gradient-flow-right { 0% { background-position: 200% 50%; } 100% { background-position: 0% 50%; } }
         #goalProgressBar { background: linear-gradient(90deg, #8b5cf6, #38bdf8, #8b5cf6); background-size: 200% 200%; animation: gradient-flow-right 3s linear infinite; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        #goalProgressBar.completed { background: #8b5cf6; animation: none; border: 2px solid #7c3aed; box-shadow: inset 0px 2px 4px rgba(0, 0, 0, 0.15); }
+        #goalProgressBar.completed { background: #38bdf8; animation: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
         .help-content li.break-session { color: #a0aec0; }
@@ -658,8 +658,8 @@
         
         function updateNotificationBadges() {
             const unseenAchievements = appData.achievements.filter(ach => ach.unlocked && !ach.seen).length;
-            achievementsTabBadgeEl.style.display = unseenAchievements > 0 ? 'inline-block' : 'none';
-            rewardsTabBadgeEl.style.display = (appData.dailyGoal.completed && !appData.dailyGoal.notificationShown) ? 'inline-block' : 'none';
+            achievementsTabBadgeEl.style.display = (unseenAchievements > 0 && activeTabId !== 'achievements') ? 'inline-block' : 'none';
+            rewardsTabBadgeEl.style.display = (appData.dailyGoal.completed && !appData.dailyGoal.notificationShown && activeTabId !== 'dailyGoal') ? 'inline-block' : 'none';
         }
         
         let currentConfirmCallback=null, currentCancelCallback=null;
@@ -736,7 +736,26 @@
         
         function renderAchievements() {
             achievementsListEl.innerHTML = "";
-            appData.achievements.sort((a,b)=>{const c=justSeenAchievementIds.includes(a.id),d=justSeenAchievementIds.includes(b.id);if(c&&!d)return-1;if(!c&&d)return 1;const e=a.unlocked,f=b.unlocked;if(!e&&!f){let c=getAchievementProgress(a.type).current,d=a.threshold>0?c/a.threshold:-1,e=getAchievementProgress(b.type).current,g=b.threshold>0?e/b.threshold:-1;return d>g?-1:d<g?1:a.threshold<b.threshold?-1:a.threshold>b.threshold?1:0}return!e&&f&&!d?-1:e&&!c&&!f?1:e&&!c&&f&&!d?new Date(b.unlockedDate)-new Date(a.unlockedDate):0});
+            appData.achievements.sort((a, b) => {
+                const aIsNew = justSeenAchievementIds.includes(a.id);
+                const bIsNew = justSeenAchievementIds.includes(b.id);
+                if (aIsNew && !bIsNew) return -1;
+                if (!aIsNew && bIsNew) return 1;
+                if (a.unlocked && !b.unlocked) return -1;
+                if (!a.unlocked && b.unlocked) return 1;
+                if (a.unlocked && b.unlocked) {
+                    return new Date(b.unlockedDate) - new Date(a.unlockedDate);
+                }
+                if (!a.unlocked && !b.unlocked) {
+                    const aProgress = a.threshold > 0 ? (getAchievementProgress(a.type).current / a.threshold) : 0;
+                    const bProgress = b.threshold > 0 ? (getAchievementProgress(b.type).current / b.threshold) : 0;
+                    if (aProgress !== bProgress) {
+                        return bProgress - aProgress;
+                    }
+                    return a.threshold - b.threshold;
+                }
+                return 0;
+            });
             appData.achievements.forEach(ach => {
                 const isNew = justSeenAchievementIds.includes(ach.id);
                 const newIndicatorHTML = isNew ? `<span class="ml-1 text-xs font-bold text-green-400 animate-pulse new-indicator">${getText('new_badge')}</span>` : '';
@@ -936,14 +955,10 @@
                     if (ach.unlocked) ach.seen = true;
                 });
                 appData.uiState.newAchievementsCount = 0;
-                updateNotificationBadges();
-                saveData();
-                renderAchievements();
+                renderAchievements(); 
             } else if (tabId === 'dailyGoal') {
                 if (appData.dailyGoal.completed) {
                     appData.dailyGoal.notificationShown = true;
-                    updateNotificationBadges();
-                    saveData();
                 }
                 requestAnimationFrame(() => {
                     renderGoalHistoryChart();
@@ -954,11 +969,13 @@
                     showGoalEditView(false);
                 }
             }
+            updateNotificationBadges();
+            saveData();
         }
         
         function setTodaysGoal() {
             const settings = appData.dailyGoal.settings;
-            const today = new Date().getDay();
+            const today = new Date().getDay(); 
             let newTarget = 0;
             switch(settings.mode){case'weekend':newTarget=(today===0||today===6)?settings.targetWeekend:settings.targetWeekday;break;case'custom':newTarget=settings.targetsCustom[today];break;case'all_days':default:newTarget=settings.targetAll;break;}
             appData.dailyGoal.target = newTarget || 0;
@@ -975,10 +992,11 @@
                     showToast(getText('goal_completed_toast_title'), getText('goal_completed_toast_body'), 'success');
                     playSound('G5', '2n', 'goal');
                 }
+                updateNotificationBadges();
             }
             
             renderDailyGoal();
-            if (goalHistoryChart) {
+            if (goalHistoryChart && activeTabId === 'dailyGoal') {
                 renderGoalHistoryChart();
             }
         }
@@ -1012,112 +1030,112 @@
         }
         
         function renderGoalHistoryChart() {
-		    if (goalHistoryChart) {
-		        goalHistoryChart.destroy();
-		    }
-		    if (!goalHistoryChartCanvas) return;
-		    const history = appData.stats.goalHistory || [];
-		    const labels = [];
-		    const progressData = [];
-		    const targetData = [];
-		    let maxVal = 0;
-		    const today = new Date();
-		    const langCode = appData.settings.language.replace('_', '-');
-		
-		    for (let i = 6; i >= 0; i--) {
-		        const date = new Date(today);
-		        date.setDate(today.getDate() - i);
-		        const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-		        
-		        const dayOfWeek = date.toLocaleDateString(langCode, { weekday: 'short' });
-		        const dayMonth = `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
-		        labels.push([dayOfWeek, dayMonth]);
-		
-		        const entry = history.find(e => e.date === dateStr);
-		        let currentDayTarget = 0;
-		
-		        if (i === 0) {
-		            progressData.push(appData.dailyGoal.progress);
-		            currentDayTarget = appData.dailyGoal.target;
-		            targetData.push(currentDayTarget);
-		        } else if (entry) {
-		            progressData.push(entry.progress);
-		            currentDayTarget = entry.target;
-		            targetData.push(currentDayTarget);
-		        } else {
-		            progressData.push(0);
-		            targetData.push(0);
-		        }
-		        maxVal = Math.max(maxVal, progressData[progressData.length - 1], currentDayTarget);
-		    }
-		    
-		    const suggestedMax = Math.max(4, Math.ceil(maxVal) + 1);
-		    const ctx = goalHistoryChartCanvas.getContext('2d');
-		    goalHistoryChart = new Chart(ctx, {
-		        type: 'bar',
-		        data: {
-		            labels: labels,
-		            datasets: [{
-		                label: getText('progress_label'),
-		                data: progressData,
-		                backgroundColor: 'rgba(56, 189, 248, 1)',
-		                borderColor: 'rgba(56, 189, 248, 1)',
-		                borderWidth: 1,
-		                borderRadius: 2,
-		                order: 1
-		            }, {
-		                type: 'line',
-		                label: getText('chart_target_label'),
-		                data: targetData,
-		                borderColor: 'rgba(124, 58, 237, 0.9)',
-		                backgroundColor: 'transparent',
-		                borderDash: [5, 5],
-		                borderWidth: 2,
-		                fill: false,
-		                pointRadius: 3,
-		                pointBackgroundColor: 'rgba(124, 58, 237, 1)',
-		                order: 0,
+            if (goalHistoryChart) {
+                goalHistoryChart.destroy();
+            }
+            if (!goalHistoryChartCanvas) return;
+            const history = appData.stats.goalHistory || [];
+            const labels = [];
+            const progressData = [];
+            const targetData = [];
+            let maxVal = 0;
+            const today = new Date();
+            const langCode = appData.settings.language.replace('_', '-');
+        
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date(today);
+                date.setDate(today.getDate() - i);
+                const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                
+                const dayOfWeek = date.toLocaleDateString(langCode, { weekday: 'short' });
+                const dayMonth = `${String(date.getDate()).padStart(2,'0')}/${String(date.getMonth()+1).padStart(2,'0')}`;
+                labels.push([dayOfWeek, dayMonth]);
+        
+                const entry = history.find(e => e.date === dateStr);
+                let currentDayTarget = 0;
+        
+                if (i === 0) {
+                    progressData.push(appData.dailyGoal.progress);
+                    currentDayTarget = appData.dailyGoal.target;
+                    targetData.push(currentDayTarget);
+                } else if (entry) {
+                    progressData.push(entry.progress);
+                    currentDayTarget = entry.target;
+                    targetData.push(currentDayTarget);
+                } else {
+                    progressData.push(0);
+                    targetData.push(0);
+                }
+                maxVal = Math.max(maxVal, progressData[progressData.length - 1], currentDayTarget);
+            }
+            
+            const suggestedMax = Math.max(4, Math.ceil(maxVal) + 1);
+            const ctx = goalHistoryChartCanvas.getContext('2d');
+            goalHistoryChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: getText('progress_label'),
+                        data: progressData,
+                        backgroundColor: 'rgba(56, 189, 248, 1)',
+                        borderColor: 'rgba(56, 189, 248, 1)',
+                        borderWidth: 1,
+                        borderRadius: 2,
+                        order: 1
+                    }, {
+                        type: 'line',
+                        label: getText('chart_target_label'),
+                        data: targetData,
+                        borderColor: 'rgba(124, 58, 237, 0.9)',
+                        backgroundColor: 'transparent',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        fill: false,
+                        pointRadius: 3,
+                        pointBackgroundColor: 'rgba(124, 58, 237, 1)',
+                        order: 0,
                         clip: false
-		            }]
-		        },
-		        options: {
-		            responsive: true,
-		            maintainAspectRatio: false,
-		            scales: {
-		                y: {
-		                    beginAtZero: true,
-		                    max: suggestedMax,
-		                    ticks: { color: '#94a3b8', stepSize: 1, precision: 0 },
-		                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
-		                },
-		                x: {
-		                    ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' },
-		                    grid: { display: false }
-		                }
-		            },
-		            plugins: {
-		                legend: {
-		                    display: true,
-		                    position: 'top',
-		                    align: 'end',
-		                    labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } }
-		                },
-		                tooltip: {
-		                    callbacks: {
-		                        label: function(context) {
-		                            let label = context.dataset.label || '';
-		                            if (label) { label += ': '; }
-		                            if (context.parsed.y !== null) {
-		                                label += Math.floor(context.parsed.y);
-		                            }
-		                            return label;
-		                        }
-		                    }
-		                }
-		            }
-		        }
-		    });
-		}
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: suggestedMax,
+                            ticks: { color: '#94a3b8', stepSize: 1, precision: 0 },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' },
+                            grid: { display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            align: 'end',
+                            labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null) {
+                                        label += Math.floor(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
         function validateGoalInputs() {
             const mode = document.querySelector('input[name="goalMode"]:checked').value;
@@ -1179,7 +1197,7 @@
                 const suggestedCustomTargets = [4, 4, 4, 4, 4, 2, 2];
 
                 displayDayNames.forEach((dayName, index) => {
-                    const jsDayIndex = (index < 6) ? index + 1 : 0;
+                    const jsDayIndex = (index < 6) ? index + 1 : 0; // JS Date: Sun=0, Mon=1...
                     const savedVal = settings.targetsCustom[jsDayIndex];
                     const placeholderVal = suggestedCustomTargets[index];
                     
@@ -1270,7 +1288,7 @@
         function renderAllDynamicContent() {
              updateTimerDisplay(); updateStatsDisplay(); renderDailyGoal(); renderAchievements();
              if (document.getElementById('dailyGoalContent').classList.contains('active')) {
-                  renderGoalHistoryChart();
+                   renderGoalHistoryChart();
              }
         }
         
