@@ -1416,8 +1416,18 @@
             });
         
             skipBreakButton.addEventListener('click', () => {
-                if (appData.timerState.currentMode === 'shortBreak' || appData.timerState.currentMode === 'longBreak') {
-                    handleTimerEnd(0);
+            const currentMode = appData.timerState.currentMode;
+
+                if (currentMode === 'shortBreak' || currentMode === 'longBreak') {
+                    let fullDurationInSeconds = 0;
+
+                    if (currentMode === 'shortBreak') {
+                        fullDurationInSeconds = appData.settings.shortBreakTime * 60;
+                    } else {
+                        fullDurationInSeconds = appData.settings.longBreakTime * 60;
+                    }
+
+                    handleTimerEnd(fullDurationInSeconds);
                 }
             });
         
