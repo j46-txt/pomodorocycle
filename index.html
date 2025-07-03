@@ -34,7 +34,7 @@
         ::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
         @keyframes gradient-flow-right { 0% { background-position: 200% 50%; } 100% { background-position: 0% 50%; } }
         #goalProgressBar { background: linear-gradient(90deg, #8b5cf6, #38bdf8, #8b5cf6); background-size: 200% 200%; animation: gradient-flow-right 3s linear infinite; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
-        #goalProgressBar.completed { background: #38bdf8; animation: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); }
+        #goalProgressBar.completed { background-color: #6d28d9; animation: none; box-shadow: none; }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
         .help-content li.break-session { color: #a0aec0; }
@@ -447,7 +447,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "3.8.1"
+                appVersion: "3.8.2"
             };
         }
 
@@ -812,7 +812,7 @@
             saveData();
         }
         
-        function handleTimerEnd(completedDurationInSeconds) {
+        function handleTimerEnd(completedDurationInSeconds, wasSkipped = false) {
             appData.timerState.isRunning = false;
             const endedMode = appData.timerState.currentMode;
             appData.timerState.lastTimerUsed = endedMode;
@@ -863,7 +863,7 @@
             }
             if (nextModeToTransitionTo) {
                 setTimer(nextModeToTransitionTo);
-                if (shouldAutoStart && completedDurationInSeconds > 0) startTimer();
+                if (shouldAutoStart && !wasSkipped) startTimer();
             } else {
                 startPauseButton.querySelector('span').textContent = getText('start_button');
                 startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
@@ -1272,7 +1272,7 @@
                 timerWorker = new Worker(URL.createObjectURL(blob));
                 timerWorker.onmessage = function(e) {
                     const { type, timeLeft: workerTimeLeftUpdate, mode: workerMode } = e.data;
-                    if(type==='tick'){appData.timerState.timeLeft=workerTimeLeftUpdate;if(appData.timerState.currentMode===workerMode)updateTimerDisplay();}else if(type==='end'){if(appData.timerState.currentMode===workerMode)handleTimerEnd(currentTimerInitialDuration);}else if(type==='modeSet'){appData.timerState.timeLeft=workerTimeLeftUpdate;updateTimerDisplay();}
+                    if(type==='tick'){appData.timerState.timeLeft=workerTimeLeftUpdate;if(appData.timerState.currentMode===workerMode)updateTimerDisplay();}else if(type==='end'){if(appData.timerState.currentMode===workerMode)handleTimerEnd(currentTimerInitialDuration, false);}else if(type==='modeSet'){appData.timerState.timeLeft=workerTimeLeftUpdate;updateTimerDisplay();}
                 };
                 timerWorker.onerror = function(error) { timerWorker = null; };
             } catch (e) {
@@ -1421,7 +1421,7 @@
                     } else {
                         fullDurationInSeconds = appData.settings.longBreakTime * 60;
                     }
-                    handleTimerEnd(fullDurationInSeconds);
+                    handleTimerEnd(fullDurationInSeconds, true);
                 }
             });
         
