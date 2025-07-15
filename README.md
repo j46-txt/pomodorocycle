@@ -76,16 +76,8 @@ Issues and pull requests are welcome!
 
 ---
 
-## 🎨 About the Logo
-
-Currently using 🍅 (emoji) as the favicon and brand marker.  
-A custom logo may be introduced in future releases to strengthen identity.
-
----
-
 ## 📫 Contact
 
-This project is maintained by the community.  
 Feel free to open an issue or pull request for suggestions or improvements.
 
 ---
