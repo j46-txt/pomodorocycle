@@ -57,7 +57,7 @@ Each session and cycle is tracked and stored locally using your browser’s stor
 
 ---
 
-## 🙌 Support & Contribute
+## 🤝 Support & Contribute
 
 If you like this project, consider [buying me a coffee ☕](https://pomodorocycle.app/#donate)  
 Issues and pull requests are welcome!
