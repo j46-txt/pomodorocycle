@@ -15,7 +15,7 @@
   Track your total time focused, sessions completed, cycles done, and streaks — daily and overall.
 
 - 🎯 **Daily Goals**  
-  Set a daily goal (in focus sessions or completed cycles) and monitor your progress.
+  Set a daily goal and monitor your progress.
 
 - 🏆 **Achievements System**  
   Unlock achievements as you accumulate time and hit daily goals.
