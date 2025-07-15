@@ -64,10 +64,5 @@ Issues and pull requests are welcome!
 
 ---
 
-## 📫 Contact
-
-Feel free to open an issue or pull request for suggestions or improvements.
-
----
 
 Made with all my hate for studying.
