@@ -99,7 +99,6 @@
         .custom-day-input-group label { font-size: .75rem; color: #94a3b8; }
         @media (min-width: 768px) { .custom-day-grid { grid-template-columns: repeat(7, 65px); justify-content: center; } }
 
-        /* RTL Specific Styles */
         [dir="rtl"] #achievementsListContainer { padding-left: 0.5rem; padding-right: 0; }
         [dir="rtl"] .help-content li.break-session { padding-right: 35px; padding-left: 0; }
         [dir="rtl"] #toastNotification { left: 20px; right: auto; transform: translateX(-100%); }
@@ -495,7 +494,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "3.9.2"
+                appVersion: "3.9.4"
             };
         }
 
@@ -573,7 +572,9 @@
         }
         
         function applyTranslations() {
-            document.documentElement.lang = appData.settings.language || 'en';
+            const lang = appData.settings.language || 'en';
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
             document.title = getText('app_title');
             document.querySelectorAll('[data-translate-key]').forEach(el => {
                 const key = el.dataset.translateKey;
@@ -583,7 +584,7 @@
                 } else if (el.title) {
                     el.title = translation;
                 } else {
-                    const targetEl = el.querySelector('span') || el;
+                    const targetEl = el.querySelector('span:not([id])') || el;
                     if(targetEl && targetEl.innerHTML !== translation) {
                         targetEl.innerHTML = translation;
                     }
@@ -694,7 +695,7 @@
             clearTimeout(toastTimeout);
             toastTitleEl.textContent=title;
             toastBodyEl.textContent=body;
-            toastNotificationEl.className='fixed top-5 right-5 p-4 rounded-md text-white z-[1000] transition-all duration-500 max-w-xs shadow-lg';
+            toastNotificationEl.className='fixed top-5 p-4 rounded-md text-white z-[1000] transition-all duration-500 max-w-xs shadow-lg';
             switch (type) {
                 case 'success': toastNotificationEl.classList.add('bg-green-500','show'); break;
                 case 'error': toastNotificationEl.classList.add('bg-red-500','show'); break;
@@ -1090,7 +1091,7 @@
         }
 
         function getHistoricalGoalTarget(date, settings) {
-            const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+            const dayOfWeek = date.getDay(); 
             let historicalTarget = 0;
 
             switch (settings.mode) {
@@ -1144,13 +1145,13 @@
                 let currentDayTarget = 0;
                 let currentDayProgress = 0;
 
-                if (i === 0) { // Today
+                if (i === 0) {
                     currentDayProgress = appData.dailyGoal.progress;
                     currentDayTarget = appData.dailyGoal.target;
-                } else if (entry) { // Past day with a record
+                } else if (entry) {
                     currentDayProgress = entry.progress;
                     currentDayTarget = entry.target;
-                } else { // Past day with no record (app not opened)
+                } else {
                     currentDayProgress = 0;
                     const historicalSettings = getSettingsForPastDate(date, history);
                     currentDayTarget = getHistoricalGoalTarget(date, historicalSettings);
@@ -1472,6 +1473,11 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             setupLanguageChoices();
+            const storedData = localStorage.getItem(STORAGE_KEY);
+            if (storedData) {
+                const preloadedData = JSON.parse(storedData);
+                translations = preloadedData.translations || {};
+            }
             if (!localStorage.getItem(STORAGE_KEY)) {
                 handleFirstVisit();
             } else {
@@ -1512,8 +1518,11 @@
             });
         
             settingsButton.addEventListener('click', () => {
-                studyTimeInput.value=appData.settings.studyTime; shortBreakTimeInput.value=appData.settings.shortBreakTime; longBreakTimeInput.value=appData.settings.longBreakTime;
-                soundToggle.checked=appData.settings.soundEnabled; languageSelect.value=appData.settings.language;
+                studyTimeInput.value=appData.settings.studyTime; 
+                shortBreakTimeInput.value=appData.settings.shortBreakTime; 
+                longBreakTimeInput.value=appData.settings.longBreakTime;
+                soundToggle.checked=appData.settings.soundEnabled; 
+                languageSelect.value=appData.settings.language;
                 settingsModal.classList.add('show');
             });
         
@@ -1526,31 +1535,33 @@
             });
         
             saveSettingsButton.addEventListener('click', () => {
-                const newStudyTime = parseInt(studyTimeInput.value);
-                const newShortBreakTime = parseInt(shortBreakTimeInput.value);
-                const newLongBreakTime = parseInt(longBreakTimeInput.value);
+                const newStudyTime = parseInt(studyTimeInput.value) || appData.settings.studyTime;
+                const newShortBreakTime = parseInt(shortBreakTimeInput.value) || appData.settings.shortBreakTime;
+                const newLongBreakTime = parseInt(longBreakTimeInput.value) || appData.settings.longBreakTime;
                 const newLang = languageSelect.value;
                 const soundEnabled = soundToggle.checked;
                 const oldLang = appData.settings.language;
-                if (newStudyTime>0)appData.settings.studyTime=newStudyTime;
-                if (newShortBreakTime>0)appData.settings.shortBreakTime=newShortBreakTime;
-                if (newLongBreakTime>0)appData.settings.longBreakTime=newLongBreakTime;
+
+                appData.settings.studyTime = newStudyTime;
+                appData.settings.shortBreakTime = newShortBreakTime;
+                appData.settings.longBreakTime = newLongBreakTime;
                 appData.settings.language = newLang;
                 appData.settings.soundEnabled = soundEnabled;
+
                 if (newLang !== oldLang) {
-                    // Re-fetch translations from the global object if it were present
-                    const globalTranslations = window.translations || {};
-                    translations = globalTranslations;
                     appData.achievements = buildAchievements(newLang, appData.achievements);
-                    applyTranslations();
-                    renderAllDynamicContent();
                 }
+                
+                applyTranslations();
+                renderAllDynamicContent();
+                
                 if (timerWorker) {
                     timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 }
                 if (!appData.timerState.isRunning) {
                     resetCurrentTimer();
                 }
+                
                 saveData();
                 settingsModal.classList.remove('show');
                 showToast(getText('toast_settings_saved_title'), getText('toast_settings_saved_body'), 'success');
@@ -1662,10 +1673,6 @@
                                 localStorage.setItem(STORAGE_KEY, modifiedFileContent);
                                 blockUnloadSave = true;
                                 settingsModal.classList.remove('show');
-                                // Load translations before reloading
-                                const globalTranslations = window.translations || {};
-                                translations = globalTranslations;
-                                applyTranslations();
                                 location.reload();
                             },
                             () => { event.target.value = ''; }
