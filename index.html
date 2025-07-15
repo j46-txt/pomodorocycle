@@ -298,9 +298,6 @@
             </div>
         </div>
 
-        <div class="donation-section mx-auto">
-             <p data-translate-key="donation_text">If you'd like to support this app, you can do so <a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank">here ☕</a></p>
-        </div>
     </div>
 
     <div id="settingsModal" class="modal fixed inset-0 bg-black bg-opacity-75 items-center justify-center p-4 z-50 max-h-screen overflow-y-auto md:overflow-y-visible">
@@ -1527,7 +1524,15 @@
             });
         
             helpButton.addEventListener('click', () => {
-                showCustomAlert(getText('alert_help_title'), getText('alert_help_body'), 'fas fa-question-circle text-sky-400', getText('got_it_button'), null, null, null, true);
+                const baseHelpText = getText('alert_help_body');
+                const linkText = getText('donation_link_text');
+                const donationLinkHTML = `<a href="https://www.buymeacoffee.com/lemonade299792458" target="_blank" class="font-semibold text-sky-400 hover:text-sky-300">${linkText}</a>`;
+                const donationSentence = getText('donation_text', donationLinkHTML);
+                const donationParagraph = `<p class="mt-4 pt-3 border-t border-slate-600/50 text-slate-400 text-xs text-center">${donationSentence}</p>`;
+                
+                const finalHelpText = baseHelpText + donationParagraph;
+    
+                showCustomAlert(getText('alert_help_title'), finalHelpText, 'fas fa-question-circle text-sky-400', getText('got_it_button'), null, null, null, true);
             });
         
             cancelSettingsButton.addEventListener('click', () => {
