@@ -59,7 +59,7 @@ Each session and cycle is tracked and stored locally using your browser’s stor
 
 ## 🤝 Support & Contribute
 
-If you like this project, consider [buying me a coffee ☕](https://pomodorocycle.app/#donate)  
+If you like this project, consider [buying me a coffee ☕](coff.ee/lemonade299792458)  
 Issues and pull requests are welcome!
 
 ---
