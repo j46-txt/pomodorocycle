@@ -29,7 +29,7 @@
 - 🔔 **Sound Notifications**  
   Toggle audio cues for session transitions.
 
-- 🧘 **No Ads. No Accounts. No Cloud.**  
+- 🍃 **No Ads. No Accounts. No Cloud.**  
   100% local-first app. Your data stays in your browser.
 
 ---
