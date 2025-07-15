@@ -12,7 +12,7 @@
   Configure focus, short break, and long break durations.
 
 - 📈 **Statistics Dashboard**  
-  Track your time focused, sessions completed, cycles done, and daily streak.
+  Track your time focused, sessions completed, cycles done and daily streak.
 
 - 🎯 **Daily Goals**  
   Set a daily goal and monitor your progress.
