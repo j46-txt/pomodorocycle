@@ -57,18 +57,6 @@ Each session and cycle is tracked and stored locally using your browser’s stor
 
 ---
 
-## 🪪 License
-
-This project is licensed under the **GNU AGPL v3.0**.
-
-This means:
-- ✅ You are free to use, share, and modify the app
-- ❗ If you offer a modified version of the app publicly (even just via a website), you must **also release the full source code**
-
-> See [LICENSE](./LICENSE) for details.
-
----
-
 ## 🙌 Support & Contribute
 
 If you like this project, consider [buying me a coffee ☕](https://pomodorocycle.app/#donate)  
