@@ -1476,9 +1476,9 @@
             const storedData = localStorage.getItem(STORAGE_KEY);
             if (storedData) {
                 const preloadedData = JSON.parse(storedData);
-                translations = preloadedData.translations || {};
+                Object.assign(translations, preloadedData.translations || {});
             }
-            if (!localStorage.getItem(STORAGE_KEY)) {
+                if (!localStorage.getItem(STORAGE_KEY)) {
                 handleFirstVisit();
             } else {
                 initializeApp();
