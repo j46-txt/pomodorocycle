@@ -1326,6 +1326,11 @@
                 appData.uiState.newAchievementsCount += newlyUnlocked.length;
                 updateNotificationBadges();
                 if (activeTabId === "achievements") {
+                    newlyUnlocked.forEach(ach => {
+                        if (!justSeenAchievementIds.includes(ach.id)) {
+                            justSeenAchievementIds.push(ach.id);
+                        }
+                    });
                     renderAchievements();
                 }
             }
