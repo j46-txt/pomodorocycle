@@ -788,7 +788,7 @@
                 const isNew = justSeenAchievementIds.includes(ach.id);
                 const newIndicatorHTML = '';
                 const achEl = document.createElement('div');
-                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-2 ring-green-500 ring-inset animate-pulse' : ''}`;
+                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-green-500 ring-inset animate-ping' : ''}`;
                 let mainContentHTML = `<div class="flex items-start mb-1"><i class="${ach.icon||"fas fa-question-circle"} text-xl ${ach.unlocked?'text-green-400':'text-slate-400'} mr-2 mt-1"></i><div class="flex-grow overflow-hidden"><div class="flex items-baseline"><h4 class="font-semibold text-sm ${ach.unlocked?'text-white':'text-sky-300'} truncate mr-1">${ach.name}</h4>${newIndicatorHTML}</div><p class="text-xs ${ach.unlocked?'text-sky-100':'text-slate-300'} leading-tight">${ach.description}</p></div></div>`;
                 let progressSectionHTML = '<div class="mt-auto">';
                 if (ach.unlocked) {
@@ -1330,7 +1330,9 @@
                         if (!justSeenAchievementIds.includes(ach.id)) {
                             justSeenAchievementIds.push(ach.id);
                         }
+                        ach.seen = true;
                     });
+                    appData.uiState.newAchievementsCount = 0;
                     renderAchievements();
                 }
             }
