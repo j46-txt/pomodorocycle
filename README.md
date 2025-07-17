@@ -24,7 +24,7 @@
   English, Português (BR), Español, Français, Deutsch, Italiano, Русский, العربية, हिन्दी, 中文, 한국어, 日本語
 
 - 🔄 **Data Export/Import**  
-  Save your progress to a file and restore it on another device — all locally.
+  Save your progress to a file and restore it on another device, all locally.
 
 - 🔔 **Sound Notifications**  
   Toggle audio cues for session transitions.
