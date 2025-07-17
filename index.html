@@ -491,7 +491,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "3.9.4"
+                appVersion: "3.9.5"
             };
         }
 
@@ -786,9 +786,9 @@
             appData.achievements.sort((a,b)=>{const c=justSeenAchievementIds.includes(a.id),d=justSeenAchievementIds.includes(b.id);if(c&&!d)return-1;if(!c&&d)return 1;const e=a.unlocked,f=b.unlocked;if(!e&&!f){let c=getAchievementProgress(a.type).current,d=a.threshold>0?c/a.threshold:-1,e=getAchievementProgress(b.type).current,g=b.threshold>0?e/b.threshold:-1;return d>g?-1:d<g?1:a.threshold<b.threshold?-1:a.threshold>b.threshold?1:0}return!e&&f&&!d?-1:e&&!c&&!f?1:e&&!c&&f&&!d?new Date(b.unlockedDate)-new Date(a.unlockedDate):0});
             appData.achievements.forEach(ach => {
                 const isNew = justSeenAchievementIds.includes(ach.id);
-                const newIndicatorHTML = isNew ? `<span class="ml-1 text-xs font-bold text-green-400 animate-pulse new-indicator">${getText('new_badge')}</span>` : '';
+                const newIndicatorHTML = '';
                 const achEl = document.createElement('div');
-                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-1 ring-green-500 ring-inset' : ''}`;
+                achEl.className = `achievement-item p-3 rounded-lg shadow-md transition-all ${ach.unlocked ? 'unlocked bg-sky-600' : 'locked bg-slate-600'} ${isNew ? 'ring-2 ring-green-500 ring-inset animate-pulse' : ''}`;
                 let mainContentHTML = `<div class="flex items-start mb-1"><i class="${ach.icon||"fas fa-question-circle"} text-xl ${ach.unlocked?'text-green-400':'text-slate-400'} mr-2 mt-1"></i><div class="flex-grow overflow-hidden"><div class="flex items-baseline"><h4 class="font-semibold text-sm ${ach.unlocked?'text-white':'text-sky-300'} truncate mr-1">${ach.name}</h4>${newIndicatorHTML}</div><p class="text-xs ${ach.unlocked?'text-sky-100':'text-slate-300'} leading-tight">${ach.description}</p></div></div>`;
                 let progressSectionHTML = '<div class="mt-auto">';
                 if (ach.unlocked) {
