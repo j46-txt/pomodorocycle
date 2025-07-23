@@ -4,7 +4,7 @@
 
 I originally built it for personal use, since I couldn’t find a free timer with the features I wanted. As the project grew, I added translations and decided to share it as a web app, in case it’s helpful to others too.
 
-> 🧩 Try it now: [https://pomodorocycle.app](https://pomodorocycle.app)
+> 🧩 You can try it here: [https://pomodorocycle.app](https://pomodorocycle.app)
 
 ---
 
