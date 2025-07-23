@@ -38,13 +38,14 @@ I originally built it for personal use, since I couldn’t find a free timer wit
 
 ## 🛠️ How It Works
 
-The timer runs through a standard Pomodoro cycle:
+The timer runs through a standard Pomodoro cycle automatically:
 
 1. Focus (25 min)  
 2. Short break (5 min)  
 3. Repeat 4x → Long break (15 min)  
 4. New cycle starts manually
 
+There’s a session tracker that shows where you are in the cycle.
 Each session and cycle is tracked and stored locally using your browser’s storage. No internet connection is required after the initial load.
 
 ---
