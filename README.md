@@ -45,7 +45,7 @@ The timer runs through a standard Pomodoro cycle automatically:
 3. Repeat 4x → Long break (15 min)  
 4. New cycle starts manually
 
-There’s a session tracker that shows where you are in the cycle.
+There’s a tracker that shows which focus session you’re in within the cycle.
 Each session and cycle is tracked and stored locally using your browser’s storage. No internet connection is required after the initial load.
 
 ---
