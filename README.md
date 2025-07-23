@@ -1,6 +1,7 @@
 # PomodoroCycle ⏱️🍅
 
-**PomodoroCycle** is a free, ad-free, and open-source Pomodoro timer that works offline after the initial load. I originally built it for personal use, since I couldn’t find a free timer with the features I wanted, so I decided to share it as a web app in case it’s useful to others too. It’s designed for focused work, study, and productivity, with simplicity and usability in mind.
+**PomodoroCycle** is a free, ad-free, and open-source Pomodoro timer that works offline after the initial load. It’s designed for focused work, study, and productivity, with simplicity and usability in mind.
+I originally built it for personal use, since I couldn’t find a free timer with the features I wanted. As the project grew, I added translations and decided to share it as a web app, in case it’s helpful to others too.
 > 🧩 Try it now: [https://pomodorocycle.app](https://pomodorocycle.app)
 
 ---
@@ -58,8 +59,8 @@ Each session and cycle is tracked and stored locally using your browser’s stor
 
 ## 🤝 Support & Contribute
 
-If you like this project, consider [buying me a coffee ☕](https://buymeacoffee.com/lemonade299792458)  
-Issues and pull requests are welcome!
+Found a bug or have an idea? Feel free to open an issue or submit a pull request!
+If you like this project, consider [buying me a coffee ☕](https://buymeacoffee.com/lemonade299792458)
 
 ---
 
