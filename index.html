@@ -1110,15 +1110,6 @@
             }
             return historicalTarget || 0;
         }
-
-        function getSettingsForPastDate(date, history) {
-            const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
-            const lastRelevantEntry = [...history]
-                .filter(entry => entry.settings && entry.date <= dateStr)
-                .pop();
-
-            return lastRelevantEntry ? lastRelevantEntry.settings : appData.dailyGoal.settings;
-        }
         
         function renderGoalHistoryChart() {
             if (goalHistoryChart) {
@@ -1142,18 +1133,17 @@
                 const dayOfWeek = date.toLocaleDateString(langCode, { weekday: 'short' });
                 const dayMonth = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
                 labels.push([dayOfWeek, dayMonth]);
-
-                const entry = history.find(e => e.date === dateStr);
+                
                 let currentDayTarget = 0;
                 let currentDayProgress = 0;
 
-                if (i === 0) {
+                if (i === 0) { // Today
                     currentDayProgress = appData.dailyGoal.progress;
                     currentDayTarget = appData.dailyGoal.target;
-                } else {
+                } else { // Past days
+                    const entry = history.find(e => e.date === dateStr);
                     currentDayProgress = entry ? entry.progress : 0;
-                    const historicalSettings = getSettingsForPastDate(date, history);
-                    currentDayTarget = getHistoricalGoalTarget(date, historicalSettings);
+                    currentDayTarget = getHistoricalGoalTarget(date, appData.dailyGoal.settings);
                 }
 
                 progressData.push(currentDayProgress);
