@@ -1080,7 +1080,7 @@
                 goalProgressContainer.classList.add('completed');
                 goalTextWrapper.classList.remove('justify-between');
                 goalTextWrapper.classList.add('justify-center');
-                goalTextEl.innerHTML = `<div class="text-center"><i class="fas fa-check-circle text-violet-400 text-2xl"></i><p class="font-semibold text-violet-300 mt-1" data-translate-key="goal_completed_label">${getText('goal_completed_label')}</p></div>`;
+                goalTextEl.innerHTML = `<div class="flex items-center justify-center"><i class="fas fa-check-circle text-violet-400 text-xl mr-2"></i><p class="font-semibold text-violet-300" data-translate-key="goal_completed_label">${getText('goal_completed_label')}</p></div>`;
                 goalTextEl.className = '';
                 goalProgressTextEl.style.display = 'none';
                 goalProgressBarWrapper.style.display = 'none';
