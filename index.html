@@ -488,7 +488,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "3.9.5"
+                appVersion: "3.9.6"
             };
         }
 
@@ -1077,7 +1077,7 @@
                 goalProgressContainer.classList.add('completed');
                 goalTextWrapper.classList.remove('justify-between');
                 goalTextWrapper.classList.add('justify-center');
-                goalTextEl.innerHTML = `<div class="text-center"><i class="fas fa-check-circle text-green-400 text-2xl mb-1"></i><p class="font-semibold text-green-300" data-translate-key="goal_completed_label">${getText('goal_completed_label')}</p></div>`;
+                goalTextEl.innerHTML = `<div class="text-center"><i class="fas fa-check-circle text-violet-400 text-2xl"></i><p class="font-semibold text-violet-300 mt-1" data-translate-key="goal_completed_label">${getText('goal_completed_label')}</p></div>`;
                 goalTextEl.className = '';
                 goalProgressTextEl.style.display = 'none';
                 goalProgressBarWrapper.style.display = 'none';
@@ -1147,11 +1147,8 @@
                 if (i === 0) {
                     currentDayProgress = appData.dailyGoal.progress;
                     currentDayTarget = appData.dailyGoal.target;
-                } else if (entry) {
-                    currentDayProgress = entry.progress;
-                    currentDayTarget = entry.target;
                 } else {
-                    currentDayProgress = 0;
+                    currentDayProgress = entry ? entry.progress : 0;
                     const historicalSettings = getSettingsForPastDate(date, history);
                     currentDayTarget = getHistoricalGoalTarget(date, historicalSettings);
                 }
@@ -1161,7 +1158,7 @@
                 maxVal = Math.max(maxVal, currentDayProgress, currentDayTarget);
             }
 
-            const suggestedMax = Math.max(4, Math.ceil(maxVal) + 1);
+            const suggestedMax = Math.ceil(maxVal) + 1;
             const ctx = goalHistoryChartCanvas.getContext('2d');
             goalHistoryChart = new Chart(ctx, {
                 type: 'bar',
