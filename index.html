@@ -57,7 +57,7 @@
         @keyframes gradient-flow-right { 0% { background-position: 200% 50%; } 100% { background-position: 0% 50%; } }
         #goalProgressBar { background: linear-gradient(90deg, #8b5cf6, #38bdf8, #8b5cf6); background-size: 200% 200%; animation: gradient-flow-right 3s linear infinite; transition: width 0.5s cubic-bezier(0.25, 1, 0.5, 1); }
         #goalProgressBar.completed { background: #38bdf8; animation: none; box-shadow: none; }
-        #goalProgressContainer.completed { border: 1px solid rgba(52, 211, 153, 0.5); }
+        #goalProgressContainer.completed { border: 1px solid rgba(124, 58, 237, 0.5); }
         .help-content ul { list-style-type: none; padding-left: 0; margin-bottom: 10px; }
         .help-content li { margin-bottom: 5px; }
         .help-content li.break-session { color: #a0aec0; }
@@ -488,7 +488,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "3.9.6"
+                appVersion: "3.9.5"
             };
         }
 
@@ -1191,8 +1191,23 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     scales: {
-                        y: { beginAtZero: true, max: suggestedMax, ticks: { color: '#94a3b8', stepSize: 1, precision: 0 }, grid: { color: 'rgba(255, 255, 255, 0.1)' } },
-                        x: { ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' }, grid: { display: false } }
+                        y: { 
+                            beginAtZero: true, 
+                            max: suggestedMax, 
+                            ticks: { 
+                                color: '#94a3b8', 
+                                stepSize: 1, 
+                                precision: 0,
+                                maxTicksLimit: 10
+                            }, 
+                            grid: { 
+                                color: 'rgba(255, 255, 255, 0.1)' 
+                            } 
+                        },
+                        x: { 
+                            ticks: { color: (context) => context.index === 6 ? '#38bdf8' : '#94a3b8' }, 
+                            grid: { display: false } 
+                        }
                     },
                     plugins: {
                         legend: { display: true, position: 'top', align: 'end', labels: { color: '#cbd5e1', boxWidth: 12, padding: 20, font: { size: 10 } } },
