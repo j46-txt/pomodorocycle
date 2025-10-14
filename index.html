@@ -860,6 +860,7 @@
             saveData();
         }
         
+        // ########## INÍCIO DA CORREÇÃO ##########
         function handleTimerEnd(wasSkipped = false) {
             appData.timerState.isRunning = false;
             const endedMode = appData.timerState.currentMode;
@@ -888,6 +889,12 @@
                 appData.stats.daily.pureStudySeconds += sessionDurationInSeconds; 
                 appData.stats.general.totalPureStudySeconds += sessionDurationInSeconds;
                 appData.timerState.pomodorosInCycle++;
+
+                // CORREÇÃO: A verificação da meta foi movida para DENTRO do bloco 'study'.
+                // Isso garante que a meta seja verificada e atualizada imediatamente
+                // após uma sessão de foco terminar, que é o comportamento correto.
+                checkGoalProgress();
+
                 notificationTitleKey="toast_study_complete_title"; notificationBodyKey="toast_study_complete_body"; soundNoteForEndedMode='C5';
                 if (!appData.stats.daily.firstStudySessionCompletedToday) {
                     appData.stats.daily.firstStudySessionCompletedToday = true;
@@ -917,7 +924,8 @@
                 appData.timerState.pomodorosInCycle = 0;
                 nextModeToTransitionTo = 'study'; shouldAutoStart = false;
             }
-            checkGoalProgress();
+
+            // A chamada `checkGoalProgress()` foi removida daqui.
             checkAchievements();
             updateStatsDisplay();
             saveData();
@@ -934,6 +942,7 @@
                 startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
             }
         }
+        // ########## FIM DA CORREÇÃO ##########
         
         function resetCurrentTimer() {
             if(appData.timerState.isRunning && timerWorker) timerWorker.postMessage({command:'pause'});
