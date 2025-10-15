@@ -7,7 +7,7 @@
 
 ## Features
 
-- Customizable Pomodoro, short break, and long break durations  
+- Customizable focus, short break, and long break durations  
 - Visual tracker showing which focus session you’re in within the cycle  
 - Statistics dashboard with focus time, sessions, and streak tracking  
 - Daily goals and unlockable achievements  
