@@ -17,8 +17,6 @@
 - Optional sound notifications  
 - 100% local-first: no ads, no cloud, no accounts
 
-All sessions and cycles are tracked locally in your browser, no internet connection required after the first visit.
-
 
 ## Tech Stack
 
