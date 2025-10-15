@@ -4,7 +4,6 @@
 
 > 🧩 You can try it here: [https://pomodorocycle.app](https://pomodorocycle.app)
 
----
 
 ## Features
 
@@ -19,7 +18,6 @@
 
 All sessions and cycles are tracked locally in your browser, no internet connection required after the first visit.
 
----
 
 ## Tech Stack
 
@@ -29,7 +27,6 @@ All sessions and cycles are tracked locally in your browser, no internet connect
 - Tone.js for sounds  
 - No framework or backend
 
----
 
 ## Contribute
 
