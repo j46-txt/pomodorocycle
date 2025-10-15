@@ -4,7 +4,7 @@
 
 > 🧩 You can try it here: [https://pomodorocycle.app](https://pomodorocycle.app)
 
-
+---
 
 ## Features
 
@@ -20,7 +20,6 @@
 All sessions and cycles are tracked locally in your browser, no internet connection required after the first visit.
 
 
-
 ## Tech Stack
 
 - HTML + Tailwind CSS  
@@ -30,14 +29,11 @@ All sessions and cycles are tracked locally in your browser, no internet connect
 - No framework or backend
 
 
-
 ## Contribute
 
 Found a bug or have an idea? Open an issue or submit a pull request.  
 If you like the app, consider [buying me a coffee ☕](https://buymeacoffee.com/lemonade299792458).
 
-
 ---
-
 
 Made with all my hate for studying.
