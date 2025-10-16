@@ -17,7 +17,7 @@
 - **Achievements:** Unlock milestones as you stay productive
 - **Accurate timer:** Precise background time tracking with a Web Worker
 - **Multilingual:** Available in 12 languages
-- **Local backup:** Export and import your data to a file
+- **Local backup:** Export your data to a file and import it on another device
 - **100% local-first:** No ads, no cloud, no accounts
 
 
