@@ -32,7 +32,7 @@
 
 ## Contribute
 
-Found a bug or have an idea? Open an issue or submit a pull request.  
+Found a bug or have an idea? Feel free to open an issue or submit a pull request!  
 If you like the app, consider [buying me a coffee](https://buymeacoffee.com/lemonade299792458) ☕
 
 ---
