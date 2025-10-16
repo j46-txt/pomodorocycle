@@ -10,7 +10,7 @@
 - **Custom timers:** Set focus, short break, and long break durations
 - **Sound alerts:** Optional sound notifications when a timer ends
 - **Session tracker:** See which focus session you’re in within the cycle
-- **Skip breaks:** Option to skip the current break timer when needed
+- **Skippable breaks:** Option to skip the current break timer when needed
 - **Statistics dashboard:** Track focus time, sessions, cycles, daily streaks, and more
 - **Daily goals:** Set daily, weekend, or custom weekly targets
 - **Progress chart:** Visualize your goal progress for the last 7 days
