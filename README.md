@@ -17,7 +17,7 @@
 - **Achievements:** unlock milestones as you stay productive
 - **Accurate timer:** precise background time tracking with a Web Worker
 - **Monochrome theme:** switch to a minimalist black-and-white theme
-- **Multilingual:** available in 12 languages
+- **Multilingual:** available in 12 languages (English, Português, Español, Italiano, Français, Deutsch, Русский, 中文, 한국어, 日本語, हिन्दी, العربية)
 - **Local backup:** export your data to a file and import it on another device
 - **100% local-first:** no ads, no cloud, no accounts
 
