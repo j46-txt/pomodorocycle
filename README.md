@@ -7,19 +7,19 @@
 
 ## Features
 
-- **Custom timers:** Set focus, short break, and long break durations
-- **Sound alerts:** Optional sound notifications when a timer ends
-- **Session tracker:** See which focus session you’re in within the cycle
-- **Skippable breaks:** Option to skip the current break timer when needed
-- **Statistics dashboard:** Track focus time, sessions, cycles, daily streaks, and more
-- **Daily goals:** Set daily, weekend, or custom weekly targets
-- **Progress chart:** Visualize your goal progress for the last 7 days
-- **Achievements:** Unlock milestones as you stay productive
-- **Accurate timer:** Precise background time tracking with a Web Worker
-- **Monochrome theme:** Switch to a minimalist black-and-white theme
-- **Multilingual:** Available in 12 languages
-- **Local backup:** Export your data to a file and import it on another device
-- **100% local-first:** No ads, no cloud, no accounts
+- **Custom timers:** set focus, short break, and long break durations
+- **Sound alerts:** optional sound notifications when a timer ends
+- **Session tracker:** see which focus session you’re in within the cycle
+- **Skippable breaks:** option to skip the current break timer when needed
+- **Statistics dashboard:** track focus time, sessions, cycles, daily streaks, and more
+- **Daily goals:** set daily, weekend, or custom weekly targets
+- **Progress chart:** visualize your goal progress for the last 7 days
+- **Achievements:** unlock milestones as you stay productive
+- **Accurate timer:** precise background time tracking with a Web Worker
+- **Monochrome theme:** switch to a minimalist black-and-white theme
+- **Multilingual:** available in 12 languages
+- **Local backup:** export your data to a file and import it on another device
+- **100% local-first:** no ads, no cloud, no accounts
 
 
 ## Tech Stack
