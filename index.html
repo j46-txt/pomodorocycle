@@ -121,21 +121,21 @@
 		body.theme-black #languageButtonsContainer button:hover { background-color: #444; }
 		body.theme-black .hover\:bg-slate-700:hover { background-color: #333; }
 		body.theme-black .text-sky-400 { color: #fff; }
-		body.theme-black .hover\:text-sky-300:hover { color: #ccc; }
+		body.theme-black .hover\:text-sky-300:hover { color: #fff; }
 		body.theme-black #timerDisplay, body.theme-black .tab-pane, body.theme-black #settingsModal .bg-slate-700 { background-color: #1c1c1c; }
 		body.theme-black #startPauseButton { background-color: #fff; color: #000; }
 		body.theme-black #startPauseButton:hover { background-color: #e5e5e5; }
 		body.theme-black .bg-slate-600 { background-color: #2b2b2b; }
 		body.theme-black .hover\:bg-slate-500:hover { background-color: #3c3c3c; }
-		body.theme-black .text-slate-300 { color: #d1d1d1; }
+		body.theme-black .text-slate-300 { color: #fff; }
 		body.theme-black .text-slate-400 { color: #9c9c9c; }
 		body.theme-black .text-slate-500 { color: #6b6b6b; }
 		body.theme-black .border-slate-700 { border-color: #333; }
 		body.theme-black .tab-button.active { color: #fff; border-bottom-color: #fff; }
-		body.theme-black .text-sky-300, body.theme-black .text-sky-100 { color: #e5e5e5; }
+		body.theme-black .text-sky-300, body.theme-black .text-sky-100 { color: #fff; }
 		body.theme-black .achievement-item.locked { background-color: #222; }
 		body.theme-black .achievement-item.unlocked { background-color: #2b2b2b; border: 1px solid #555; }
-		body.theme-black .achievement-item.unlocked .text-green-400 { color: #e5e5e5; }
+		body.theme-black .achievement-item.unlocked .text-green-400 { color: #fff; }
 		body.theme-black .progress-bar-container { background-color: #444; }
 		body.theme-black .progress-bar { background-color: #fff; }
 		body.theme-black input, body.theme-black select { background-color: #222; border-color: #444; }
@@ -159,11 +159,11 @@
 		[dir="rtl"].theme-black .goal-mode-selector label:not(:last-child) { border-left-color: #444; border-right: none; }
 		body.theme-black #saveSettingsButton, body.theme-black #customAlertConfirmButton { background-color: #fff; color: #000; border: 1px solid #fff; }
 		body.theme-black #saveSettingsButton:hover, body.theme-black #customAlertConfirmButton:hover { background-color: #e5e5e5; border-color: #e5e5e5; }
-		body.theme-black #cancelSettingsButton, body.theme-black #customAlertCancelButton { background-color: #2b2b2b; color: #d1d1d1; }
+		body.theme-black #cancelSettingsButton, body.theme-black #customAlertCancelButton { background-color: #2b2b2b; color: #fff; }
 		body.theme-black #cancelSettingsButton:hover, body.theme-black #customAlertCancelButton:hover { background-color: #3c3c3c; }
 		body.theme-black #settingsButton:hover, body.theme-black #helpButton:hover { background-color: #1c1c1c; }
 		body.theme-black #settingsButton i, body.theme-black #helpButton i { color: #fff; }
-		body.theme-black #settingsButton:hover i, body.theme-black #helpButton:hover i { color: #ccc; }
+		body.theme-black #settingsButton:hover i, body.theme-black #helpButton:hover i { color: #fff; }
 		body.theme-black input[type="checkbox"].peer:focus + div { outline: none; box-shadow: none; --tw-ring-color: #ffffff; --tw-ring-offset-width: 2px; --tw-ring-offset-color: #1c1c1c; box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow, 0 0 #0000); border-color: #ffffff; --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(4px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
 		body.theme-black .achievement-item[style*="animation-name: pulse-ring-smooth"] { animation: pulse-ring-smooth-white 2s ease-in-out infinite !important; }
 		@keyframes pulse-ring-smooth-white { 0%, 100% { box-shadow: inset 0 0 0 3px rgb(255 255 255 / 1); } 50% { box-shadow: inset 0 0 0 2px rgb(255 255 255 / 0.4); } }
@@ -1248,13 +1248,13 @@
                         type: 'line',
                         label: getText('chart_target_label', "Target"),
                         data: targetData,
-                        borderColor: isBlackTheme ? 'rgba(229, 229, 229, 1)' : 'rgba(124, 58, 237, 1)',
+                        borderColor: isBlackTheme ? 'rgba(156, 156, 156, 1)' : 'rgba(124, 58, 237, 1)',
                         backgroundColor: 'transparent',
                         borderDash: [5, 5],
                         borderWidth: 2,
                         fill: false,
                         pointRadius: 3,
-                        pointBackgroundColor: isBlackTheme ? 'rgba(229, 229, 229, 1)' : 'rgba(124, 58, 237, 1)',
+                        pointBackgroundColor: isBlackTheme ? 'rgba(156, 156, 156, 1)' : 'rgba(124, 58, 237, 1)',
                         order: 0,
                         clip: false
                     }]
