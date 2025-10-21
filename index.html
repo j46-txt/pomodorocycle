@@ -1255,13 +1255,13 @@
                         type: 'line',
                         label: getText('chart_target_label', "Target"),
                         data: targetData,
-                        borderColor: isBlackTheme ? 'rgba(148, 163, 184, 1)' : 'rgba(124, 58, 237, 1)',
+                        borderColor: isBlackTheme ? 'rgba(0, 0, 0, 1)' : 'rgba(124, 58, 237, 1)',
                         backgroundColor: 'transparent',
                         borderDash: [5, 5],
                         borderWidth: 2,
                         fill: false,
                         pointRadius: 3,
-                        pointBackgroundColor: isBlackTheme ? 'rgba(148, 163, 184, 1)' : 'rgba(124, 58, 237, 1)',
+                        pointBackgroundColor: isBlackTheme ? 'rgba(0, 0, 0, 1)' : 'rgba(124, 58, 237, 1)',
                         order: 0,
                         clip: false
                     }]
@@ -1274,7 +1274,7 @@
                             beginAtZero: true, 
                             max: suggestedMax, 
                             ticks: { 
-                                color: isBlackTheme ? '#94a3b8' : '#94a3b8', 
+                                color: isBlackTheme ? '#949494' : '#94a3b8', 
                                 stepSize: 1, 
                                 precision: 0,
                                 autoSkip: false
@@ -1286,7 +1286,7 @@
                         x: { 
                             ticks: { 
                                 color: (context) => {
-                                    const baseColor = isBlackTheme ? '#94a3b8' : '#94a3b8';
+                                    const baseColor = isBlackTheme ? '#949494' : '#94a3b8';
                                     const highlightColor = isBlackTheme ? '#fff' : '#38bdf8';
                                     return context.index === 6 ? highlightColor : baseColor;
                                 }
