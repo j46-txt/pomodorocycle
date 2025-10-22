@@ -16,7 +16,7 @@
 - **Progress chart:** visualize your goal progress for the last 7 days
 - **Achievements:** unlock milestones as you stay productive
 - **Accurate timer:** precise background time tracking with a Web Worker
-- **Monochrome theme:** switch to a minimalist black-and-white theme
+- **Dark theme:** switch to a minimalist dark theme
 - **Multilingual:** available in 12 languages
 - **Local backup:** export your data to a file and import it on another device
 - **100% local-first:** no ads, no cloud, no accounts
