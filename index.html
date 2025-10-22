@@ -73,8 +73,8 @@
         .cycle-dot { width: 0.75rem; height: 0.75rem; border-radius: 9999px; transition: all 0.3s ease; }
         @media (max-width: 639px) {
             #tabContent { height: 20rem; }
-            .tab-button { /* REMOVIDO: flex-direction: column; */ padding-top: 0.5rem; padding-bottom: 0.5rem; font-size: 0.75rem; line-height: 1.2; min-height: 58px; gap: 0.25rem; /* Adicionado gap */ flex-wrap: wrap; /* Permite quebrar linha se necessário */ }
-            .tab-button i { margin-right: 0; /* REMOVIDO: margin-bottom: 0.25rem; */ font-size: 1rem; }
+            .tab-button { padding-top: 0.5rem; padding-bottom: 0.5rem; font-size: 0.75rem; line-height: 1.2; min-height: 58px; gap: 0.25rem; flex-wrap: wrap; }
+            .tab-button i { margin-right: 0; font-size: 1rem; }
             .stats-grid-container { gap: 1rem; }
             #statsContent h4 { font-size: 1rem; }
             .stats-text-size { font-size: 0.875rem; }
@@ -110,8 +110,7 @@
         [dir="rtl"] #goalTextWrapper { direction: rtl; }
         [dir="rtl"] .goal-mode-selector label:not(:last-child) { border-left: 1px solid #475569; border-right: none; }
         [dir="rtl"] #goalText i { margin-left: 0.5rem; margin-right: 0; }
-        /* Ajuste para RTL no mobile */
-        @media (max-width: 639px) { [dir="rtl"] .tab-button i { margin-left: 0; /* REMOVIDO: margin-bottom: 0.25rem; */ } }
+        @media (max-width: 639px) { [dir="rtl"] .tab-button i { margin-left: 0; } }
 
         body.theme-black { background-color: #000; }
 		body.theme-black::selection { background-color: #fff; color: #000; }
@@ -559,30 +558,30 @@
         }
         
         function getDetectedLanguage() {
-            const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
             const availableLangs = new Set(Object.keys(translations));
+            const browserLangs = navigator.languages || [navigator.language || navigator.userLanguage || 'en'];
 
-            if (availableLangs.has(browserLang)) { // ex: pt-br -> pt-BR
-                return browserLang;
+            for (const lang of browserLangs) {
+                const lowerLang = lang.toLowerCase();
+                
+                if (availableLangs.has(lowerLang)) {
+                    return lowerLang;
+                }
+
+                if (lowerLang.startsWith('pt')) {
+                    return 'pt-BR';
+                }
+
+                if (lowerLang.startsWith('en')) {
+                    return 'en';
+                }
+
+                const baseLang = lowerLang.split('-')[0];
+                if (availableLangs.has(baseLang)) {
+                    return baseLang;
+                }
             }
 
-             // Handle variations like pt-PT, pt-AO -> pt-BR
-            if (browserLang.startsWith('pt')) {
-                 return 'pt-BR';
-            }
-
-            // Handle variations like en-GB, en-US -> en
-            if (browserLang.startsWith('en')) {
-                return 'en';
-            }
-
-            // Handle variations like es-ES, es-MX -> es
-            const baseLang = browserLang.split('-')[0];
-            if (availableLangs.has(baseLang)) {
-                return baseLang;
-            }
-
-            // Default fallback
             return 'en';
         }
         
@@ -622,10 +621,10 @@
         
         function getText(key, ...args) {
             const lang = appData.settings.language || 'en';
-            let text = (translations[lang] && translations[lang][key]) || (translations['en'] && translations[lang][key]) || key;
-            if (!text || typeof text !== 'string') text = key;
+             let text = (translations[lang] && translations[lang][key]) || (translations['en'] && translations['en'][key]) || key;
+             if (typeof text !== 'string') text = key;
 
-            if (args.length > 0) {
+            if (args.length > 0 && typeof text === 'string') {
                 args.forEach((arg, index) => {
                     text = text.replace(`{${index}}`, arg);
                 });
@@ -638,8 +637,11 @@
             const rules = new Intl.PluralRules(lang);
             const pluralCategory = rules.select(count);
             const keyToUse = `${key}_${pluralCategory}`;
-            let text = (translations[lang]?.goal_text?.[keyToUse]) || (translations['en']?.goal_text?.[keyToUse]);
-            if (!text) text = (translations[lang]?.goal_text?.[`${key}_other`]) || (translations['en']?.goal_text?.[`${key}_other`]);
+            let text = (translations[lang]?.goal_text?.[keyToUse])
+                    || (translations['en']?.goal_text?.[keyToUse])
+                    || (translations[lang]?.goal_text?.[`${key}_other`])
+                    || (translations['en']?.goal_text?.[`${key}_other`]);
+
             if (!text) return `${count} ${key}`;
             return text.replace(`{0}`, count);
         }
@@ -658,7 +660,7 @@
                     el.title = translation;
                 } else {
                     const targetEl = el.querySelector('span:not([id])') || el;
-                    if(targetEl && targetEl.innerHTML !== translation) {
+                    if(targetEl && (targetEl.innerHTML !== translation || (targetEl.innerHTML === '' && translation !== key))) {
                         targetEl.innerHTML = translation;
                     }
                 }
@@ -667,10 +669,12 @@
         
         const STORAGE_KEY = 'pomodoroGamifiedAppData_v3';
         function buildAchievements(lang, savedAchievements = []) {
-            const achievementTexts = (translations[lang] && translations[lang].achievements) ? translations[lang].achievements : (translations['en'] && translations['en'].achievements) || {};
+             const achievementLangData = translations[lang] || translations['en'] || {};
+             const achievementTexts = achievementLangData.achievements || {};
+
             return baseAchievements.map(baseAch => {
                 const userAchData = savedAchievements.find(ua => ua.id === baseAch.id) || {};
-                const translatedText = achievementTexts[baseAch.id] || { name: baseAch.id, description: '' };
+                 const translatedText = achievementTexts[baseAch.id] || { name: baseAch.id, description: '' };
                 return {
                     ...baseAch, name: translatedText.name, description: translatedText.description,
                     unlocked: userAchData.unlocked || false, unlockedDate: userAchData.unlockedDate || null, seen: userAchData.seen || (userAchData.unlocked || false)
@@ -690,7 +694,7 @@
                     if (isObject(source[key])) {
                         if (!target[key]) Object.assign(target, { [key]: {} });
                         mergeDeep(target[key], source[key]);
-                    } else {
+                    } else if (source[key] !== undefined) {
                         Object.assign(target, { [key]: source[key] });
                     }
                 }
@@ -714,7 +718,13 @@
             data.timerState.pomodorosInCycle=parseInt(data.timerState.pomodorosInCycle)||0;
             data.timerState.timeLeft=parseFloat(data.timerState.timeLeft)||data.settings.studyTime*60;
             if (!data.stats.goalHistory) data.stats.goalHistory = [];
-            if (data.dailyGoal.target === undefined) data.dailyGoal.target = 0;
+             data.dailyGoal = data.dailyGoal || {};
+            data.dailyGoal.target = data.dailyGoal.target !== undefined ? parseInt(data.dailyGoal.target) || 0 : 0;
+             data.dailyGoal.progress = parseInt(data.dailyGoal.progress) || 0;
+             data.dailyGoal.completed = !!data.dailyGoal.completed;
+             data.dailyGoal.notificationShown = !!data.dailyGoal.notificationShown;
+             data.dailyGoal.settings = data.dailyGoal.settings || { mode: 'all_days', targetAll: 0, targetWeekday: 0, targetWeekend: 0, targetsCustom: [0, 0, 0, 0, 0, 0, 0] };
+
             return data;
         }
         
@@ -734,48 +744,50 @@
             if (storedData) {
                 try {
                     const parsedData = JSON.parse(storedData);
-                    appData = mergeDeep(defaultData, parsedData);
+                     appData = mergeDeep(JSON.parse(JSON.stringify(defaultData)), parsedData);
                     appData = sanitizeLoadedData(appData);
-                    if (!appData.dailyGoal.settings) {
-                        const oldTarget = appData.dailyGoal.target || 4;
-                        appData.dailyGoal.settings={mode:'all_days',targetAll:oldTarget,targetWeekday:oldTarget,targetWeekend:2,targetsCustom:[2,oldTarget,oldTarget,oldTarget,oldTarget,oldTarget,2]};
-                    }
-                    const lang = appData.settings.language || 'en';
-                    appData.achievements = buildAchievements(lang, parsedData.achievements || []);
-                } catch (e) {
-                    appData = getDefaultAppData();
-                    isFirstVisit = true; 
+                     const lang = appData.settings.language || 'en';
+                     appData.achievements = buildAchievements(lang, appData.achievements || []);
+                 } catch (e) {
+                     console.error("Error loading data, resetting to defaults:", e);
+                     appData = getDefaultAppData();
+                     isFirstVisit = true;
+                     const detectedLang = getDetectedLanguage();
+                     appData.settings.language = detectedLang;
                     appData.achievements = buildAchievements(appData.settings.language);
-                }
+                 }
             } else {
                 appData = defaultData;
-                isFirstVisit = true;
+                 isFirstVisit = true;
+                 const detectedLang = getDetectedLanguage();
+                 appData.settings.language = detectedLang;
                 appData.achievements = buildAchievements(appData.settings.language);
-            }
-
-            if (isFirstVisit) {
-                const detectedLang = getDetectedLanguage();
-                appData.settings.language = detectedLang;
             }
 
             if (appData.stats.daily.date !== getTodayDateString()) {
                 archiveGoalProgress();
                 resetDailyStats();
             }
-            studyTimeInput.value=appData.settings.studyTime;
-            shortBreakTimeInput.value=appData.settings.shortBreakTime;
-            longBreakTimeInput.value=appData.settings.longBreakTime;
-            soundToggle.checked=appData.settings.soundEnabled;
-            themeToggle.checked = appData.settings.theme === 'black';
-            languageSelect.value=appData.settings.language;
-            updateNotificationBadges();
-            applyTheme();
-        }
+
+             studyTimeInput.value = appData.settings.studyTime;
+             shortBreakTimeInput.value = appData.settings.shortBreakTime;
+             longBreakTimeInput.value = appData.settings.longBreakTime;
+             soundToggle.checked = appData.settings.soundEnabled;
+             themeToggle.checked = appData.settings.theme === 'black';
+             if (languageSelect) {
+                 languageSelect.value = appData.settings.language;
+             }
+             applyTheme();
+         }
         
         function saveData() {
-            const achievementsToSave = appData.achievements.map(ach => ({ id: ach.id, unlocked: ach.unlocked, unlockedDate: ach.unlockedDate, seen: ach.seen }));
-            const dataToSave = { ...appData, achievements: achievementsToSave };
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            try {
+                const achievementsToSave = appData.achievements.map(ach => ({ id: ach.id, unlocked: ach.unlocked, unlockedDate: ach.unlockedDate, seen: ach.seen }));
+                const dataToSave = { ...appData, achievements: achievementsToSave };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+            } catch (e) {
+                console.error("Error saving data:", e);
+             }
         }
         
         let toastTimeout;
@@ -783,7 +795,7 @@
             clearTimeout(toastTimeout);
             toastTitleEl.textContent=title;
             toastBodyEl.textContent=body;
-            toastNotificationEl.className='fixed top-5 p-4 rounded-md text-white z-[1000] transition-all duration-500 max-w-xs shadow-lg';
+            toastNotificationEl.className='fixed top-5 right-5 p-4 rounded-md text-white z-[1000] transition-all duration-500 max-w-xs shadow-lg';
             switch (type) {
                 case 'success': toastNotificationEl.classList.add('bg-green-500','show'); break;
                 case 'error': toastNotificationEl.classList.add('bg-red-500','show'); break;
@@ -794,6 +806,7 @@
         }
         
         function updateNotificationBadges() {
+             if (!achievementsTabBadgeEl || !rewardsTabBadgeEl) return;
             const unseenAchievements = appData.achievements.filter(ach => ach.unlocked && !ach.seen).length;
             achievementsTabBadgeEl.style.display = (unseenAchievements > 0 && activeTabId !== 'achievements') ? 'inline-block' : 'none';
             rewardsTabBadgeEl.style.display = (appData.dailyGoal.completed && !appData.dailyGoal.notificationShown && activeTabId !== 'dailyGoal') ? 'inline-block' : 'none';
@@ -801,6 +814,21 @@
         
         let currentConfirmCallback=null, currentCancelCallback=null;
         function showCustomAlert(title, message, iconClass="fas fa-info-circle text-sky-400", confirmText="OK", cancelText=null, confirmCallback=null, cancelCallback=null, isHelp=false) {
+             if (!customAlertModal || !customAlertTitleEl || !customAlertMessageEl || !customAlertIconEl || !customAlertConfirmButton || !customAlertCancelButton || !customAlertContentEl) {
+                 console.error("Custom alert elements not found.");
+                 if (cancelText) {
+                     if (confirm(title + "\n\n" + message.replace(/<[^>]*>/g, ''))) {
+                         if (confirmCallback) confirmCallback();
+                     } else {
+                         if (cancelCallback) cancelCallback();
+                     }
+                 } else {
+                     alert(title + "\n\n" + message.replace(/<[^>]*>/g, ''));
+                     if (confirmCallback) confirmCallback();
+                 }
+                 return;
+             }
+
             customAlertTitleEl.textContent=title;
             customAlertMessageEl.innerHTML=message;
             customAlertIconEl.className=`text-3xl mr-4 mt-1 ${iconClass}`;
@@ -856,9 +884,13 @@
             modePillEl.className=`py-1 px-3 rounded-full text-sm font-semibold transition-all duration-500 ${pillClass}`;
             timerTextEl.className=`timer-text transition-colors duration-500 ${timerColorClass}`;
             
-            const bodyClassesToRemove = /bg-(slate|green|purple)-900|bg-black/g;
-            document.body.className = document.body.className.replace(bodyClassesToRemove, '').trim();
+             document.body.classList.remove('bg-slate-900', 'bg-green-900', 'bg-purple-900', 'bg-black');
             document.body.classList.add(bodyClass);
+             if (isBlackTheme && !document.body.classList.contains('theme-black')) {
+                 document.body.classList.add('theme-black');
+             } else if (!isBlackTheme && document.body.classList.contains('theme-black')) {
+                 document.body.classList.remove('theme-black');
+             }
             
             document.title = `${formatTime(appData.timerState.timeLeft)} - ${getText(modeKey, "Pomodoro")}`;
             updateCycleInfo();
@@ -910,7 +942,8 @@
                 let mainContentHTML = `<div class="flex items-start mb-1"><i class="${ach.icon||"fas fa-question-circle"} text-xl ${ach.unlocked?'text-green-400':'text-slate-400'} mr-2 mt-1"></i><div class="flex-grow overflow-hidden"><div class="flex items-baseline"><h4 class="font-semibold text-sm ${ach.unlocked?'text-white':'text-sky-300'} truncate mr-1">${ach.name}</h4>${newIndicatorHTML}</div><p class="text-xs ${ach.unlocked?'text-sky-100':'text-slate-300'} leading-tight">${ach.description}</p></div></div>`;
                 let progressSectionHTML = '<div class="mt-auto">';
                 if (ach.unlocked) {
-                    const unlockedDate = new Date(ach.unlockedDate).toLocaleDateString(appData.settings.language.replace('_', '-'));
+                     const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit' };
+                     const unlockedDate = new Date(ach.unlockedDate).toLocaleDateString((appData.settings.language || 'en').replace('_', '-'), dateOptions);
                     progressSectionHTML += `<p class="text-xs text-green-400 font-semibold mt-1"><i class="fas fa-check-circle mr-1"></i>${getText('unlocked_on_date', unlockedDate)}</p>`;
                 } else {
                     const { current, displayCurrent, displayTarget } = getAchievementProgress(ach.type, ach.threshold);
@@ -942,9 +975,9 @@
                 case 'study': newTimeLeft = appData.settings.studyTime * 60; break;
                 case 'shortBreak': newTimeLeft = appData.settings.shortBreakTime * 60; break;
                 case 'longBreak': newTimeLeft = appData.settings.longBreakTime * 60; break;
-                default: newTimeLeft = appData.settings.studyTime * 60, appData.timerState.currentMode = 'study';
-            }
-            appData.timerState.timeLeft = newTimeLeft;
+                default: newTimeLeft = appData.settings.studyTime * 60; appData.timerState.currentMode = 'study';
+             }
+            appData.timerState.timeLeft = newTimeLeft > 0 ? newTimeLeft : 1;
             if (timerWorker) timerWorker.postMessage({ command: 'setMode', mode: appData.timerState.currentMode, duration: appData.timerState.timeLeft });
             updateTimerDisplay();
             saveData();
@@ -986,6 +1019,8 @@
                 case 'shortBreak': sessionDurationInSeconds = appData.settings.shortBreakTime * 60; break;
                 case 'longBreak': sessionDurationInSeconds = appData.settings.longBreakTime * 60; break;
             }
+
+             sessionDurationInSeconds = Math.max(0, sessionDurationInSeconds);
 
             let notificationTitleKey="",notificationBodyKey="",soundNoteForEndedMode='C4';
             let nextModeToTransitionTo=null,showCycleCompleteNotification=false,shouldAutoStart=true;
@@ -1049,6 +1084,7 @@
             appData.timerState.isRunning = false;
             let newTimeLeft;
             switch(appData.timerState.currentMode){case'study':newTimeLeft=appData.settings.studyTime*60;break;case'shortBreak':newTimeLeft=appData.settings.shortBreakTime*60;break;case'longBreak':newTimeLeft=appData.settings.longBreakTime*60;break;default:newTimeLeft=appData.settings.studyTime*60;}
+             newTimeLeft = Math.max(1, newTimeLeft);
             appData.timerState.timeLeft=newTimeLeft;
             if(timerWorker)timerWorker.postMessage({command:'setMode',mode:appData.timerState.currentMode,duration:appData.timerState.timeLeft});
             startPauseButton.querySelector('span').textContent=getText('start_button', "Start");
@@ -1061,30 +1097,32 @@
             const history = appData.stats.goalHistory || [];
             const sevenDaysAgo = new Date();
             sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            const recentHistory = history.filter(entry => new Date(entry.date) >= sevenDaysAgo);
-            const todayStr = appData.stats.daily.date;
+            const recentHistory = history.filter(entry => entry && entry.date && new Date(entry.date) >= sevenDaysAgo);
+             const todayStr = getTodayDateString();
             
             const existingEntryIndex = recentHistory.findIndex(e => e.date === todayStr);
-            const entry = {
-                date: todayStr,
-                target: appData.dailyGoal.target,
-                progress: appData.dailyGoal.progress,
-                completed: appData.dailyGoal.completed,
-                settings: JSON.parse(JSON.stringify(appData.dailyGoal.settings))
-            };
-            if (existingEntryIndex > -1) {
-                recentHistory[existingEntryIndex] = entry;
-            } else {
-                recentHistory.push(entry);
-            }
+             const entry = {
+                 date: appData.stats.daily.date,
+                 target: appData.dailyGoal.target,
+                 progress: appData.dailyGoal.progress,
+                 completed: appData.dailyGoal.completed,
+                 settings: JSON.parse(JSON.stringify(appData.dailyGoal.settings))
+             };
+             const entryIndexForPassedDay = recentHistory.findIndex(e => e.date === appData.stats.daily.date);
+             if (entryIndexForPassedDay > -1) {
+                 recentHistory[entryIndexForPassedDay] = entry;
+             } else {
+                 recentHistory.push(entry);
+             }
             
             appData.stats.goalHistory = recentHistory.slice(-7);
-        }
+         }
         
         function resetDailyStats() {
             appData.stats.daily={date:getTodayDateString(),focusSessions:0,cyclesCompleted:0,pureStudySeconds:0,totalTimeSeconds:0,firstStudySessionCompletedToday:false};
             appData.dailyGoal.progress=0;appData.dailyGoal.completed=false;appData.dailyGoal.notificationShown=false;
-        }
+             setTodaysGoal();
+         }
         
         function setTabStyling(isCollapsed) {
             tabButtons.forEach(btn => {
@@ -1106,9 +1144,10 @@
             activeTabId = tabId;
             setTabStyling(false);
             tabPanes.forEach(pane => {
-                const isTargetPane = pane.id === `${tabId}Content`;
-                pane.style.display = isTargetPane ? 'flex' : 'none';
-                pane.classList.toggle('active', isTargetPane);
+                 if (!pane) return;
+                 const isTargetPane = pane.id === `${tabId}Content`;
+                 pane.style.display = isTargetPane ? 'flex' : 'none';
+                 pane.classList.toggle('active', isTargetPane);
             });
             if (tabId === 'achievements') {
                 justSeenAchievementIds = [];
@@ -1137,11 +1176,11 @@
         
         function setTodaysGoal() {
             const settings = appData.dailyGoal.settings;
-            const today = new Date().getDay(); 
-            let newTarget = 0;
+             const today = new Date().getDay();
+             let newTarget = 0;
             switch(settings.mode){case'weekend':newTarget=(today===0||today===6)?settings.targetWeekend:settings.targetWeekday;break;case'custom':newTarget=settings.targetsCustom[today];break;case'all_days':default:newTarget=settings.targetAll;break;}
-            appData.dailyGoal.target = newTarget || 0;
-        }
+            appData.dailyGoal.target = parseInt(newTarget) || 0;
+         }
         
         function checkGoalProgress() {
             const goal = appData.dailyGoal;
@@ -1156,7 +1195,8 @@
                 if (!goal.notificationShown) {
                     showToast(getText('goal_completed_toast_title', "Success!"), getText('goal_completed_toast_body'), 'success');
                     playSound('G5', '2n', 'goal');
-                }
+                     goal.notificationShown = true;
+                 }
             }
             
             renderDailyGoal();
@@ -1166,18 +1206,22 @@
         }
         
         function renderDailyGoal() {
+             if (!goalProgressContainer || !goalTextEl || !editGoalButton || !goalTextWrapper || !goalProgressTextEl || !goalProgressBarWrapper || !goalProgressBarEl) return;
+
             const goal = appData.dailyGoal;
             goalProgressContainer.classList.remove('completed');
             
             if (goal.target <= 0) {
                 goalProgressContainer.style.display = 'none';
                 goalTextEl.innerHTML = '<i class="fas fa-crosshairs mr-2"></i>' + getText('no_goal_set', "No goal set");
-                editGoalButton.querySelector('span').textContent = getText('set_goal_button', "Set Goal");
+                 const span = editGoalButton.querySelector('span');
+                 if (span) span.textContent = getText('set_goal_button', "Set Goal");
                 return;
             }
 
             goalProgressContainer.style.display = 'block';
-            editGoalButton.querySelector('span').textContent = getText('edit_goal_button', "Edit Goal");
+             const span = editGoalButton.querySelector('span');
+             if (span) span.textContent = getText('edit_goal_button', "Edit Goal");
             goalTextWrapper.classList.remove('justify-center');
             goalTextWrapper.classList.add('justify-between');
             goalTextEl.className = 'font-semibold text-base leading-tight';
@@ -1202,8 +1246,11 @@
         }
 
         function getHistoricalGoalTarget(date, settings) {
-            const dayOfWeek = date.getDay(); 
-            let historicalTarget = 0;
+             const dayOfWeek = date.getDay();
+             let historicalTarget = 0;
+
+             settings = settings || { mode: 'all_days', targetAll: 0, targetWeekday: 0, targetWeekend: 0, targetsCustom: [0,0,0,0,0,0,0] };
+             settings.targetsCustom = settings.targetsCustom || [0,0,0,0,0,0,0];
 
             switch (settings.mode) {
                 case 'weekend':
@@ -1217,8 +1264,8 @@
                     historicalTarget = settings.targetAll;
                     break;
             }
-            return historicalTarget || 0;
-        }
+            return parseInt(historicalTarget) || 0;
+         }
         
         function renderGoalHistoryChart() {
             if (goalHistoryChart) {
@@ -1227,18 +1274,19 @@
             if (!goalHistoryChartCanvas) return;
             
             const isBlackTheme = appData.settings.theme === 'black';
-            const history = appData.stats.goalHistory || [];
-            const labels = [];
+             const history = appData.stats.goalHistory || [];
+             const labels = [];
             const progressData = [];
             const targetData = [];
             let maxVal = 0;
             const today = new Date();
-            const langCode = (appData.settings.language || 'en').replace('_', '-');
+             const langCode = (appData.settings.language || 'en').replace('_', '-');
 
             for (let i = 6; i >= 0; i--) {
                 const date = new Date();
                 date.setDate(today.getDate() - i);
-                const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                 date.setHours(0, 0, 0, 0);
+                 const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
 
                 const dayOfWeek = date.toLocaleDateString(langCode, { weekday: 'short' });
                 const dayMonth = `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}`;
@@ -1247,22 +1295,22 @@
                 let currentDayTarget = 0;
                 let currentDayProgress = 0;
 
-                if (i === 0) { 
+                if (i === 0) {
                     currentDayProgress = appData.dailyGoal.progress;
                     currentDayTarget = appData.dailyGoal.target;
-                } else { 
-                    const entry = history.find(e => e.date === dateStr);
-                    currentDayProgress = entry ? entry.progress : 0;
-                    currentDayTarget = getHistoricalGoalTarget(date, appData.dailyGoal.settings);
-                }
+                } else {
+                     const entry = history.find(e => e && e.date === dateStr);
+                     currentDayProgress = entry ? entry.progress : 0;
+                     currentDayTarget = getHistoricalGoalTarget(date, entry ? entry.settings : appData.dailyGoal.settings);
+                 }
 
                 progressData.push(currentDayProgress);
                 targetData.push(currentDayTarget);
                 maxVal = Math.max(maxVal, currentDayProgress, currentDayTarget);
             }
 
-            const suggestedMax = Math.ceil(maxVal) + 1;
-            const ctx = goalHistoryChartCanvas.getContext('2d');
+             const suggestedMax = Math.max(1, Math.ceil(maxVal) + 1);
+             const ctx = goalHistoryChartCanvas.getContext('2d');
             goalHistoryChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
@@ -1296,13 +1344,14 @@
                     scales: {
                         y: { 
                             beginAtZero: true, 
-                            max: suggestedMax, 
+                            suggestedMax: suggestedMax,
                             ticks: { 
                                 color: isBlackTheme ? '#949494' : '#94a3b8', 
                                 stepSize: 1, 
                                 precision: 0,
-                                autoSkip: false
-                            }, 
+                                autoSkip: true,
+                                 maxTicksLimit: 6
+                             },
                             grid: { 
                                 color: isBlackTheme ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.1)' 
                             } 
@@ -1313,8 +1362,10 @@
                                     const baseColor = isBlackTheme ? '#949494' : '#94a3b8';
                                     const highlightColor = isBlackTheme ? '#fff' : '#38bdf8';
                                     return context.index === 6 ? highlightColor : baseColor;
-                                }
-                             }, 
+                                },
+                                 maxRotation: 0,
+                                 minRotation: 0
+                             },
                             grid: { display: false } 
                         }
                     },
@@ -1326,7 +1377,7 @@
                             labels: { 
                                 color: isBlackTheme ? '#cbd5e1' : '#cbd5e1', 
                                 boxWidth: 12, 
-                                padding: 20, 
+                                padding: 15,
                                 font: { size: 10 } 
                             } 
                         },
@@ -1346,24 +1397,26 @@
         }
 
         function validateGoalInputs() {
-            const mode = document.querySelector('input[name="goalMode"]:checked').value;
+            const modeElement = document.querySelector('input[name="goalMode"]:checked');
+             if (!modeElement) return;
+             const mode = modeElement.value;
             let isValid = false;
 
             switch (mode) {
                 case 'all_days':
                     const allDaysInput = document.getElementById('goalValueInputAll');
-                    if (parseInt(allDaysInput.value) >= 0 && allDaysInput.value.trim() !== '') isValid = true;
+                     if (allDaysInput && parseInt(allDaysInput.value) >= 0 && allDaysInput.value.trim() !== '') isValid = true;
                     break;
                 case 'weekend':
                     const weekdayInput = document.getElementById('goalValueInputWeekday');
                     const weekendInput = document.getElementById('goalValueInputWeekend');
-                    if ((parseInt(weekdayInput.value) >= 0 && weekdayInput.value.trim() !== '') || 
-                        (parseInt(weekendInput.value) >= 0 && weekendInput.value.trim() !== '')) isValid = true;
+                     if ((weekdayInput && parseInt(weekdayInput.value) >= 0 && weekdayInput.value.trim() !== '') ||
+                         (weekendInput && parseInt(weekendInput.value) >= 0 && weekendInput.value.trim() !== '')) isValid = true;
                     break;
                 case 'custom':
                     const customInputs = document.querySelectorAll('#goalInputsCustom input');
                     for (const input of customInputs) {
-                        if (parseInt(input.value) >= 0 && input.value.trim() !== '') {
+                         if (input && parseInt(input.value) >= 0 && input.value.trim() !== '') {
                             isValid = true;
                             break;
                         }
@@ -1372,56 +1425,66 @@
             }
 
             const saveButton = document.getElementById('saveGoalButton');
-            saveButton.disabled = !isValid;
+             if (!saveButton) return;
+             saveButton.disabled = !isValid;
             saveButton.classList.toggle('opacity-50', !isValid);
             saveButton.classList.toggle('cursor-not-allowed', !isValid);
         }
         
         function showGoalEditView(show) {
+             if (!goalDisplayView || !goalEditView) return;
+
             if (show) {
                 goalDisplayView.classList.add('hidden');
                 goalEditView.classList.remove('hidden');
                 const settings = appData.dailyGoal.settings;
                 
-                document.querySelector(`input[name="goalMode"][value="${settings.mode}"]`).checked = true;
+                 const modeRadio = document.querySelector(`input[name="goalMode"][value="${settings.mode}"]`);
+                 if (modeRadio) modeRadio.checked = true;
 
-                document.getElementById('goalValueInputAll').value = settings.targetAll !== undefined ? settings.targetAll : '';
-                document.getElementById('goalValueInputWeekday').value = settings.targetWeekday !== undefined ? settings.targetWeekday : '';
-                document.getElementById('goalValueInputWeekend').value = settings.targetWeekend !== undefined ? settings.targetWeekend : '';
+                 const inputAll = document.getElementById('goalValueInputAll');
+                 if (inputAll) inputAll.value = settings.targetAll !== undefined ? settings.targetAll : '';
+                 const inputWeekday = document.getElementById('goalValueInputWeekday');
+                 if (inputWeekday) inputWeekday.value = settings.targetWeekday !== undefined ? settings.targetWeekday : '';
+                 const inputWeekend = document.getElementById('goalValueInputWeekend');
+                 if (inputWeekend) inputWeekend.value = settings.targetWeekend !== undefined ? settings.targetWeekend : '';
                 
-                document.getElementById('goalValueInputAll').placeholder = '4';
-                document.getElementById('goalValueInputWeekday').placeholder = '4';
-                document.getElementById('goalValueInputWeekend').placeholder = '2';
+                 if (inputAll) inputAll.placeholder = '4';
+                 if (inputWeekday) inputWeekday.placeholder = '4';
+                 if (inputWeekend) inputWeekend.placeholder = '2';
 
                 const customContainer = document.querySelector('#goalInputsCustom .custom-day-grid');
-                customContainer.innerHTML = '';
-                
-                const lang = appData.settings.language || 'en';
-                const displayDayNames = (translations[lang] && translations[lang].day_names_short) || (translations['en'] && translations[lang].day_names_short) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-
-                const suggestedCustomTargets = [4, 4, 4, 4, 4, 2, 2];
-
-                displayDayNames.forEach((dayName, index) => {
-                    const jsDayIndex = (index < 6) ? index + 1 : 0;
-                    const savedVal = settings.targetsCustom[jsDayIndex];
-                    const placeholderVal = suggestedCustomTargets[index];
+                 if (customContainer) {
+                     customContainer.innerHTML = '';
                     
-                    const inputHtml = `
-                        <div class="custom-day-input-group">
-                            <label for="goalDay${jsDayIndex}" class="block">${dayName}</label>
-                            <input 
-                                type="number" 
-                                id="goalDay${jsDayIndex}" 
-                                data-day-index="${jsDayIndex}" 
-                                min="0" 
-                                value="${savedVal !== undefined && savedVal !== null ? savedVal : ''}" 
-                                placeholder="${placeholderVal}" 
-                                class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500">
-                        </div>`;
-                    customContainer.insertAdjacentHTML('beforeend', inputHtml);
-                });
+                     const lang = appData.settings.language || 'en';
+                     const displayDayNames = (translations[lang]?.day_names_short) || (translations['en']?.day_names_short) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+                    const suggestedCustomTargets = [4, 4, 4, 4, 4, 2, 2];
+
+                    displayDayNames.forEach((dayName, index) => {
+                         const jsDayIndex = (index === 6) ? 0 : index + 1;
+                         const savedVal = settings.targetsCustom ? settings.targetsCustom[jsDayIndex] : undefined;
+                        const placeholderVal = suggestedCustomTargets[index];
+                        
+                        const inputHtml = `
+                            <div class="custom-day-input-group">
+                                <label for="goalDay${jsDayIndex}" class="block">${dayName}</label>
+                                <input 
+                                    type="number" 
+                                    id="goalDay${jsDayIndex}" 
+                                    data-day-index="${jsDayIndex}" 
+                                    min="0" 
+                                    value="${savedVal !== undefined && savedVal !== null ? savedVal : ''}" 
+                                    placeholder="${placeholderVal}" 
+                                    class="w-full p-2 rounded bg-slate-600 text-white border border-slate-500 text-center focus:ring-sky-500 focus:border-sky-500">
+                            </div>`;
+                        customContainer.insertAdjacentHTML('beforeend', inputHtml);
+                    });
+                 }
                 
-                document.querySelector('input[name="goalMode"]:checked').dispatchEvent(new Event('change'));
+                 const checkedMode = document.querySelector('input[name="goalMode"]:checked');
+                 if (checkedMode) checkedMode.dispatchEvent(new Event('change'));
                 
                 document.querySelectorAll('#goalEditView input[type="number"]').forEach(input => {
                     input.addEventListener('input', validateGoalInputs);
@@ -1452,8 +1515,8 @@
                 newlyUnlocked.forEach((ach, index) => {
                     setTimeout(() => {
                         const achName = ach.name;
-                        showToast(getText("toast_achievement_unlocked_title", "Achievement!"), getText("toast_achievement_unlocked_body", achName), "success", 5000);
-                        playSound("C5", "4n", "achievement");
+                        showToast(getText("toast_achievement_unlocked_title", "Achievement!"), getText("toast_achievement_unlocked_body", achName).replace('{0}', achName), "success", 5000);
+                         playSound("C5", "4n", "achievement");
                     }, 600 * index);
                 });
                 appData.uiState.newAchievementsCount += newlyUnlocked.length;
@@ -1467,7 +1530,7 @@
                     });
                     appData.uiState.newAchievementsCount = 0;
                     renderAchievements();
-                }
+                 }
             }
         }
         
@@ -1479,30 +1542,53 @@
                 timerWorker = new Worker(URL.createObjectURL(blob));
                 timerWorker.onmessage = function(e) {
                     const { type, timeLeft: workerTimeLeftUpdate, mode: workerMode } = e.data;
-                    if(type==='tick'){appData.timerState.timeLeft=workerTimeLeftUpdate;if(appData.timerState.currentMode===workerMode)updateTimerDisplay();}else if(type==='end'){if(appData.timerState.currentMode===workerMode)handleTimerEnd(false);}else if(type==='modeSet'){appData.timerState.timeLeft=workerTimeLeftUpdate;updateTimerDisplay();}
+                    if (type === 'tick' && appData.timerState.currentMode === workerMode) {
+                         appData.timerState.timeLeft = workerTimeLeftUpdate;
+                         updateTimerDisplay();
+                     } else if (type === 'end' && appData.timerState.currentMode === workerMode) {
+                         handleTimerEnd(false);
+                     } else if (type === 'modeSet') {
+                         appData.timerState.timeLeft = workerTimeLeftUpdate;
+                         updateTimerDisplay();
+                     }
                 };
-                timerWorker.onerror = function(error) { timerWorker = null; };
+                timerWorker.onerror = function(error) {
+                    console.error("Timer worker error:", error);
+                    timerWorker = null;
+                 };
             } catch (e) {
+                console.error("Failed to create timer worker:", e);
                 timerWorker = null;
             }
         }
         
         function startMidnightChecker() {
-            setInterval(() => {
+             let lastCheckDate = getTodayDateString();
+             setInterval(() => {
                 const todayString = getTodayDateString();
-                if (appData.stats.daily.date !== todayString) {
-                    showToast(getText("toast_new_day_title", "Info"), getText("toast_new_day_body"), "info");
-                    archiveGoalProgress(); resetDailyStats(); setTodaysGoal(); saveData(); updateStatsDisplay(); renderAllDynamicContent();
-                }
-            }, 60000);
-        }
+                if (lastCheckDate !== todayString) {
+                     console.log("Midnight detected, resetting daily stats.");
+                     showToast(getText("toast_new_day_title", "Info"), getText("toast_new_day_body"), "info");
+                     archiveGoalProgress();
+                     resetDailyStats();
+                     saveData();
+                     updateStatsDisplay();
+                     renderAllDynamicContent();
+                     lastCheckDate = todayString;
+                 }
+            }, 30000);
+         }
         
         function renderAllDynamicContent() {
-             updateTimerDisplay(); updateStatsDisplay(); renderDailyGoal(); renderAchievements();
-             if (document.getElementById('dailyGoalContent').classList.contains('active')) {
-                   renderGoalHistoryChart();
+             updateTimerDisplay();
+             updateStatsDisplay();
+             renderDailyGoal();
+             renderAchievements();
+             if (activeTabId === 'dailyGoal') {
+                  renderGoalHistoryChart();
              }
-        }
+             updateNotificationBadges();
+         }
         
         function initializeApp() {
             appContainer.style.display = 'block';
@@ -1510,60 +1596,63 @@
             loadData();
             setTodaysGoal();
             checkGoalProgress();
+            
             const todayStrInitialize = getTodayDateString();
             if (appData.stats.general.lastStudyDate && appData.stats.general.lastStudyDate !== todayStrInitialize) {
-                const lastStudy=new Date(appData.stats.general.lastStudyDate), today=new Date(todayStrInitialize), yesterday=new Date(today);
+                const lastStudy=new Date(appData.stats.general.lastStudyDate);
+                const today=new Date(todayStrInitialize);
+                const yesterday=new Date(today);
                 yesterday.setDate(today.getDate() - 1);
                 lastStudy.setHours(0,0,0,0); yesterday.setHours(0,0,0,0);
                 if (lastStudy.getTime() < yesterday.getTime()) {
                     appData.stats.general.streak = 0;
                 }
             }
-            const persistedState = { ...appData.timerState };
-            appData.timerState.currentMode = persistedState.currentMode || 'study';
-            appData.timerState.timeLeft = persistedState.timeLeft;
-            appData.timerState.pomodorosInCycle = persistedState.pomodorosInCycle || 0;
-            const wasRunning = persistedState.isRunning || false;
-            appData.timerState.isRunning = false;
+
+             const persistedState = { ...appData.timerState };
+             appData.timerState.currentMode = persistedState.currentMode || 'study';
+             appData.timerState.timeLeft = persistedState.timeLeft > 0 ? persistedState.timeLeft : appData.settings.studyTime * 60;
+             appData.timerState.pomodorosInCycle = persistedState.pomodorosInCycle || 0;
+             const wasRunning = persistedState.isRunning || false;
+             appData.timerState.isRunning = false;
+
             if (timerWorker) {
                 timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 timerWorker.postMessage({ command: 'setMode', mode: appData.timerState.currentMode, duration: appData.timerState.timeLeft });
             }
+
             applyTranslations();
-            if (wasRunning && appData.timerState.timeLeft > 0) {
-                appData.timerState.isRunning = true;
-                startPauseButton.querySelector('span').textContent = getText('pause_button', 'Pause');
-                startPauseButton.querySelector('i').className = 'fas fa-pause mr-2';
-                if (timerWorker) timerWorker.postMessage({ command: 'start' });
-            } else {
-                startPauseButton.querySelector('span').textContent = getText('start_button', 'Start');
-                startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
-            }
+            
+             startPauseButton.querySelector('span').textContent = getText('start_button', 'Start');
+             startPauseButton.querySelector('i').className = 'fas fa-play mr-2';
+
             if (appData.uiState.tabsCollapsed) {
                 tabContentEl.classList.add('collapsed');
-                collapseIcon.className = 'fas fa-chevron-down';
+                 if(collapseIcon) collapseIcon.className = 'fas fa-chevron-down';
                 setTabStyling(true);
             } else {
-                collapseIcon.className = 'fas fa-chevron-up';
+                 if(collapseIcon) collapseIcon.className = 'fas fa-chevron-up';
                 setTabStyling(false);
-            }
+                 showTab(activeTabId || 'stats');
+             }
+
             renderAllDynamicContent();
             updateNotificationBadges();
             startMidnightChecker();
-            saveData(); // Save initial state including potentially detected language
-        }
+            saveData();
+         }
         
         function setupLanguageChoices() {
             const languageDisplayNames = { 
                 'ar': 'العربية', 'de': 'Deutsch', 'en': 'English', 'es': 'Español', 'fr': 'Français', 'hi-IN': 'हिन्दी', 'it': 'Italiano', 'ja': '日本語', 'ko': '한국어', 'pt-BR': 'Português', 'ru': 'Русский', 'zh-CN': '中文' 
             };
-            languageSelect.innerHTML = '';
+            if (!languageSelect) return;
+             languageSelect.innerHTML = '';
             
-            // Reference to container is only needed if it exists, otherwise skip
             const languageButtonsContainerRef = document.getElementById('languageButtonsContainer');
             if (languageButtonsContainerRef) {
                 languageButtonsContainerRef.innerHTML = '';
-            }
+             }
 
             const sortedLanguages = Object.entries(languageDisplayNames).sort(([, nameA], [, nameB]) => nameA.localeCompare(nameB));
             sortedLanguages.forEach(([code, name]) => {
@@ -1571,7 +1660,6 @@
                 option.value = code; option.textContent = name;
                 languageSelect.appendChild(option);
 
-                // Only try to add buttons if the container exists
                 if (languageButtonsContainerRef) {
                     const button = document.createElement('button');
                     button.textContent = name; button.dataset.lang = code;
@@ -1590,7 +1678,7 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             setupLanguageChoices();
-            initializeApp(); // Initialize directly, loadData inside handles language detection if needed
+            initializeApp();
 
             startPauseButton.addEventListener('click', () => {
                 if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
@@ -1637,8 +1725,8 @@
                 longBreakTimeInput.value = appData.settings.longBreakTime;
                 soundToggle.checked = appData.settings.soundEnabled;
                 themeToggle.checked = appData.settings.theme === 'black';
-                languageSelect.value = appData.settings.language;
-                settingsModal.classList.add('show');
+                 if (languageSelect) languageSelect.value = appData.settings.language;
+                 settingsModal.classList.add('show');
             });
 
             helpButton.addEventListener('click', () => {
@@ -1673,14 +1761,14 @@
                 const newStudyTime = parseInt(studyTimeInput.value) || appData.settings.studyTime;
                 const newShortBreakTime = parseInt(shortBreakTimeInput.value) || appData.settings.shortBreakTime;
                 const newLongBreakTime = parseInt(longBreakTimeInput.value) || appData.settings.longBreakTime;
-                const newLang = languageSelect.value;
-                const soundEnabled = soundToggle.checked;
+                 const newLang = languageSelect ? languageSelect.value : appData.settings.language;
+                 const soundEnabled = soundToggle.checked;
                 const newTheme = themeToggle.checked ? 'black' : 'slate';
                 const oldLang = appData.settings.language;
 
-                appData.settings.studyTime = newStudyTime;
-                appData.settings.shortBreakTime = newShortBreakTime;
-                appData.settings.longBreakTime = newLongBreakTime;
+                appData.settings.studyTime = newStudyTime > 0 ? newStudyTime : 1;
+                 appData.settings.shortBreakTime = newShortBreakTime > 0 ? newShortBreakTime : 1;
+                 appData.settings.longBreakTime = newLongBreakTime > 0 ? newLongBreakTime : 1;
                 appData.settings.language = newLang;
                 appData.settings.soundEnabled = soundEnabled;
                 appData.settings.theme = newTheme;
@@ -1697,8 +1785,17 @@
                     timerWorker.postMessage({ command: 'updateSettings', settings: appData.settings });
                 }
                 if (!appData.timerState.isRunning) {
-                    resetCurrentTimer();
-                }
+                     let needsReset = false;
+                     if (appData.timerState.currentMode === 'study' && appData.timerState.timeLeft !== appData.settings.studyTime * 60) needsReset = true;
+                     if (appData.timerState.currentMode === 'shortBreak' && appData.timerState.timeLeft !== appData.settings.shortBreakTime * 60) needsReset = true;
+                     if (appData.timerState.currentMode === 'longBreak' && appData.timerState.timeLeft !== appData.settings.longBreakTime * 60) needsReset = true;
+                     if (needsReset) {
+                         resetCurrentTimer();
+                     } else {
+                        updateTimerDisplay();
+                     }
+                 }
+
 
                 saveData();
                 settingsModal.classList.remove('show');
@@ -1711,7 +1808,7 @@
                     if (tabContentEl.classList.contains('collapsed')) {
                         tabContentEl.classList.remove('collapsed');
                         appData.uiState.tabsCollapsed = false;
-                        collapseIcon.className = 'fas fa-chevron-up';
+                         if(collapseIcon) collapseIcon.className = 'fas fa-chevron-up';
                         setTabStyling(false);
                     }
                     if (activeTabId !== targetTab) {
@@ -1725,11 +1822,12 @@
                 appData.uiState.tabsCollapsed = !isCollapsed;
                 if (isCollapsed) {
                     tabContentEl.classList.remove('collapsed');
-                    collapseIcon.className = 'fas fa-chevron-up';
+                     if(collapseIcon) collapseIcon.className = 'fas fa-chevron-up';
                     setTabStyling(false);
-                } else {
+                     showTab(activeTabId || 'stats');
+                 } else {
                     tabContentEl.classList.add('collapsed');
-                    collapseIcon.className = 'fas fa-chevron-down';
+                     if(collapseIcon) collapseIcon.className = 'fas fa-chevron-down';
                     setTabStyling(true);
                 }
                 saveData();
@@ -1739,30 +1837,34 @@
 
             cancelGoalButton.addEventListener('click', () => {
                 const isGoalEverSet = Object.values(appData.dailyGoal.settings).some(v => Array.isArray(v) ? v.some(n => n > 0) : v > 0);
-                if (isGoalEverSet) {
-                    showGoalEditView(false);
+                if (isGoalEverSet && appData.dailyGoal.target > 0) {
+                     showGoalEditView(false);
                 } else {
-                    showTab('stats');
-                }
+                     showTab('stats');
+                 }
             });
 
             saveGoalButton.addEventListener('click', () => {
                 const settings = appData.dailyGoal.settings;
-                settings.mode = document.querySelector('input[name="goalMode"]:checked').value;
+                 const modeRadio = document.querySelector('input[name="goalMode"]:checked');
+                 settings.mode = modeRadio ? modeRadio.value : 'all_days';
 
                 settings.targetAll = parseInt(document.getElementById('goalValueInputAll').value) || 0;
                 settings.targetWeekday = parseInt(document.getElementById('goalValueInputWeekday').value) || 0;
                 settings.targetWeekend = parseInt(document.getElementById('goalValueInputWeekend').value) || 0;
 
-                document.querySelectorAll('#goalInputsCustom input').forEach(input => {
+                 settings.targetsCustom = settings.targetsCustom || [0, 0, 0, 0, 0, 0, 0];
+                 document.querySelectorAll('#goalInputsCustom input').forEach(input => {
                     const dayIndex = parseInt(input.dataset.dayIndex);
-                    let val = parseInt(input.value);
-                    settings.targetsCustom[dayIndex] = isNaN(val) ? 0 : val;
-                });
+                     let val = parseInt(input.value);
+                     if (dayIndex >= 0 && dayIndex < 7) {
+                         settings.targetsCustom[dayIndex] = isNaN(val) || val < 0 ? 0 : val;
+                     }
+                 });
 
                 const studyTime = appData.settings.studyTime;
                 const maxMinutes = 24 * 60;
-                const allTargets = [settings.targetAll, settings.targetWeekday, settings.targetWeekend, ...settings.targetsCustom];
+                const allTargets = [settings.targetAll, settings.targetWeekday, settings.targetWeekend, ...(settings.targetsCustom || [])];
                 if (allTargets.some(target => target > 0 && (target * studyTime) > maxMinutes)) {
                     showToast(getText('toast_goal_too_long_title', 'Error'), getText('toast_goal_too_long_body', 'Goal exceeds 24 hours.'), 'error', 5000);
                     return;
@@ -1790,15 +1892,11 @@
                             throw new Error("Invalid backup file structure.");
                         }
 
-                        if (importedData.stats && importedData.stats.general &&
-                            (!importedData.stats.general.totalFocusSessions || importedData.stats.general.totalFocusSessions === 0) &&
-                            importedData.stats.general.totalCyclesCompleted > 0) {
-                            importedData.stats.general.totalFocusSessions = importedData.stats.general.totalCyclesCompleted * POMODOROS_PER_CYCLE;
-                        }
+                         importedData = mergeDeep(JSON.parse(JSON.stringify(getDefaultAppData())), importedData);
+                         importedData = sanitizeLoadedData(importedData);
+                         const lang = importedData.settings.language || 'en';
+                         importedData.achievements = buildAchievements(lang, importedData.achievements || []);
 
-                        if (!importedData.achievements) {
-                            importedData.achievements = [];
-                        }
 
                         showCustomAlert(
                             getText("alert_import_title", "Import?"),
@@ -1807,7 +1905,7 @@
                             getText("confirm_button", "Confirm"),
                             getText("cancel_button", "Cancel"),
                             () => {
-                                localStorage.setItem(STORAGE_KEY, importedFileContent);
+                                 localStorage.setItem(STORAGE_KEY, JSON.stringify(importedData));
                                 blockUnloadSave = true;
                                 settingsModal.classList.remove('show');
                                 showToast(getText('toast_import_success_title', 'Success'), getText('toast_import_success_body', 'Importing...'), 'info', 2000);
@@ -1816,24 +1914,24 @@
                                 }, 500);
                             },
                             () => { event.target.value = ''; }
-                        );
+                         );
                     } catch (error) {
                         console.error("Import Error: ", error);
                         showToast(getText('toast_import_error_title', 'Error'), getText('toast_import_error_body', 'Invalid file.'), 'error');
                         event.target.value = '';
-                    }
+                     }
                 };
                 reader.onerror = () => {
                     showToast(getText('toast_import_error_title', 'Error'), 'Could not read the selected file.', 'error');
                     event.target.value = '';
-                };
+                 };
                 reader.readAsText(file);
             });
 
             exportDataButton.addEventListener('click', () => {
                 try {
                     archiveGoalProgress();
-                    saveData();
+                     saveData();
 
                     const dataToExport = localStorage.getItem(STORAGE_KEY);
                     if (!dataToExport) {
@@ -1841,8 +1939,8 @@
                         return;
                     }
 
-                    const blob = new Blob([dataToExport], { type: 'application/json' });
-                    const url = URL.createObjectURL(blob);
+                    const blob = new Blob([dataToExport], { type: 'application/json;charset=utf-8' });
+                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     const dateStr = new Date().toISOString().slice(0, 10);
                     a.href = url;
@@ -1860,21 +1958,28 @@
 
 
             customAlertConfirmButton.addEventListener('click', () => {
-                if (typeof currentConfirmCallback === 'function') currentConfirmCallback();
+                if (typeof currentConfirmCallback === 'function') {
+                    try { currentConfirmCallback(); } catch(e) { console.error("Error in confirm callback:", e); }
+                 }
                 customAlertModal.classList.remove('show');
                 currentConfirmCallback = null; currentCancelCallback = null;
             });
             customAlertCancelButton.addEventListener('click', () => {
-                if (typeof currentCancelCallback === 'function') currentCancelCallback();
+                if (typeof currentCancelCallback === 'function') {
+                     try { currentCancelCallback(); } catch(e) { console.error("Error in cancel callback:", e); }
+                 }
                 customAlertModal.classList.remove('show');
                 currentConfirmCallback = null; currentCancelCallback = null;
             });
 
             document.querySelectorAll('input[name="goalMode"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
-                    document.getElementById('goalInputsAllDays').classList.toggle('hidden', e.target.value !== 'all_days');
-                    document.getElementById('goalInputsWeekend').classList.toggle('hidden', e.target.value !== 'weekend');
-                    document.getElementById('goalInputsCustom').classList.toggle('hidden', e.target.value !== 'custom');
+                     const allDaysEl = document.getElementById('goalInputsAllDays');
+                     const weekendEl = document.getElementById('goalInputsWeekend');
+                     const customEl = document.getElementById('goalInputsCustom');
+                     if (allDaysEl) allDaysEl.classList.toggle('hidden', e.target.value !== 'all_days');
+                     if (weekendEl) weekendEl.classList.toggle('hidden', e.target.value !== 'weekend');
+                     if (customEl) customEl.classList.toggle('hidden', e.target.value !== 'custom');
                     validateGoalInputs();
                 });
             });
@@ -1888,4 +1993,3 @@
     </script>
 </body>
 </html>
-
