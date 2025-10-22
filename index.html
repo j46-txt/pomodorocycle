@@ -73,8 +73,8 @@
         .cycle-dot { width: 0.75rem; height: 0.75rem; border-radius: 9999px; transition: all 0.3s ease; }
         @media (max-width: 639px) {
             #tabContent { height: 20rem; }
-            .tab-button { flex-direction: column; padding-top: 0.5rem; padding-bottom: 0.5rem; font-size: 0.75rem; line-height: 1.2; min-height: 58px; }
-            .tab-button i { margin-right: 0; margin-bottom: 0.25rem; font-size: 1rem; }
+            .tab-button { /* REMOVIDO: flex-direction: column; */ padding-top: 0.5rem; padding-bottom: 0.5rem; font-size: 0.75rem; line-height: 1.2; min-height: 58px; gap: 0.25rem; /* Adicionado gap */ flex-wrap: wrap; /* Permite quebrar linha se necessário */ }
+            .tab-button i { margin-right: 0; /* REMOVIDO: margin-bottom: 0.25rem; */ font-size: 1rem; }
             .stats-grid-container { gap: 1rem; }
             #statsContent h4 { font-size: 1rem; }
             .stats-text-size { font-size: 0.875rem; }
@@ -110,7 +110,8 @@
         [dir="rtl"] #goalTextWrapper { direction: rtl; }
         [dir="rtl"] .goal-mode-selector label:not(:last-child) { border-left: 1px solid #475569; border-right: none; }
         [dir="rtl"] #goalText i { margin-left: 0.5rem; margin-right: 0; }
-        @media (max-width: 639px) { [dir="rtl"] .tab-button i { margin-left: 0; margin-bottom: 0.25rem; } }
+        /* Ajuste para RTL no mobile */
+        @media (max-width: 639px) { [dir="rtl"] .tab-button i { margin-left: 0; /* REMOVIDO: margin-bottom: 0.25rem; */ } }
 
         body.theme-black { background-color: #000; }
 		body.theme-black::selection { background-color: #fff; color: #000; }
@@ -545,7 +546,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "4"
+                appVersion: "4.0.0"
             };
         }
 
@@ -558,26 +559,30 @@
         }
         
         function getDetectedLanguage() {
-            const browserLang = navigator.language || navigator.userLanguage;
+            const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
             const availableLangs = new Set(Object.keys(translations));
 
-            if (availableLangs.has(browserLang)) {
+            if (availableLangs.has(browserLang)) { // ex: pt-br -> pt-BR
                 return browserLang;
             }
 
+             // Handle variations like pt-PT, pt-AO -> pt-BR
             if (browserLang.startsWith('pt')) {
-                return 'pt-BR';
+                 return 'pt-BR';
             }
 
+            // Handle variations like en-GB, en-US -> en
             if (browserLang.startsWith('en')) {
                 return 'en';
             }
-            
+
+            // Handle variations like es-ES, es-MX -> es
             const baseLang = browserLang.split('-')[0];
             if (availableLangs.has(baseLang)) {
                 return baseLang;
             }
 
+            // Default fallback
             return 'en';
         }
         
@@ -724,6 +729,8 @@
         function loadData() {
             const storedData = localStorage.getItem(STORAGE_KEY);
             const defaultData = getDefaultAppData();
+            let isFirstVisit = !storedData;
+
             if (storedData) {
                 try {
                     const parsedData = JSON.parse(storedData);
@@ -737,12 +744,20 @@
                     appData.achievements = buildAchievements(lang, parsedData.achievements || []);
                 } catch (e) {
                     appData = getDefaultAppData();
+                    isFirstVisit = true; 
                     appData.achievements = buildAchievements(appData.settings.language);
                 }
             } else {
                 appData = defaultData;
+                isFirstVisit = true;
                 appData.achievements = buildAchievements(appData.settings.language);
             }
+
+            if (isFirstVisit) {
+                const detectedLang = getDetectedLanguage();
+                appData.settings.language = detectedLang;
+            }
+
             if (appData.stats.daily.date !== getTodayDateString()) {
                 archiveGoalProgress();
                 resetDailyStats();
@@ -1535,6 +1550,7 @@
             renderAllDynamicContent();
             updateNotificationBadges();
             startMidnightChecker();
+            saveData(); // Save initial state including potentially detected language
         }
         
         function setupLanguageChoices() {
@@ -1543,6 +1559,7 @@
             };
             languageSelect.innerHTML = '';
             
+            // Reference to container is only needed if it exists, otherwise skip
             const languageButtonsContainerRef = document.getElementById('languageButtonsContainer');
             if (languageButtonsContainerRef) {
                 languageButtonsContainerRef.innerHTML = '';
@@ -1554,6 +1571,7 @@
                 option.value = code; option.textContent = name;
                 languageSelect.appendChild(option);
 
+                // Only try to add buttons if the container exists
                 if (languageButtonsContainerRef) {
                     const button = document.createElement('button');
                     button.textContent = name; button.dataset.lang = code;
@@ -1572,22 +1590,7 @@
         
         document.addEventListener('DOMContentLoaded', () => {
             setupLanguageChoices();
-            const storedData = localStorage.getItem(STORAGE_KEY);
-            if (storedData) {
-                try {
-                    const preloadedData = JSON.parse(storedData);
-                } catch (e) {
-                    console.error("Error parsing preloaded data:", e);
-                }
-            }
-
-            if (!localStorage.getItem(STORAGE_KEY)) {
-                const detectedLang = getDetectedLanguage();
-                appData.settings.language = detectedLang; 
-                initializeApp();
-            } else {
-                initializeApp();
-            }
+            initializeApp(); // Initialize directly, loadData inside handles language detection if needed
 
             startPauseButton.addEventListener('click', () => {
                 if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') {
