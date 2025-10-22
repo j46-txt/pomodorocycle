@@ -176,16 +176,6 @@
 </head>
 <body class="bg-slate-900 text-white flex flex-col items-center min-h-screen p-4 selection:bg-sky-400 selection:text-sky-900">
 
-    <div id="languageModal" class="modal fixed inset-0 bg-slate-900 bg-opacity-95 items-center justify-center p-4 z-[200]">
-        <div class="bg-slate-800 p-8 rounded-2xl shadow-2xl w-full max-w-lg text-center">
-            <h2 class="text-2xl font-bold mb-2 text-sky-300">Select Your Language</h2>
-            <p class="text-slate-400 mb-6">Choose your preferred language to continue.</p>
-            <div id="languageButtonsContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            </div>
-            <p class="text-xs text-slate-500 mt-6"><i class="fas fa-info-circle fa-fw mr-1.5 opacity-70"></i>You can change this choice later in the settings.</p>
-        </div>
-    </div>
-
     <div id="app-container" class="w-full hidden">
         <div class="w-full max-w-3xl mx-auto bg-slate-800 shadow-2xl rounded-lg p-4 sm:p-6 relative mt-4 mb-4">
             <div class="absolute top-4 sm:top-6 left-4 sm:left-6 z-10">
@@ -555,7 +545,7 @@
                 },
                 achievements: [],
                 uiState: { newAchievementsCount: 0, tabsCollapsed: false },
-                appVersion: "4.0.0"
+                appVersion: "4"
             };
         }
 
@@ -565,6 +555,30 @@
             synth = new Tone.Synth().toDestination();
         } else {
             console.warn("Tone.js not loaded. Sound effects will be disabled.");
+        }
+        
+        function getDetectedLanguage() {
+            const browserLang = navigator.language || navigator.userLanguage;
+            const availableLangs = new Set(Object.keys(translations));
+
+            if (availableLangs.has(browserLang)) {
+                return browserLang;
+            }
+
+            if (browserLang.startsWith('pt')) {
+                return 'pt-BR';
+            }
+
+            if (browserLang.startsWith('en')) {
+                return 'en';
+            }
+            
+            const baseLang = browserLang.split('-')[0];
+            if (availableLangs.has(baseLang)) {
+                return baseLang;
+            }
+
+            return 'en';
         }
         
         function playSound(note = 'C4', duration = '8n', type = 'timerComplete') {
@@ -1528,28 +1542,23 @@
                 'ar': 'العربية', 'de': 'Deutsch', 'en': 'English', 'es': 'Español', 'fr': 'Français', 'hi-IN': 'हिन्दी', 'it': 'Italiano', 'ja': '日本語', 'ko': '한국어', 'pt-BR': 'Português', 'ru': 'Русский', 'zh-CN': '中文' 
             };
             languageSelect.innerHTML = '';
-            languageButtonsContainer.innerHTML = '';
+            
+            const languageButtonsContainerRef = document.getElementById('languageButtonsContainer');
+            if (languageButtonsContainerRef) {
+                languageButtonsContainerRef.innerHTML = '';
+            }
+
             const sortedLanguages = Object.entries(languageDisplayNames).sort(([, nameA], [, nameB]) => nameA.localeCompare(nameB));
             sortedLanguages.forEach(([code, name]) => {
                 const option = document.createElement('option');
                 option.value = code; option.textContent = name;
                 languageSelect.appendChild(option);
-                const button = document.createElement('button');
-                button.textContent = name; button.dataset.lang = code;
-                button.className = "w-full px-4 py-3 bg-slate-700 hover:bg-sky-500 rounded-lg transition-colors font-semibold text-sm";
-                languageButtonsContainer.appendChild(button);
-            });
-        }
-        
-        function handleFirstVisit() {
-            languageModal.classList.add('show');
-            languageButtonsContainer.addEventListener('click', (e) => {
-                if (e.target.tagName === 'BUTTON' && e.target.dataset.lang) {
-                    const selectedLang = e.target.dataset.lang;
-                    appData.settings.language = selectedLang;
-                    saveData();
-                    languageModal.classList.remove('show');
-                    initializeApp();
+
+                if (languageButtonsContainerRef) {
+                    const button = document.createElement('button');
+                    button.textContent = name; button.dataset.lang = code;
+                    button.className = "w-full px-4 py-3 bg-slate-700 hover:bg-sky-500 rounded-lg transition-colors font-semibold text-sm";
+                    languageButtonsContainerRef.appendChild(button);
                 }
             });
         }
@@ -1573,7 +1582,9 @@
             }
 
             if (!localStorage.getItem(STORAGE_KEY)) {
-                handleFirstVisit();
+                const detectedLang = getDetectedLanguage();
+                appData.settings.language = detectedLang; 
+                initializeApp();
             } else {
                 initializeApp();
             }
@@ -1874,3 +1885,4 @@
     </script>
 </body>
 </html>
+
