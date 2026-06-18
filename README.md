@@ -6,7 +6,7 @@ It combines a configurable Pomodoro timer, a stopwatch and local study statistic
 
 > You can try it here: [pomodoro-cycle.netlify.app](https://pomodoro-cycle.netlify.app/)
 
-# Features
+## Features
 
 * Configurable Pomodoro timer
 * Stopwatch mode
@@ -18,7 +18,7 @@ It combines a configurable Pomodoro timer, a stopwatch and local study statistic
 * Responsive interface
 * Multilingual support
 
-# Technology
+## Technology
 
 * HTML5
 * CSS3
@@ -27,7 +27,7 @@ It combines a configurable Pomodoro timer, a stopwatch and local study statistic
 * Chart.js
 * Tone.js
 
-# About
+## About
 
 PomodoroCycle was developed as a personal project to explore front-end development while building a practical tool for everyday study sessions.
 
