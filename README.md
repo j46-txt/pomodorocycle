@@ -9,11 +9,15 @@ It combines a configurable Pomodoro timer and study statistics in a simple inter
 ## Features
 
 * Configurable Pomodoro timer
-* Automatic study time tracking
-* Daily and cumulative statistics
+* Sound alerts and notifications
+* Session tracker
+* Skipable breaks
+* Statistics dashboard
+* Daily goals
+* Progress chart
+* Achievements
 * Data export and import
 * Local browser storage
-* Offline support
 * Multilingual support
 
 ## Technology
@@ -29,4 +33,4 @@ It combines a configurable Pomodoro timer and study statistics in a simple inter
 
 PomodoroCycle was developed as a personal project to explore front-end development while building a practical tool for everyday study sessions.
 
-The project emphasizes simplicity, local-first data storage and an interface that remains lightweight and distraction-free, allowing users to focus on studying instead of managing the application.
+The project emphasizes simplicity, local-first data storage and a lightweight and gamified interface, in addition to features that allow complete control over the timer.
