@@ -9,13 +9,11 @@ It combines a configurable Pomodoro timer and study statistics in a simple inter
 ## Features
 
 * Configurable Pomodoro timer
-* Stopwatch mode
 * Automatic study time tracking
-* Weekly and cumulative statistics
+* Daily and cumulative statistics
 * Data export and import
 * Local browser storage
 * Offline support
-* Responsive interface
 * Multilingual support
 
 ## Technology
