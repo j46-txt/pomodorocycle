@@ -2,7 +2,7 @@
 
 PomodoroCycle is a lightweight web-based study timer built with HTML, CSS and vanilla JavaScript. 
 
-It combines a configurable Pomodoro timer, a stopwatch and local study statistics in a simple interface, with all data stored locally in the browser. The application works entirely offline and requires no account or external services.
+It combines a configurable Pomodoro timer and study statistics in a simple interface, with all data stored locally in the browser. The application works entirely offline and requires no account or external services.
 
 > You can try it here: [pomodoro-cycle.netlify.app](https://pomodoro-cycle.netlify.app/)
 
